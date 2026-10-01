@@ -24,6 +24,15 @@ addLesson({
     { sentence: '저___ 학생이에요.', blank: '는', hint: 'Shown on request or after a miss', type: 'Particle' },
   ],
 
+  // Free-response items for the Practice Test tab (self-checked against model answers).
+  // type: 'you' (answer about yourself) · 'info' (answer from info) · 'question' (write the question for answer q).
+  answer: [
+    { type: 'you', q: '이름이 뭐예요?', en: 'What is your name?', model: ['저는 ___이에요/예요.'], check: ['optional checklist'] },
+  ],
+  shortAnswer: [
+    { q: 'Prompt in English', info: 'optional info line', model: ['Model sentence 1.', 'Model sentence 2.'], check: [] },
+  ],
+
   // Grammar cards. html uses classes: grammar-body, ko, example-box (with <b>), rule-table.
   grammar: [
     { id: 'GN.1', tag: 'Lesson N', title: 'Title with <em>highlight</em>', html: '<div class="grammar-body">…</div>' },

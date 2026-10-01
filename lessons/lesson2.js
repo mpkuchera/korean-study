@@ -122,6 +122,37 @@ addLesson({
     { sentence: '___ 뭐 해요? (now)', blank: '지금', hint: 'now', type: 'Vocab' },
   ],
 
+  answer: [
+    { type: 'you', q: '한국어 수업이 어때요?', en: 'How is Korean class?', model: ['재미있어요.', '아주 재미있어요. 그리고 숙제가 많아요.'] },
+    { type: 'you', q: '학교 식당 음식이 어때요?', en: 'How is the cafeteria food?', model: ['맛있어요. 그리고 싸요.', '괜찮아요.', '맛없어요.'] },
+    { type: 'you', q: '요즘 어떻게 지내요?', en: 'How are you doing these days?', model: ['잘 지내요.'] },
+    { type: 'you', q: '지금 뭐 해요?', en: 'What are you doing now?', model: ['한국어를 공부해요.', '숙제를 해요.'], check: ['Object + 을/를 + verb'] },
+    { type: 'you', q: '숙제가 많아요?', en: 'Is there a lot of homework?', model: ['네, 숙제가 많아요.'] },
+    { type: 'you', q: '도서관이 어때요?', en: 'How is the library?', model: ['커요. 그리고 넓어요.', '아주 좋아요.'] },
+    { type: 'you', q: '오늘 뭐 해요?', en: 'What are you doing today?', model: ['오늘 한국어 시험을 봐요.'] },
+    { type: 'info', info: '리사 is eating breakfast.', q: '리사 씨, 지금 뭐 해요?', model: ['아침을 먹어요.'] },
+    { type: 'info', info: '유미 is watching TV.', q: '유미 씨, 지금 뭐 해요?', model: ['텔레비전을 봐요.'] },
+    { type: 'info', info: '스티브 is meeting a friend.', q: '스티브 씨, 지금 뭐 해요?', model: ['친구를 만나요.'] },
+    { type: 'info', info: '소피아: Korean test today, Korean history test tomorrow.', q: '소피아 씨, 오늘 뭐 해요?', model: ['오늘 한국어 시험을 봐요. 그리고 내일은 한국 역사 시험을 봐요.'] },
+    { type: 'info', info: 'The coffee is delicious and cheap.', q: '커피가 어때요?', model: ['맛있어요. 그리고 싸요.'] },
+    { type: 'question', q: '잘 지내요.', model: ['요즘 어떻게 지내요?'] },
+    { type: 'question', q: '아주 재미있어요.', model: ['한국어 수업이 어때요?'], check: ['Any “N이/가 어때요?” works'] },
+    { type: 'question', q: '한국어를 공부해요.', model: ['지금 뭐 해요?'] },
+    { type: 'question', q: '맛있어요. 그리고 싸요.', model: ['학교 식당 음식이 어때요?'], check: ['Any food/drink + 이/가 어때요?'] },
+  ],
+
+  shortAnswer: [
+    { q: 'Write 3–4 sentences about your Korean class and school (class, homework, food, library). Use 그리고 at least once.',
+      model: ['한국어 수업이 아주 재미있어요.', '그리고 친구들도 좋아요.', '숙제가 많아요.', '학교 식당 음식이 맛있어요. 그리고 싸요.'],
+      check: ['Subject + 이/가 + adjective', '-어요/아요 chosen by the stem vowel', '그리고 starts the second sentence'] },
+    { q: 'Write a short dialogue (4–6 lines): two classmates ask how each other is doing and what they are doing now.',
+      model: ['A: 리사 씨, 요즘 어떻게 지내요?', 'B: 잘 지내요. 소피아 씨는 어떻게 지내요?', 'A: 저도 잘 지내요.', 'B: 지금 뭐 해요?', 'A: 한국어를 공부해요. 오늘 한국어 시험을 봐요.'],
+      check: ['저도 = me too', '하다 → 해요, 보다 → 봐요'] },
+    { q: 'Describe what each person is doing in one sentence each.', info: '리사: breakfast · 유미: TV · 소피아: homework · 스티브: friend',
+      model: ['리사가 아침을 먹어요.', '유미가 텔레비전을 봐요.', '소피아가 숙제를 해요.', '스티브가 친구를 만나요.'],
+      check: ['을 after consonant (아침을, 텔레비전을), 를 after vowel (숙제를, 친구를)'] },
+  ],
+
   grammar: [
     {
       id: 'G2.1', tag: 'Lesson 2', title: 'Subject particle: <em>이/가</em>',

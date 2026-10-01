@@ -109,6 +109,38 @@ addLesson({
     { sentence: '유미 ___, 1학년이에요?', blank: '씨', hint: 'courtesy title after a name', type: 'Vocab' },
   ],
 
+  // Free response, self-checked against model answers (Practice Test tab).
+  // type: 'you' = answer about yourself · 'info' = answer from the given info · 'question' = write the question for answer q.
+  answer: [
+    { type: 'you', q: '이름이 뭐예요?', en: 'What is your name?', model: ['저는 ___이에요/예요.', 'e.g. 저는 스티브 윌슨이에요. / 저는 김유미예요.'], check: ['이에요 after a consonant, 예요 after a vowel'] },
+    { type: 'you', q: '한국 사람이에요?', en: 'Are you Korean?', model: ['아니요, 한국 사람이 아니에요. 미국 사람이에요.'], check: ['아니요 + N이/가 아니에요', 'Then say what you are'] },
+    { type: 'you', q: '중국 사람이에요?', en: 'Are you Chinese?', model: ['아니요, 중국 사람이 아니에요. 미국 사람이에요.'] },
+    { type: 'you', q: '대학생이에요?', en: 'Are you a college student?', model: ['네, 대학생이에요.', '아니요, 대학생이 아니에요.'] },
+    { type: 'you', q: '1학년이에요?', en: 'Are you a freshman?', model: ['네, 1학년이에요.', '아니요, 1학년이 아니에요. ___학년이에요.'] },
+    { type: 'info', info: '소피아: 한국 사람 (X), 중국 사람 (O)', q: '소피아 씨는 한국 사람이에요?', model: ['아니요, 한국 사람이 아니에요. 중국 사람이에요.'] },
+    { type: 'info', info: '스티브: 미국 사람 (O), 3학년 (O)', q: '스티브 씨, 1학년이에요?', model: ['아니요, 1학년이 아니에요. 3학년이에요.'] },
+    { type: 'info', info: '유미: 한국 사람 (O), 1학년 (O)', q: '유미 씨는 한국 사람이에요?', model: ['네, 한국 사람이에요.'] },
+    { type: 'info', info: '마이클: 일본 사람 (X), 미국 사람 (O), 대학생 (O)', q: '마이클 씨는 일본 사람이에요?', model: ['아니요, 일본 사람이 아니에요. 미국 사람이에요.'] },
+    { type: 'info', info: '이민수 선생님: 한국 사람 (O), 한국어 선생님 (O)', q: '이민수 선생님은 영어 선생님이에요?', model: ['아니요, 영어 선생님이 아니에요. 한국어 선생님이에요.'] },
+    { type: 'question', q: '마이클 정이에요.', model: ['이름이 뭐예요?'] },
+    { type: 'question', q: '아니요, 저는 3학년이에요.', model: ['2학년이에요? (or 1학년 / 4학년이에요?)'], check: ['Any year except 3학년 works'] },
+    { type: 'question', q: '네, 일본 사람이에요.', model: ['일본 사람이에요?'] },
+    { type: 'question', q: '아니요, K101은 한국어 클래스예요.', model: ['K101은 영어 클래스예요? (or 중국어/일본어 클래스예요?)'] },
+    { type: 'question', q: '네, 반갑습니다.', model: ['안녕하세요? 저는 ___이에요/예요. 반갑습니다.'], note: 'Any greeting + self-introduction works here.' },
+  ],
+
+  shortAnswer: [
+    { q: 'Introduce yourself in 3–4 sentences: greeting, name, nationality, and what you are (student, year, etc.).',
+      model: ['안녕하세요? 저는 ___이에요/예요.', '미국 사람이에요. 한국 사람이 아니에요.', '저는 한국어 클래스 학생이에요.', '반갑습니다.'],
+      check: ['저는 (topic) — not 저가', '이에요 vs 예요 matches the last letter', 'Negative: N이/가 아니에요'] },
+    { q: 'Write three sentences about 마이클. Use both N이에요/예요 and N이/가 아니에요.', info: 'Information: 일본 사람 (X), 미국 사람 (O), 대학생 (O)',
+      model: ['마이클은 일본 사람이 아니에요.', '미국 사람이에요.', '마이클은 대학생이에요.'], check: ['마이클 ends in ㄹ → 은', '사람 ends in a consonant → 이 아니에요'] },
+    { q: 'Write three sentences about 소피아. Use both N이에요/예요 and N이/가 아니에요.', info: 'Information: 한국 사람 (X), 중국 사람 (O), 1학년 (O)',
+      model: ['소피아는 한국 사람이 아니에요.', '중국 사람이에요.', '소피아는 1학년이에요.'], check: ['소피아 ends in a vowel → 는'] },
+    { q: 'Write two sentences about each person using 은/는, 도, and 이에요/아니에요.', info: 'Ellen: Japanese, college student · Bill: junior, not American',
+      model: ['엘렌은 일본 사람이에요. 엘렌은 대학생이에요.', '빌은 3학년이에요. 빌은 미국 사람이 아니에요.'], check: ['If two people share something, use 도: 빌도 대학생이에요.'] },
+  ],
+
   grammar: [
     {
       id: 'G1.1', tag: 'Lesson 1', title: 'Equational expression: N1<em>은/는</em> N2<em>이에요/예요</em>',
