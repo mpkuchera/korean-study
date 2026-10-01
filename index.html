@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Korean Study Kit</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇰🇷</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <h1>🇰🇷 Beginning Korean Study Kit</h1>
+  <p id="subtitle"></p>
+</header>
+
+<div class="lesson-bar" id="lessonBar"></div>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="vocab">📖 Vocab</button>
+  <button class="tab" data-tab="flash">🃏 Flashcards</button>
+  <button class="tab" data-tab="quiz">✏️ Quiz Me</button>
+  <button class="tab" data-tab="fill">📝 Fill-in &amp; Spell</button>
+  <button class="tab" data-tab="grammar">📐 Grammar</button>
+  <button class="tab" data-tab="reference">🔢 Reference</button>
+</nav>
+
+<main class="content">
+
+  <section class="section active" id="vocab">
+    <div class="tip"><strong>Study tip:</strong> Turn on “Hide English” and test yourself — tap a card to check. 🔊 plays your device's Korean voice.</div>
+    <div class="toolbar">
+      <button class="btn btn-outline btn-small" id="hideEnBtn">🙈 Hide English</button>
+    </div>
+    <div id="vocabBody"></div>
+  </section>
+
+  <section class="section" id="flash">
+    <div class="toolbar" style="justify-content:center">
+      <button class="btn btn-outline btn-small on" data-dir="ko">Korean → English</button>
+      <button class="btn btn-outline btn-small" data-dir="en">English → Korean</button>
+    </div>
+    <div class="flash-wrap">
+      <div class="flash-inner" id="flashInner">
+        <div class="flash-face flash-front">
+          <div class="flash-main" id="fFront">—</div>
+          <div class="flash-pos" id="fPos">—</div>
+          <div class="flash-note">tap to reveal</div>
+        </div>
+        <div class="flash-face flash-back">
+          <div class="flash-main" id="fBack">—</div>
+          <div class="flash-note" id="fNote"></div>
+        </div>
+      </div>
+    </div>
+    <div class="flash-progress" id="flashProg"></div>
+    <div class="flash-controls">
+      <button class="btn btn-outline" id="prevBtn">← Prev</button>
+      <button class="btn btn-green" id="flipBtn">Flip</button>
+      <button class="btn btn-outline" id="nextBtn">Next →</button>
+    </div>
+    <div class="flash-controls" style="margin-top:8px">
+      <button class="btn btn-outline" id="shuffleBtn">🔀 Shuffle</button>
+      <button class="btn btn-outline" id="resetBtn">↺ In order</button>
+      <button class="btn btn-outline" id="speakBtn">🔊 Hear it</button>
+    </div>
+    <div class="kbd-hint">Keyboard: space = flip · ← → = prev/next</div>
+  </section>
+
+  <section class="section" id="quiz"><div id="quizBody"></div></section>
+
+  <section class="section" id="fill"><div id="fillBody"></div></section>
+
+  <section class="section" id="grammar"><div id="grammarBody"></div></section>
+
+  <section class="section" id="reference"><div id="referenceBody"></div></section>
+
+</main>
+
+<footer>Personal study notes for SIL-125 · based on <em>Integrated Korean: Beginning 1</em> (3rd ed.)</footer>
+
+<script src="app.js"></script>
+<!-- One file per lesson. To add a lesson, copy lessons/_template.js and add a script tag here. -->
+<script src="lessons/lesson1.js"></script>
+<script src="lessons/lesson2.js"></script>
+</body>
+</html>
