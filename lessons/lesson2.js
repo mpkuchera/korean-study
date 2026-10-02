@@ -89,6 +89,12 @@ addLesson({
     { q: 'Order these: yesterday · today · tomorrow', opts: ['어제 · 오늘 · 내일', '내일 · 오늘 · 어제', '오늘 · 어제 · 내일', '어제 · 내일 · 오늘'], ans: 0 },
     { q: 'The opposite of 맛있어요 is:', opts: ['맛없어요', '재미없어요', '괜찮아요', '싸요'], ans: 0 },
     { q: 'The opposite of 재미있어요 is:', opts: ['재미없어요', '맛없어요', '재미있아요', '재미아니에요'], ans: 0 },
+    { q: '지금 뭐 해요? (You are taking a Korean test.)', opts: ['한국어 시험을 봐요.', '한국어 시험이 해요.', '한국어 시험을 해요.', '한국어 시험이에요.'], ans: 0, why: 'Take a test = 시험을 보다 (not 하다); the test is the object → 을.' },
+    { q: '우리 학교 도서관이 어때요? Which answer fits?', opts: ['아주 커요. 그리고 넓어요.', '우리 학교 도서관이 아니에요.', '네, 도서관이에요.', '도서관을 봐요.'], ans: 0, why: '어때요? = “How is it?” → answer with an adjective (좋아요, 커요, 넓어요…).' },
+    { q: '“I\'m meeting my friends.”', opts: ['친구들을 만나요.', '친구가 만나요.', '친구들이 만아요.', '친구를 만아요.'], ans: 0, why: 'Friends are the object → 을/를. Spelling: 만나 + 아요 → 만나요 (two ㄴ).' },
+    { q: 'Which spelling is correct?', opts: ['맛있어요', '맛이써요', '마시써요', '맛있써요'], ans: 0, why: 'It sounds like [마시써요], but it is spelled 맛있 + 어요.' },
+    { q: 'Which spelling is correct (“test”)?', opts: ['시험', '시헙', '시엄', '씨험'], ans: 0, why: 'Final ㅁ, not ㅂ.' },
+    { q: 'Which spelling is correct (“juice”)?', opts: ['주스', '추스', '쥬스', '주쓰'], ans: 0, why: 'Standard spelling is 주스 (쥬스 is a common misspelling).' },
     { q: '그리고 means:', opts: ['and (connects two sentences)', 'but', 'so', 'or'], ans: 0 },
     { q: '학교 식당 means:', opts: ['school cafeteria', 'school library', 'school class', 'school friend'], ans: 0 },
   ],
@@ -119,6 +125,10 @@ addLesson({
     { sentence: "'Korean class is fun' → 한국어 수업이 ___있어요.", blank: '재미', hint: '재미있다 = to be fun', type: 'Vocab' },
     { sentence: '한국어 수업이 재미있어요. ___ 친구들도 좋아요.', blank: '그리고', hint: 'and (between sentences)', type: 'Vocab' },
     { sentence: '오늘은 한국어 시험을 봐요. 그리고 ___은 역사 시험을 봐요.', blank: '내일', hint: 'tomorrow', type: 'Vocab' },
+    { sentence: '지금 한국어 시험___ 봐요.', blank: '을', hint: 'Take a test = 시험을 보다 · 험 ends in a consonant', type: 'Particle' },
+    { sentence: '제 친구들___ 만나요.', blank: '을', hint: 'Object particle — 들 ends in a consonant', type: 'Particle' },
+    { sentence: '제 주스___ 맛있어요!', blank: '가', hint: 'Subject particle — 스 ends in a vowel', type: 'Particle' },
+    { sentence: '친구를 ___요. (만나다)', blank: '만나', hint: '만나 + 아요 → 만나요 (keep both ㄴ)', type: 'Irregular' },
     { sentence: '___ 뭐 해요? (now)', blank: '지금', hint: 'now', type: 'Vocab' },
   ],
 
@@ -128,6 +138,10 @@ addLesson({
     { type: 'you', q: '요즘 어떻게 지내요?', en: 'How are you doing these days?', model: ['잘 지내요.'] },
     { type: 'you', q: '지금 뭐 해요?', en: 'What are you doing now?', model: ['한국어를 공부해요.', '숙제를 해요.'], check: ['Object + 을/를 + verb'] },
     { type: 'you', q: '숙제가 많아요?', en: 'Is there a lot of homework?', model: ['네, 숙제가 많아요.'] },
+    { type: 'you', q: '우리 학교 도서관이 어때요?', en: 'How is our school library?', model: ['커요. 그리고 넓어요.', '아주 좋아요.'], check: ['어때요? → answer with an adjective, not 이에요/아니에요'] },
+    { type: 'info', info: 'Say in Korean: “I\'m meeting my friends.”', q: '지금 뭐 해요?', model: ['친구들을 만나요.', '제 친구들을 만나요.'], check: ['친구들 + 을 (object)', '만나요 — two ㄴ'] },
+    { type: 'info', info: 'Say in Korean: “My juice is delicious!”', q: '주스가 어때요?', model: ['제 주스가 맛있어요!'], check: ['주스 (ㅈ), 맛있어요 (spelled 있, sounds like 이써)'] },
+    { type: 'info', info: 'You are taking a Korean test right now.', q: '지금 뭐 해요?', model: ['지금 한국어 시험을 봐요.'], check: ['시험을 보다 = take a test (not 하다)'] },
     { type: 'you', q: '도서관이 어때요?', en: 'How is the library?', model: ['커요. 그리고 넓어요.', '아주 좋아요.'] },
     { type: 'you', q: '오늘 뭐 해요?', en: 'What are you doing today?', model: ['오늘 한국어 시험을 봐요.'] },
     { type: 'info', info: '리사 is eating breakfast.', q: '리사 씨, 지금 뭐 해요?', model: ['아침을 먹어요.'] },
@@ -216,6 +230,21 @@ addLesson({
           <p>스티브가 친구<b>를</b> 만나요. — Steve meets a friend.</p>
         </div>
         <div class="grammar-body" style="margin-top:8px">공부하다 = 공부<b>를</b> 하다 · 숙제하다 = 숙제<b>를</b> 하다 · 시험<b>을</b> 보다 = take a test</div>`,
+    },
+    {
+      id: '', tag: 'Watch out', title: 'Spelled one way, said another',
+      html: `<div class="grammar-body">A final consonant (받침) slides into the next syllable when that syllable starts with ㅇ, and ㅎ + ㄱ sounds like ㅋ.
+        So you <strong>hear</strong> the right column, but you must <strong>write</strong> the left. Say the word, then picture its dictionary form.</div>
+        <table class="rule-table">
+          <tr><th>Write</th><th>Sounds like</th><th>Why</th></tr>
+          <tr><td>맛있어요 / 맛있다</td><td>[마시써요] / [마싣따]</td><td>맛 + 있 + 어요</td></tr>
+          <tr><td>재미있어요</td><td>[재미이써요]</td><td>있 + 어요</td></tr>
+          <tr><td>어떻게</td><td>[어떠케]</td><td>떻 has ㅎ under it</td></tr>
+          <tr><td>시험</td><td>[시험]</td><td>final ㅁ (mouth closed, hum) — not ㅂ</td></tr>
+          <tr><td>만나요</td><td>[만나요]</td><td>만 + 나 — both ㄴ are written</td></tr>
+          <tr><td>반갑습니다</td><td>[반갑씀니다]</td><td>반갑 + 습니다</td></tr>
+          <tr><td>주스</td><td>[주스]</td><td>ㅈ often sounds like English “ch” — ㅊ is the breathier one</td></tr>
+        </table>`,
     },
     {
       id: '', tag: 'Lesson 2 · Expressions', title: 'Key expressions',

@@ -54,6 +54,13 @@ addLesson({
     { conv: 2, k: '반갑다 (반갑습니다)', e: "to be glad ('Glad to meet you.')", pos: 'adjective' },
     { conv: 2, k: '아니다 (아니에요)', e: 'to not be (negative equation)', pos: 'copula' },
     { conv: 2, k: '뭐 (=무엇)', e: 'what', pos: 'pronoun' },
+    // Used by the teacher in class/tests but not in the New Words lists
+    { conv: 'From class & Practice Test 1', k: '대학교', e: 'university, college', pos: 'noun' },
+    { conv: 'From class & Practice Test 1', k: '교수', e: 'professor', pos: 'noun', note: 'About yourself: 저는 교수예요. (교수님 only for others)' },
+    { conv: 'From class & Practice Test 1', k: '우리', e: 'we; our', pos: 'pronoun', note: '우리 학교 = our school' },
+    { conv: 'From class & Practice Test 1', k: '제', e: 'my (humble)', pos: 'pronoun', note: '제 친구 = my friend · plain: 내' },
+    { conv: 'From class & Practice Test 1', k: '너', e: 'you (casual — close friends only)', pos: 'pronoun', note: '너의 이름이 뭐야? = casual 이름이 뭐예요?' },
+    { conv: 'From class & Practice Test 1', k: '만나서 반가워요', e: 'Nice to meet you', pos: 'expression', note: 'casual: 만나서 반가워 · formal: 반갑습니다', accept: ['만나서 반가워요', '만나서반가워요'] },
   ],
 
   // Multiple-choice grammar & usage. ans = index of the correct option (options get shuffled).
@@ -80,6 +87,10 @@ addLesson({
     { q: '소피아: 아니요, 한국 사람이 아니에요. 중국 사람이에요. Where is Sophia from?', opts: ['China', 'Korea', 'Japan', 'the UK'], ans: 0 },
     { q: 'The language of 일본 is:', opts: ['일본어', '일본말어', '일어', '영어'], ans: 0, why: 'country + 어 = language: 한국어, 중국어, 일본어' },
     { q: 'An American (미국 사람) speaks:', opts: ['영어', '미국어', '영국어', '한국어'], ans: 0, why: '영어 = English (for both 미국 and 영국)' },
+    { q: 'Introducing yourself as a professor, you say:', opts: ['저는 교수예요.', '저는 교수님이에요.', '저는 교수님예요.', '저는 교수이에요.'], ans: 0, why: 'Never attach the honorific 님 to yourself. 교수 ends in a vowel → 예요.' },
+    { q: 'Negative of 선생님이에요:', opts: ['선생님이 아니에요', '선생님을 아니에요', '선생님는 아니에요', '선생님 아니예요'], ans: 0, why: '아니에요 always takes 이/가 — never 을/를.' },
+    { q: '안녕! 너의 이름이 뭐야? is:', opts: ["a casual (반말) way to ask someone's name", 'a formal greeting to a teacher', 'asking where someone is from', 'asking what year someone is in'], ans: 0, why: 'Polite: 이름이 뭐예요? · Casual reply: 미셸이야.' },
+    { q: '“Glad to meet you.” (the expression, not the dictionary form)', opts: ['반갑습니다', '반갑다', '반가워다', '반갑어요'], ans: 0, why: '반갑다 is the dictionary form; use 반갑습니다 / 만나서 반가워요 to actually say it.' },
     { q: '네 can mean:', opts: ['yes / I see / okay', 'no', 'what', 'oh'], ans: 0 },
     { q: 'How is the phone number 258-0037 read?', opts: ['이오팔(의) 공공삼칠', '이오팔(의) 십십삼칠', '이오팔(의) 일일삼칠', '이십오팔 공공삼칠'], ans: 0, why: '0 = 영 or 공; the dash is 의 (pronounced 에) and can be skipped.' },
     { q: 'Sino-Korean 7:', opts: ['칠', '팔', '일', '구'], ans: 0 },
@@ -106,6 +117,9 @@ addLesson({
     { sentence: "___습니다. ('Glad to meet you.')", blank: '반갑', hint: '반갑다 = to be glad', type: 'Vocab' },
     { sentence: '중국 사람 → language: 중국___', blank: '어', hint: 'country + 어 = language', type: 'Vocab' },
     { sentence: '영국 사람 → language: ___', blank: '영어', hint: 'English', type: 'Vocab' },
+    { sentence: '채윤정은 한국어 선생님이에요. 새온이는 한국어 선생님___ 아니에요.', blank: '이', hint: '아니에요 takes 이/가 (never 을/를) — 님 ends in a consonant', type: 'Negative' },
+    { sentence: '저는 미국 사람이에요. 대학생___ 아니에요.', blank: '이', hint: 'N이/가 아니에요 — 생 ends in a consonant', type: 'Negative' },
+    { sentence: '저는 교수___요.', blank: '예', hint: '교수 ends in a vowel → 예요 (and no 님 for yourself)', type: 'Copula' },
     { sentence: '유미 ___, 1학년이에요?', blank: '씨', hint: 'courtesy title after a name', type: 'Vocab' },
   ],
 

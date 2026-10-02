@@ -1,7 +1,7 @@
 'use strict';
 
 // ---- Edit this line as the semester goes ----
-const UPCOMING = 'Practice Test #1 tonight (Thu Oct 1): Lessons 1–2 · 30 min';
+const UPCOMING = 'Next up: Midterm on Lessons 1–3 · Tue Oct 27';
 
 // Lesson files call addLesson({...}); see lessons/_template.js for the shape.
 const LESSONS = [];
@@ -109,7 +109,7 @@ function renderVocab() {
     return convs.map(c => {
       const items = l.vocab.filter(v => v.conv === c);
       const convTitle = l.conversations && l.conversations[c] ? ` — ${l.conversations[c]}` : '';
-      return `<div class="lesson-label">Lesson ${l.id} ${l.title} · Conversation ${c}${convTitle}</div>
+      return `<div class="lesson-label">Lesson ${l.id} ${l.title} · ${typeof c === 'string' ? c : `Conversation ${c}`}${convTitle}</div>
         <div class="vocab-grid">${items.map(v => `
           <div class="vocab-card" onclick="this.classList.toggle('flipped')">
             <div><span class="vocab-korean">${v.k}</span> ${speakBtn(speakable(v.k))}</div>
