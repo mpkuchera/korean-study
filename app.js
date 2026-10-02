@@ -63,8 +63,12 @@ const normalize = s => s.replace(/[\s.?!,]/g, '');
 let selected = new Set();
 
 function activeLessons() { return LESSONS.filter(l => selected.has(l.id)); }
+// Stable id per item, used to track progress: "vocab:1:학생", "quiz:2:<question>", …
+function itemId(key, lessonId, item) {
+  return `${key}:${lessonId}:${item.k || (item.info ? item.info + ' ' : '') + (item.q || item.sentence)}`;
+}
 function pool(key) {
-  return activeLessons().flatMap(l => (l[key] || []).map(item => ({ ...item, lesson: l.id })));
+  return activeLessons().flatMap(l => (l[key] || []).map(item => ({ ...item, lesson: l.id, id: itemId(key, l.id, item) })));
 }
 
 // ---------- rounds ----------
@@ -125,6 +129,9 @@ function showTab(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === id));
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
   store.set('tab', id);
+  if (id === 'progress') renderProgress();
+  if (id === 'quiz' && !quiz) renderQuizStart(); // refresh review counts
+  if (id === 'fill' && !fill) renderFillStart();
 }
 
 // ---------- vocab list ----------
@@ -202,16 +209,17 @@ function vocabQuestion(v, all, dir) {
   const opts = shuffle([correct, ...distractors]);
   return {
     q: dir === 'ko' ? `<span class="quiz-korean">${v.k}</span> means:` : `How do you say <strong>“${v.e}”</strong>${v.pos ? ` <span class="vocab-tag">${v.pos}</span>` : ''}?`,
-    opts, ans: opts.indexOf(correct), why: v.note,
+    opts, ans: opts.indexOf(correct), why: v.note, key: `${dir}|${v.id}`,
   };
 }
 function usageQuestion(q) {
   const correct = q.opts[q.ans];
   const opts = shuffle([...q.opts]);
-  return { ...q, opts, ans: opts.indexOf(correct) };
+  return { ...q, key: q.key || q.id, opts, ans: opts.indexOf(correct) };
 }
 function buildQuiz(mode) {
   const vocab = pool('vocab');
+  if (mode === 'review') return { qs: shuffle(quizReviewItems()).slice(0, roundSize || undefined).map(m => m()), left: 0, total: 0 };
   if (mode === 'mixed') {
     // about half grammar/usage, rest vocab in both directions
     const n = roundSize || 20, half = Math.ceil(n / 2), quarter = Math.ceil((n - half) / 2);
@@ -231,6 +239,7 @@ function renderQuizStart() {
   $('quizBody').innerHTML = `
     <div class="tip"><strong>Pick a mode.</strong> Questions come from the lessons selected above. Missed questions are listed at the end so you can retry just those.</div>
     <div class="mode-grid">
+      ${reviewCard(quizReviewItems().length, "startQuiz('review')")}
       <button class="mode-card" onclick="startQuiz('mixed')"><strong>🎯 Mixed practice (${roundSize || 20})</strong><span>Grammar &amp; usage plus vocab in both directions</span></button>
       <button class="mode-card" onclick="startQuiz('usage')"><strong>📐 Grammar &amp; usage (${roundLabel(nu)})</strong><span>Particles, copula, polite endings, expressions</span></button>
       <button class="mode-card" onclick="startQuiz('ko')"><strong>🇰🇷 → 🇺🇸 Vocab: Korean to English (${roundLabel(nv)})</strong><span>Every word in the New Words lists</span></button>
@@ -240,17 +249,22 @@ function renderQuizStart() {
 function startQuiz(mode) { const r = buildQuiz(mode); runQuiz(r.qs, mode, r.left, r.total); }
 function runQuiz(qs, mode = null, left = 0, total = 0) { quiz = { qs, mode, left, total, idx: 0, score: 0, missed: [], answered: false }; renderQuiz(); }
 
+function quitQuiz() {
+  if (quiz && !quiz.logged) { quiz.logged = true; logRound('Quiz Me', quiz.mode, quiz.score, quiz.idx + (quiz.answered ? 1 : 0)); }
+  renderQuizStart();
+}
 function renderQuiz() {
   const el = $('quizBody');
   if (quiz.idx >= quiz.qs.length) {
     const n = quiz.qs.length, pct = Math.round(quiz.score / n * 100);
+    if (!quiz.logged) { quiz.logged = true; logRound('Quiz Me', quiz.mode, quiz.score, n); }
     el.innerHTML = `<div class="quiz-score">
       <div style="color:var(--muted);margin-bottom:8px">Round complete!</div>
       <div class="score-big">${quiz.score}/${n}</div>
       <div style="margin-top:6px;color:var(--muted)">${pct}% — ${pct >= 85 ? '🎉 Great job!' : pct >= 65 ? '📚 Good — keep reviewing!' : '🔄 Review the Grammar tab and try again!'}</div>
       ${quiz.mode && quiz.mode !== 'mixed' ? `<div class="hint">${roundNote(quiz.left, quiz.total)}</div>` : ''}
       <div class="flash-controls" style="margin-top:18px">
-        ${quiz.mode === 'mixed' ? `<button class="btn btn-green" onclick="startQuiz('mixed')">Another ${n} →</button>` : quiz.mode ? (nextRoundBtn(quiz.left, `startQuiz('${quiz.mode}')`) || `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">↻ Start over</button>`) : ''}
+        ${quiz.mode === 'mixed' || quiz.mode === 'review' ? `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">${quiz.mode === 'review' ? 'Review more' : `Another ${n}`} →</button>` : quiz.mode ? (nextRoundBtn(quiz.left, `startQuiz('${quiz.mode}')`) || `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">↻ Start over</button>`) : ''}
         ${quiz.missed.length ? '<button class="btn btn-outline" onclick="retryMissedQuiz()">Retry missed</button>' : ''}
         <button class="btn btn-outline" onclick="renderQuizStart()">Choose another mode</button>
       </div>
@@ -268,7 +282,7 @@ function renderQuiz() {
       <div id="qfeedback"></div>
     </div>
     <div class="quiz-nav">
-      <button class="btn btn-outline btn-small" onclick="renderQuizStart()">✕ Quit</button>
+      <button class="btn btn-outline btn-small" onclick="quitQuiz()">✕ Quit</button>
       <button class="btn btn-green" id="quizNext" onclick="nextQuiz()" style="display:none">Next →</button>
     </div>`;
 }
@@ -280,6 +294,7 @@ function answerQuiz(i) {
   opts.forEach(o => { o.disabled = true; });
   opts[q.ans].classList.add('correct');
   const why = q.why ? `<br>${q.why}` : '';
+  record(q.key, i === q.ans);
   if (i === q.ans) {
     quiz.score++;
     $('qfeedback').innerHTML = `<div class="feedback ok">✓ Correct!${why}</div>`;
@@ -302,7 +317,7 @@ function spellQuestions() {
     sentence: `<strong>${v.e}</strong> <span class="vocab-tag">${v.pos}</span><br>___`,
     blank: acceptedAnswers(v), display: v.k,
     hint: `Starts with “${speakable(v.k)[0]}” · ${speakable(v.k).length} syllable${speakable(v.k).length > 1 ? 's' : ''}`,
-    type: 'Spell it', wide: true,
+    type: 'Spell it', wide: true, key: 'spell|' + v.id,
   }));
 }
 function renderFillStart() {
@@ -311,12 +326,14 @@ function renderFillStart() {
   $('fillBody').innerHTML = `
     <div class="tip"><strong>Type the answer</strong> with a Korean keyboard (Mac: add “2-Set Korean” in Keyboard settings, switch with Ctrl-Space or 🌐). Press Enter or ✓ Check.</div>
     <div class="mode-grid">
+      ${reviewCard(fillReviewItems().length, "startFill('review')")}
       <button class="mode-card" onclick="startFill('mixed')"><strong>🎯 Mixed practice (${roundSize || 20})</strong><span>Half sentence blanks, half spelling</span></button>
       <button class="mode-card" onclick="startFill('blanks')"><strong>📝 Sentence blanks (${roundLabel(pool('fill').length)})</strong><span>${types}</span></button>
       <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${roundLabel(spellQuestions().length)})</strong><span>See the English, type the Korean — best prep for a written vocab quiz</span></button>
     </div>`;
 }
 function startFill(mode) {
+  if (mode === 'review') return runFill(shuffle(fillReviewItems()).slice(0, roundSize || undefined), 'review');
   if (mode === 'mixed') {
     const n = roundSize || 20, half = Math.ceil(n / 2);
     return runFill(shuffle([...shuffle(pool('fill')).slice(0, half), ...shuffle(spellQuestions()).slice(0, n - half)]), 'mixed');
@@ -328,17 +345,22 @@ function runFill(qs, mode = null, left = 0, total = 0) { fill = { qs, mode, left
 
 function answersOf(q) { return Array.isArray(q.blank) ? q.blank : [q.blank]; }
 
+function quitFill() {
+  if (fill && !fill.logged) { fill.logged = true; logRound('Fill-in', fill.mode, fill.score, fill.idx + (fill.answered ? 1 : 0)); }
+  renderFillStart();
+}
 function renderFill() {
   const el = $('fillBody');
   if (fill.idx >= fill.qs.length) {
     const n = fill.qs.length, pct = Math.round(fill.score / n * 100);
+    if (!fill.logged) { fill.logged = true; logRound('Fill-in', fill.mode, fill.score, n); }
     el.innerHTML = `<div class="quiz-score">
       <div style="color:var(--muted);margin-bottom:8px">Round complete!</div>
       <div class="score-big">${fill.score}/${n}</div>
       <div style="margin-top:6px;color:var(--muted)">${pct}% — ${pct >= 85 ? '🎉 Excellent!' : pct >= 65 ? '📚 Good — keep drilling!' : '🔄 Review and try again!'}</div>
       ${fill.mode && fill.mode !== 'mixed' ? `<div class="hint">${roundNote(fill.left, fill.total)}</div>` : ''}
       <div class="flash-controls" style="margin-top:18px">
-        ${fill.mode === 'mixed' ? `<button class="btn btn-green" onclick="startFill('mixed')">Another ${n} →</button>` : fill.mode ? (nextRoundBtn(fill.left, `startFill('${fill.mode}')`) || `<button class="btn btn-green" onclick="startFill('${fill.mode}')">↻ Start over</button>`) : ''}
+        ${fill.mode === 'mixed' || fill.mode === 'review' ? `<button class="btn btn-green" onclick="startFill('${fill.mode}')">${fill.mode === 'review' ? 'Review more' : `Another ${n}`} →</button>` : fill.mode ? (nextRoundBtn(fill.left, `startFill('${fill.mode}')`) || `<button class="btn btn-green" onclick="startFill('${fill.mode}')">↻ Start over</button>`) : ''}
         ${fill.missed.length ? '<button class="btn btn-outline" onclick="runFill(shuffle(fill.missed.slice()))">Retry missed</button>' : ''}
         <button class="btn btn-outline" onclick="renderFillStart()">Back</button>
       </div>
@@ -361,7 +383,7 @@ function renderFill() {
       <div id="fillFeedback"></div>
     </div>
     <div class="quiz-nav">
-      <button class="btn btn-outline btn-small" onclick="renderFillStart()">✕ Quit</button>
+      <button class="btn btn-outline btn-small" onclick="quitFill()">✕ Quit</button>
       <button class="btn btn-green" id="fillNext" onclick="nextFill()" style="display:none">Next →</button>
     </div>`;
   const inp = $('fillInp');
@@ -386,7 +408,9 @@ function submitFill() {
   inp.readOnly = true;
   const accepted = answersOf(q);
   const shown = q.display || accepted[0];
-  if (accepted.some(a => normalize(a) === val)) {
+  const ok = accepted.some(a => normalize(a) === val);
+  record(q.key || q.id, ok);
+  if (ok) {
     fill.score++;
     inp.classList.add('correct');
     $('fillFeedback').innerHTML = `<div class="feedback ok">✓ Correct!${q.display && q.display !== inp.value.trim() ? ` (${q.display})` : ''}${q.why ? '<br>' + q.why : ''}</div>`;
@@ -499,18 +523,20 @@ function submitTest() {
   test.submitted = true;
   clearInterval(test.timer);
   let auto = 0;
-  test.spell.forEach((v, i) => { if (gradeInput('tS' + i, acceptedAnswers(v), v.k)) auto++; });
+  test.spell.forEach((v, i) => { const ok = gradeInput('tS' + i, acceptedAnswers(v), v.k); record('spell|' + v.id, ok); if (ok) auto++; });
   test.mc.forEach((q, i) => {
     const picked = document.querySelector(`input[name="tM${i}"]:checked`);
-    const ok = picked && +picked.value === q.ans;
+    const ok = !!picked && +picked.value === q.ans;
+    record(q.key, ok);
     if (ok) auto++;
     document.querySelectorAll(`input[name="tM${i}"]`).forEach(r => { r.disabled = true; });
     $(`tM${i}a`).className = 'test-answer ' + (ok ? 'ok' : 'no');
     $(`tM${i}a`).textContent = ok ? '✓' : `✗ ${q.opts[q.ans]}`;
   });
-  test.fills.forEach((q, i) => { if (gradeInput('tF' + i, answersOf(q), answersOf(q)[0])) auto++; });
+  test.fills.forEach((q, i) => { const ok = gradeInput('tF' + i, answersOf(q), answersOf(q)[0]); record(q.id, ok); if (ok) auto++; });
   test.auto = auto;
   test.autoMax = test.spell.length + test.mc.length + test.fills.length;
+  test.round = logRound('Practice Test', 'test', auto, test.autoMax);
   const selfMark = key => `<div class="self-mark"><button class="btn btn-outline btn-small" data-self="${key}" data-v="1" onclick="markSelf(this)">✓ Mine matches</button><button class="btn btn-outline btn-small" data-self="${key}" data-v="0" onclick="markSelf(this)">✗ Not quite</button></div>`;
   test.answers.forEach((a, i) => { $(`tC${i}`).readOnly = true; $(`tC${i}m`).innerHTML = modelBox(a) + selfMark('C' + i); });
   $('tD').readOnly = true;
@@ -520,7 +546,16 @@ function submitTest() {
   $('testResult').scrollIntoView({ behavior: 'smooth' });
 }
 function markSelf(btn) {
-  test.self[btn.dataset.self] = +btn.dataset.v;
+  const key = btn.dataset.self, v = +btn.dataset.v;
+  const item = key === 'D' ? test.short : test.answers[+key.slice(1)];
+  if (!(key in test.self)) record(item.id, !!v); // first mark counts
+  test.self[key] = v;
+  if (test.round) {
+    const marks = Object.values(test.self);
+    test.round.c = test.auto + marks.reduce((a, b) => a + b, 0);
+    test.round.n = test.autoMax + marks.length;
+    saveProgress();
+  }
   btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('on-ok', 'on-no'));
   btn.classList.add(+btn.dataset.v ? 'on-ok' : 'on-no');
   updateTestScore();
@@ -538,11 +573,23 @@ function updateTestScore() {
 
 // One-at-a-time drill for free-response items (answer / shortAnswer), self-checked.
 let drill = null;
-function startDrill(key) { const r = deal('drill-' + key, pool(key)); drill = { key, items: r.items, left: r.left, total: r.total, idx: 0 }; renderDrill(); }
+function startDrill(key) { const r = deal('drill-' + key, pool(key)); drill = { key, items: r.items, left: r.left, total: r.total, idx: 0, score: 0, marked: 0 }; renderDrill(); }
+function markDrill(ok) {
+  record(drill.items[drill.idx].id, ok);
+  drill.marked++;
+  if (ok) drill.score++;
+  drill.idx++;
+  renderDrill();
+}
+function quitDrill() {
+  if (drill && !drill.logged) { drill.logged = true; logRound('Practice Test', drill.key, drill.score, drill.marked); }
+  renderTestStart();
+}
 function renderDrill() {
   const el = $('testBody');
   if (drill.idx >= drill.items.length) {
-    el.innerHTML = `<div class="quiz-score"><div class="score-big">✓</div><div style="color:var(--muted)">Round complete!</div>
+    if (!drill.logged) { drill.logged = true; logRound('Practice Test', drill.key, drill.score, drill.marked); }
+    el.innerHTML = `<div class="quiz-score"><div class="score-big">${drill.score}/${drill.marked}</div><div style="color:var(--muted)">Round complete!</div>
       <div class="hint">${roundNote(drill.left, drill.total)}</div>
       <div class="flash-controls" style="margin-top:16px">${nextRoundBtn(drill.left, `startDrill('${drill.key}')`) || `<button class="btn btn-green" onclick="startDrill('${drill.key}')">↻ Start over</button>`}<button class="btn btn-outline" onclick="renderTestStart()">Back</button></div></div>`;
     return;
@@ -554,14 +601,214 @@ function renderDrill() {
     <div class="blank-q">
       <div class="blank-sentence" style="line-height:1.6">${prompt}</div>
       <textarea class="blank-input ${drill.key === 'shortAnswer' ? 'tall' : ''}" id="drillInp" lang="ko" spellcheck="false" placeholder="한국어로 쓰세요…"></textarea>
-      <div style="margin-top:10px"><button class="check-btn" onclick="$('drillModel').innerHTML = modelBox(drill.items[drill.idx]); $('drillNext').style.display='inline-block'">👀 Show model answer</button></div>
+      <div style="margin-top:10px"><button class="check-btn" onclick="$('drillModel').innerHTML = modelBox(drill.items[drill.idx]); $('drillMark').style.display='flex'">👀 Show model answer</button></div>
       <div id="drillModel"></div>
+      <div class="self-mark" id="drillMark" style="display:none">
+        <button class="btn btn-outline btn-small" onclick="markDrill(true)">✓ Mine matches →</button>
+        <button class="btn btn-outline btn-small" onclick="markDrill(false)">✗ Not quite →</button>
+      </div>
     </div>
     <div class="quiz-nav">
-      <button class="btn btn-outline btn-small" onclick="renderTestStart()">✕ Quit</button>
-      <button class="btn btn-green" id="drillNext" style="display:none" onclick="drill.idx++; renderDrill()">Next →</button>
+      <button class="btn btn-outline btn-small" onclick="quitDrill()">✕ Quit</button>
     </div>`;
   $('drillInp').focus();
+}
+
+// ---------- progress tracking ----------
+// Saved in this browser only (localStorage). items[key] = { a: attempts, c: correct, r: last 5 results (1/0), t: last seen }
+// rounds = completed (or quit) rounds: { t, s: section, m: mode, c: correct, n: answered, L: lessons }
+let progress = loadProgress();
+
+function loadProgress() {
+  const p = store.get('progress', null);
+  return p && p.items && Array.isArray(p.rounds) ? p : { v: 1, items: {}, rounds: [] };
+}
+function saveProgress() { store.set('progress', progress); }
+function record(key, ok) {
+  if (!key) return;
+  const it = progress.items[key] || (progress.items[key] = { a: 0, c: 0, r: [], t: 0 });
+  it.a++; if (ok) it.c++;
+  it.r = [...it.r, ok ? 1 : 0].slice(-5);
+  it.t = Date.now();
+  saveProgress();
+}
+const MODE_LABELS = {
+  mixed: 'Mixed', usage: 'Grammar & usage', ko: 'Vocab KO→EN', en: 'Vocab EN→KO', review: 'Review misses',
+  blanks: 'Sentence blanks', spell: 'Spelling', test: 'Full practice test', answer: 'Answering questions', shortAnswer: 'Short answer',
+};
+function logRound(section, mode, c, n) {
+  if (!n) return null;
+  const round = { t: Date.now(), s: section, m: MODE_LABELS[mode] || 'Retry missed', c, n, L: activeLessons().map(l => l.id) };
+  progress.rounds.push(round);
+  if (progress.rounds.length > 3000) progress.rounds.shift();
+  saveProgress();
+  return round;
+}
+
+// new → learning → known (last 2 right); review = most recent attempt wrong
+function itemStatus(key) {
+  const it = progress.items[key];
+  if (!it || !it.r.length) return 'new';
+  const r = it.r;
+  if (r[r.length - 1] === 0) return 'review';
+  return r.length >= 2 && r[r.length - 2] === 1 ? 'known' : 'learning';
+}
+function quizReviewItems() {
+  const vocab = pool('vocab'), out = [];
+  pool('quiz').forEach(q => { if (itemStatus(q.id) === 'review') out.push(() => usageQuestion(q)); });
+  vocab.forEach(v => ['ko', 'en'].forEach(dir => { if (itemStatus(`${dir}|${v.id}`) === 'review') out.push(() => vocabQuestion(v, vocab, dir)); }));
+  return out;
+}
+function fillReviewItems() {
+  return [...pool('fill').filter(q => itemStatus(q.id) === 'review'), ...spellQuestions().filter(q => itemStatus(q.key) === 'review')];
+}
+function reviewCard(n, onclick) {
+  return n
+    ? `<button class="mode-card review-card" onclick="${onclick}"><strong>🔁 Review my misses (${n})</strong><span>Questions you got wrong the last time you saw them</span></button>`
+    : '';
+}
+
+const dayOf = t => new Date(t).toLocaleDateString('en-CA'); // YYYY-MM-DD, local time
+const stripTags = h => h.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const pctOf = (c, n) => n ? Math.round(c / n * 100) : 0;
+
+// Every trackable item across all lessons (not just the selected ones), grouped for the mastery view.
+function trackedCategories(l) {
+  const id = (key, item) => itemId(key, l.id, item);
+  const vocab = l.vocab || [];
+  return [
+    { name: 'Vocab: Korean → English', items: vocab.map(v => ({ key: 'ko|' + id('vocab', v), label: `${v.k} → ${v.e}` })) },
+    { name: 'Vocab: English → Korean', items: vocab.map(v => ({ key: 'en|' + id('vocab', v), label: `${v.e} → ${v.k}` })) },
+    { name: 'Spelling', items: vocab.filter(v => !v.noSpell).map(v => ({ key: 'spell|' + id('vocab', v), label: `✍️ ${v.e} → ${v.k}` })) },
+    { name: 'Grammar & usage', items: (l.quiz || []).map(q => ({ key: id('quiz', q), label: `${stripTags(q.q)} → ${q.opts[q.ans]}` })) },
+    { name: 'Fill-in blanks', items: (l.fill || []).map(q => ({ key: id('fill', q), label: q.sentence.replace('___', `[${[].concat(q.blank)[0]}]`) })) },
+    { name: 'Answering questions', items: [...(l.answer || []), ...(l.shortAnswer || [])].map(q => ({ key: id(l.answer && l.answer.includes(q) ? 'answer' : 'shortAnswer', q), label: `${q.info ? q.info + ' · ' : ''}${stripTags(q.q)}` })) },
+  ];
+}
+
+function streakDays(days) {
+  let n = 0;
+  const d = new Date();
+  if (!days.has(dayOf(d))) d.setDate(d.getDate() - 1); // today not studied yet: count up to yesterday
+  while (days.has(dayOf(d))) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+
+function accuracyChart(byDay) {
+  const pts = byDay.slice(-21);
+  if (!pts.length) return '<div class="hint">Finish a round to start your chart.</div>';
+  const W = 640, H = 220, L = 40, R = 52, T = 16, B = 34;
+  const x = i => pts.length === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (pts.length - 1);
+  const y = p => T + (100 - p) * (H - T - B) / 100;
+  const grid = [0, 50, 100].map(p => `<line x1="${L}" x2="${W - R}" y1="${y(p)}" y2="${y(p)}" class="grid"/><text x="${L - 8}" y="${y(p) + 4}" text-anchor="end" class="axis">${p}%</text>`).join('');
+  const step = Math.ceil(pts.length / 7);
+  const xlabels = pts.map((d, i) => (i % step === 0 || i === pts.length - 1) ? `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" class="axis">${+d.day.slice(5, 7)}/${+d.day.slice(8)}</text>` : '').join('');
+  const line = pts.length > 1 ? `<polyline class="line" points="${pts.map((d, i) => `${x(i)},${y(d.pct)}`).join(' ')}"/>` : '';
+  const dots = pts.map((d, i) => `<g class="pt"><circle cx="${x(i)}" cy="${y(d.pct)}" r="14" class="hit"/><circle cx="${x(i)}" cy="${y(d.pct)}" r="4.5" class="dot"/>
+    <title>${d.day}: ${d.pct}% correct (${d.c} of ${d.n} questions)</title></g>`).join('');
+  const last = pts[pts.length - 1];
+  const lastLabel = `<text x="${x(pts.length - 1) + 10}" y="${y(last.pct) + 4}" class="val">${last.pct}%</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="Daily accuracy, last ${pts.length} study days">${grid}${xlabels}${line}${dots}${lastLabel}</svg>`;
+}
+
+function masteryBar(keys) {
+  const counts = { known: 0, learning: 0, review: 0, new: 0 };
+  keys.forEach(k => counts[itemStatus(k)]++);
+  const total = keys.length || 1;
+  const seg = s => counts[s] ? `<span class="seg seg-${s}" style="flex:${counts[s]}" title="${counts[s]} ${STATUS_LABELS[s]}"></span>` : '';
+  return { counts, html: `<div class="mbar">${['known', 'learning', 'review', 'new'].map(seg).join('')}</div>`, total };
+}
+const STATUS_LABELS = { known: 'mastered', learning: 'learning', review: 'needs review', new: 'not seen yet' };
+
+function renderProgress() {
+  const rounds = progress.rounds;
+  const answered = rounds.reduce((s, r) => s + r.n, 0);
+  const days = new Map();
+  rounds.forEach(r => { const d = dayOf(r.t), e = days.get(d) || { day: d, c: 0, n: 0 }; e.c += r.c; e.n += r.n; days.set(d, e); });
+  const byDay = [...days.values()].sort((a, b) => a.day < b.day ? -1 : 1).map(d => ({ ...d, pct: pctOf(d.c, d.n) }));
+  const now = Date.now(), wk = 7 * 864e5;
+  const sum = (from, to) => rounds.filter(r => r.t >= from && r.t < to).reduce((a, r) => ({ c: a.c + r.c, n: a.n + r.n }), { c: 0, n: 0 });
+  const thisWk = sum(now - wk, now + 1), lastWk = sum(now - 2 * wk, now - wk);
+  const delta = thisWk.n && lastWk.n ? pctOf(thisWk.c, thisWk.n) - pctOf(lastWk.c, lastWk.n) : null;
+
+  const allKeys = LESSONS.flatMap(l => trackedCategories(l).flatMap(c => c.items.map(i => i.key)));
+  const mastered = allKeys.filter(k => itemStatus(k) === 'known').length;
+
+  const tiles = `<div class="tiles">
+    <div class="tile"><div class="tile-num">${streakDays(new Set(days.keys()))}</div><div class="tile-label">day streak 🔥</div></div>
+    <div class="tile"><div class="tile-num">${answered}</div><div class="tile-label">questions answered</div></div>
+    <div class="tile"><div class="tile-num">${thisWk.n ? pctOf(thisWk.c, thisWk.n) + '%' : '—'}</div><div class="tile-label">accuracy, last 7 days${delta !== null ? `<br><span class="${delta >= 0 ? 'up' : 'down'}">${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)} pts vs week before</span>` : ''}</div></div>
+    <div class="tile"><div class="tile-num">${mastered}<span class="tile-of">/${allKeys.length}</span></div><div class="tile-label">items mastered</div></div>
+  </div>`;
+
+  const legend = `<div class="legend">${['known', 'learning', 'review', 'new'].map(s => `<span><i class="seg-${s}"></i>${STATUS_LABELS[s]}</span>`).join('')}</div>`;
+  const mastery = LESSONS.map(l => `<div class="lesson-label">Lesson ${l.id} ${l.title}</div>
+    ${trackedCategories(l).filter(c => c.items.length).map(c => { const m = masteryBar(c.items.map(i => i.key)); return `
+      <div class="mrow"><div class="mname">${c.name}</div>${m.html}
+        <div class="mcount">${m.counts.known}/${c.items.length} mastered${m.counts.review ? ` · <span class="down">${m.counts.review} to review</span>` : ''}</div></div>`; }).join('')}`).join('');
+
+  const trouble = LESSONS.flatMap(l => trackedCategories(l).flatMap(c => c.items.map(i => ({ ...i, cat: c.name, lesson: l.id, it: progress.items[i.key] }))))
+    .filter(i => i.it && itemStatus(i.key) === 'review')
+    .sort((a, b) => (a.it.c / a.it.a) - (b.it.c / b.it.a) || b.it.t - a.it.t)
+    .slice(0, 12);
+
+  const recent = rounds.slice(-10).reverse();
+  $('progressBody').innerHTML = `
+    <div class="tip"><strong>Saved in this browser only.</strong> Your laptop and phone keep separate records — use Backup below to move or merge them.</div>
+    ${rounds.length ? '' : '<div class="tip">No rounds yet — finish a round in Quiz Me, Fill-in, or the Practice Test and it will show up here.</div>'}
+    ${tiles}
+    <div class="grammar-block"><div class="grammar-title">Accuracy by day</div>${accuracyChart(byDay)}
+      ${byDay.length ? `<details class="hint"><summary>Show as table</summary><table class="rule-table"><tr><th>Day</th><th>Questions</th><th>Correct</th></tr>${byDay.slice(-21).reverse().map(d => `<tr><td>${d.day}</td><td>${d.n}</td><td>${d.pct}%</td></tr>`).join('')}</table></details>` : ''}
+    </div>
+    <div class="grammar-block"><div class="grammar-title">Mastery by lesson</div>
+      <div class="hint" style="margin-top:0">Mastered = right the last two times you saw it. Needs review = wrong the last time.</div>${legend}${mastery}</div>
+    <div class="grammar-block"><div class="grammar-title">Trouble spots</div>
+      ${trouble.length ? `<ul class="trouble">${trouble.map(i => `<li><span class="vocab-tag">L${i.lesson} · ${i.cat}</span> ${i.label} <span class="hint">(${i.it.c}/${i.it.a} right)</span></li>`).join('')}</ul>
+        <div class="flash-controls"><button class="btn btn-green btn-small" onclick="showTab('quiz');startQuiz('review')">🔁 Review in Quiz Me</button><button class="btn btn-green btn-small" onclick="showTab('fill');startFill('review')">🔁 Review in Fill-in</button></div>`
+        : '<div class="hint" style="margin-top:0">Nothing to review right now. 🎉</div>'}
+    </div>
+    <div class="grammar-block"><div class="grammar-title">Recent rounds</div>
+      ${recent.length ? `<table class="rule-table"><tr><th>When</th><th>What</th><th>Score</th></tr>${recent.map(r => `<tr><td>${new Date(r.t).toLocaleString([], { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td><td>${r.s} · ${r.m}</td><td>${r.c}/${r.n} (${pctOf(r.c, r.n)}%)</td></tr>`).join('')}</table>` : '<div class="hint" style="margin-top:0">None yet.</div>'}
+    </div>
+    <div class="grammar-block"><div class="grammar-title">Backup</div>
+      <div class="grammar-body">Export saves a file you can import on another device (imports are merged, not overwritten).</div>
+      <div class="flash-controls" style="justify-content:flex-start">
+        <button class="btn btn-outline btn-small" onclick="exportProgress()">⬇️ Export</button>
+        <label class="btn btn-outline btn-small">⬆️ Import<input type="file" accept=".json,application/json" style="display:none" onchange="importProgress(this.files[0])"></label>
+        <button class="btn btn-outline btn-small" onclick="resetProgress()">🗑 Reset</button>
+      </div>
+    </div>`;
+}
+
+function exportProgress() {
+  const blob = new Blob([JSON.stringify(progress)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `korean-progress-${dayOf(Date.now())}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importProgress(file) {
+  if (!file) return;
+  file.text().then(text => {
+    const p = JSON.parse(text);
+    if (!p || !p.items || !Array.isArray(p.rounds)) throw new Error('not a progress file');
+    // merge: newest result wins per item; rounds are combined (deduped by time + section)
+    Object.entries(p.items).forEach(([k, it]) => { if (!progress.items[k] || it.t > progress.items[k].t) progress.items[k] = it; });
+    const seen = new Set(progress.rounds.map(r => r.t + r.s));
+    p.rounds.forEach(r => { if (!seen.has(r.t + r.s)) progress.rounds.push(r); });
+    progress.rounds.sort((a, b) => a.t - b.t);
+    saveProgress();
+    renderProgress();
+    alert('Progress imported and merged.');
+  }).catch(e => alert('Could not import that file: ' + e.message));
+}
+function resetProgress() {
+  if (!confirm('Erase all saved progress in this browser? (Export a backup first if you want to keep it.)')) return;
+  progress = { v: 1, items: {}, rounds: [] };
+  saveProgress();
+  refreshAll();
+  renderProgress();
 }
 
 // ---------- grammar & reference ----------
