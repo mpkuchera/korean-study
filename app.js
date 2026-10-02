@@ -198,8 +198,8 @@ let quiz = null; // { qs, idx, score, missed, answered }
 function vocabQuestion(v, all, dir) {
   const field = dir === 'ko' ? 'e' : 'k';
   const correct = v[field];
-  // Skip words that share a meaning or spelling (e.g. 아 and 어 are both 'oh').
-  const others = shuffle(all.filter(o => o.e !== v.e && o.k !== v.k));
+  // Skip words that share a meaning or spelling (아/어 are both 'oh'; 있다 has two entries in Lesson 3).
+  const others = shuffle(all.filter(o => o.e !== v.e && speakable(o.k) !== speakable(v.k)));
   const ranked = [...others.filter(o => o.pos === v.pos), ...others.filter(o => o.pos !== v.pos)];
   const distractors = [];
   for (const o of ranked) {
