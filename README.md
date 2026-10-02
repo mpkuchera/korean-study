@@ -9,7 +9,7 @@ Features: vocab list with audio, flashcards (both directions), multiple-choice q
 ## Adding a lesson
 
 1. Copy `lessons/_template.js` to `lessons/lessonN.js` and fill it in from the textbook (New Words for Conversations 1 & 2, grammar points).
-2. Add `<script src="lessons/lessonN.js"></script>` at the bottom of `index.html`.
+2. Add `<script src="lessons/lessonN.js?v=N"></script>` at the bottom of `index.html`, and bump the `?v=` number on every script/stylesheet tag whenever you change files (it makes browsers fetch the new versions).
 3. Update `UPCOMING` at the top of `app.js`.
 4. Commit and push; GitHub Pages updates in a minute or two.
 

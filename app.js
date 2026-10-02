@@ -67,10 +67,34 @@ function pool(key) {
   return activeLessons().flatMap(l => (l[key] || []).map(item => ({ ...item, lesson: l.id })));
 }
 
+// ---------- rounds ----------
+// Long sets are served in bite-size rounds. Each mode keeps a shuffled deck and deals
+// roundSize items at a time without repeats until everything has been seen once.
+const ROUND_SIZES = [10, 20, 0]; // 0 = all
+let roundSize = store.get('roundSize', 20);
+let decks = {};
+
+function deal(key, items) {
+  let d = decks[key];
+  if (!d || d.total !== items.length || !d.left.length) d = decks[key] = { left: shuffle(items.map((_, i) => i)), total: items.length };
+  const picked = d.left.splice(0, roundSize || items.length);
+  return { idx: picked, items: picked.map(i => items[i]), left: d.left.length, total: items.length };
+}
+function roundLabel(total) { return roundSize && total > roundSize ? `rounds of ${roundSize} · ${total} total` : `${total}`; }
+function nextRoundBtn(left, onclick) {
+  return left ? `<button class="btn btn-green" onclick="${onclick}">Next ${Math.min(left, roundSize)} →</button>` : '';
+}
+function roundNote(left, total) {
+  return left ? `${total - left} of ${total} done · ${left} to go` : (total > (roundSize || total) ? `🎉 You've been through all ${total}! Next round starts a fresh shuffle.` : '');
+}
+function setRoundSize(n) { roundSize = n; store.set('roundSize', n); refreshAll(); }
+
 function renderLessonBar() {
   $('lessonBar').innerHTML = '<span class="lb-label">Studying:</span>' +
     LESSONS.map(l => `<button class="chip ${selected.has(l.id) ? 'on' : ''}" onclick="toggleLesson(${l.id})">L${l.id} ${l.title}</button>`).join('') +
-    (LESSONS.length > 1 ? '<button class="chip-link" onclick="selectAllLessons()">all</button>' : '');
+    (LESSONS.length > 1 ? '<button class="chip-link" onclick="selectAllLessons()">all</button>' : '') +
+    '<span class="lb-spacer"></span><span class="lb-label">Round:</span>' +
+    ROUND_SIZES.map(n => `<button class="chip ${roundSize === n ? 'on' : ''}" onclick="setRoundSize(${n})">${n || 'All'}</button>`).join('');
 }
 function toggleLesson(id) {
   if (selected.has(id)) { if (selected.size === 1) return; selected.delete(id); }
@@ -82,6 +106,7 @@ function selectAllLessons() { selected = new Set(LESSONS.map(l => l.id)); store.
 
 function refreshAll() {
   const ids = activeLessons().map(l => l.id);
+  decks = {};
   $('subtitle').textContent = `${UPCOMING} · showing Lesson${ids.length > 1 ? 's' : ''} ${ids.join(', ')}`;
   renderLessonBar();
   renderVocab();
@@ -124,11 +149,16 @@ function renderVocab() {
 }
 
 // ---------- flashcards ----------
-let flashCards = [], flashOrder = [], flashIdx = 0, flashDir = 'ko';
+let flashCards = [], flashOrder = [], flashIdx = 0, flashDir = 'ko', flashLeft = 0;
 
 function initFlash() {
   flashCards = pool('vocab');
-  flashOrder = shuffle(flashCards.map((_, i) => i));
+  nextSet();
+}
+function nextSet() {
+  const r = deal('flash', flashCards);
+  flashOrder = r.idx;
+  flashLeft = r.left;
   flashIdx = 0;
   showFlash();
 }
@@ -142,7 +172,13 @@ function showFlash() {
   $('fBack').textContent = ko ? v.e : v.k;
   $('fBack').classList.toggle('en', ko);
   $('fNote').textContent = v.note || '';
-  $('flashProg').textContent = `Card ${flashIdx + 1} of ${flashOrder.length}`;
+  $('flashProg').textContent = `Card ${flashIdx + 1} of ${flashOrder.length}` +
+    (flashOrder.length < flashCards.length ? ` · ${flashCards.length - flashLeft} of ${flashCards.length} words dealt` : '');
+  const setBtn = $('nextSetBtn'); // missing if the browser cached an older index.html
+  if (setBtn) {
+    setBtn.style.display = flashOrder.length < flashCards.length ? '' : 'none';
+    setBtn.textContent = flashLeft ? `Next set (${Math.min(flashLeft, roundSize)}) →` : '↻ New shuffle';
+  }
   $('flashInner').classList.remove('flipped');
 }
 function flipCard() { $('flashInner').classList.toggle('flipped'); }
@@ -176,14 +212,17 @@ function usageQuestion(q) {
 }
 function buildQuiz(mode) {
   const vocab = pool('vocab');
-  const usage = pool('quiz').map(usageQuestion);
-  const ko = vocab.map(v => vocabQuestion(v, vocab, 'ko'));
-  const en = vocab.map(v => vocabQuestion(v, vocab, 'en'));
-  if (mode === 'usage') return shuffle(usage);
-  if (mode === 'ko') return shuffle(ko);
-  if (mode === 'en') return shuffle(en);
-  // mixed: about half grammar/usage, rest vocab both directions
-  return shuffle([...shuffle(usage).slice(0, 10), ...shuffle(ko).slice(0, 5), ...shuffle(en).slice(0, 5)]);
+  if (mode === 'mixed') {
+    // about half grammar/usage, rest vocab in both directions
+    const n = roundSize || 20, half = Math.ceil(n / 2), quarter = Math.ceil((n - half) / 2);
+    const usage = shuffle(pool('quiz')).slice(0, half).map(usageQuestion);
+    const ko = shuffle(vocab.slice()).slice(0, quarter).map(v => vocabQuestion(v, vocab, 'ko'));
+    const en = shuffle(vocab.slice()).slice(0, n - half - quarter).map(v => vocabQuestion(v, vocab, 'en'));
+    return { qs: shuffle([...usage, ...ko, ...en]), left: 0, total: 0 };
+  }
+  const r = mode === 'usage' ? deal('quiz-usage', pool('quiz')) : deal('quiz-' + mode, vocab);
+  const qs = mode === 'usage' ? r.items.map(usageQuestion) : r.items.map(v => vocabQuestion(v, vocab, mode));
+  return { qs, left: r.left, total: r.total };
 }
 
 function renderQuizStart() {
@@ -192,25 +231,27 @@ function renderQuizStart() {
   $('quizBody').innerHTML = `
     <div class="tip"><strong>Pick a mode.</strong> Questions come from the lessons selected above. Missed questions are listed at the end so you can retry just those.</div>
     <div class="mode-grid">
-      <button class="mode-card" onclick="startQuiz('mixed')"><strong>🎯 Mixed practice (20)</strong><span>Grammar &amp; usage plus vocab in both directions</span></button>
-      <button class="mode-card" onclick="startQuiz('usage')"><strong>📐 Grammar &amp; usage (${nu})</strong><span>Particles, copula, polite endings, expressions</span></button>
-      <button class="mode-card" onclick="startQuiz('ko')"><strong>🇰🇷 → 🇺🇸 Vocab: Korean to English (${nv})</strong><span>Every word in the New Words lists</span></button>
-      <button class="mode-card" onclick="startQuiz('en')"><strong>🇺🇸 → 🇰🇷 Vocab: English to Korean (${nv})</strong><span>Harder — recognize the Korean</span></button>
+      <button class="mode-card" onclick="startQuiz('mixed')"><strong>🎯 Mixed practice (${roundSize || 20})</strong><span>Grammar &amp; usage plus vocab in both directions</span></button>
+      <button class="mode-card" onclick="startQuiz('usage')"><strong>📐 Grammar &amp; usage (${roundLabel(nu)})</strong><span>Particles, copula, polite endings, expressions</span></button>
+      <button class="mode-card" onclick="startQuiz('ko')"><strong>🇰🇷 → 🇺🇸 Vocab: Korean to English (${roundLabel(nv)})</strong><span>Every word in the New Words lists</span></button>
+      <button class="mode-card" onclick="startQuiz('en')"><strong>🇺🇸 → 🇰🇷 Vocab: English to Korean (${roundLabel(nv)})</strong><span>Harder — recognize the Korean</span></button>
     </div>`;
 }
-function startQuiz(mode) { runQuiz(buildQuiz(mode)); }
-function runQuiz(qs) { quiz = { qs, idx: 0, score: 0, missed: [], answered: false }; renderQuiz(); }
+function startQuiz(mode) { const r = buildQuiz(mode); runQuiz(r.qs, mode, r.left, r.total); }
+function runQuiz(qs, mode = null, left = 0, total = 0) { quiz = { qs, mode, left, total, idx: 0, score: 0, missed: [], answered: false }; renderQuiz(); }
 
 function renderQuiz() {
   const el = $('quizBody');
   if (quiz.idx >= quiz.qs.length) {
     const n = quiz.qs.length, pct = Math.round(quiz.score / n * 100);
     el.innerHTML = `<div class="quiz-score">
-      <div style="color:var(--muted);margin-bottom:8px">Quiz complete!</div>
+      <div style="color:var(--muted);margin-bottom:8px">Round complete!</div>
       <div class="score-big">${quiz.score}/${n}</div>
       <div style="margin-top:6px;color:var(--muted)">${pct}% — ${pct >= 85 ? '🎉 Great job!' : pct >= 65 ? '📚 Good — keep reviewing!' : '🔄 Review the Grammar tab and try again!'}</div>
+      ${quiz.mode && quiz.mode !== 'mixed' ? `<div class="hint">${roundNote(quiz.left, quiz.total)}</div>` : ''}
       <div class="flash-controls" style="margin-top:18px">
-        ${quiz.missed.length ? '<button class="btn btn-green" onclick="retryMissedQuiz()">Retry missed</button>' : ''}
+        ${quiz.mode === 'mixed' ? `<button class="btn btn-green" onclick="startQuiz('mixed')">Another ${n} →</button>` : quiz.mode ? (nextRoundBtn(quiz.left, `startQuiz('${quiz.mode}')`) || `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">↻ Start over</button>`) : ''}
+        ${quiz.missed.length ? '<button class="btn btn-outline" onclick="retryMissedQuiz()">Retry missed</button>' : ''}
         <button class="btn btn-outline" onclick="renderQuizStart()">Choose another mode</button>
       </div>
       ${quiz.missed.length ? `<div class="missed"><h3>Missed (${quiz.missed.length})</h3><ul>${quiz.missed.map(q => `<li>${q.q} → <strong>${q.opts[q.ans]}</strong></li>`).join('')}</ul></div>` : ''}
@@ -270,12 +311,20 @@ function renderFillStart() {
   $('fillBody').innerHTML = `
     <div class="tip"><strong>Type the answer</strong> with a Korean keyboard (Mac: add “2-Set Korean” in Keyboard settings, switch with Ctrl-Space or 🌐). Press Enter or ✓ Check.</div>
     <div class="mode-grid">
-      <button class="mode-card" onclick="startFill('blanks')"><strong>📝 Sentence blanks (${pool('fill').length})</strong><span>${types}</span></button>
-      <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${spellQuestions().length})</strong><span>See the English, type the Korean — best prep for a written vocab quiz</span></button>
+      <button class="mode-card" onclick="startFill('mixed')"><strong>🎯 Mixed practice (${roundSize || 20})</strong><span>Half sentence blanks, half spelling</span></button>
+      <button class="mode-card" onclick="startFill('blanks')"><strong>📝 Sentence blanks (${roundLabel(pool('fill').length)})</strong><span>${types}</span></button>
+      <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${roundLabel(spellQuestions().length)})</strong><span>See the English, type the Korean — best prep for a written vocab quiz</span></button>
     </div>`;
 }
-function startFill(mode) { runFill(shuffle(mode === 'spell' ? spellQuestions() : pool('fill'))); }
-function runFill(qs) { fill = { qs, idx: 0, score: 0, missed: [], answered: false }; renderFill(); }
+function startFill(mode) {
+  if (mode === 'mixed') {
+    const n = roundSize || 20, half = Math.ceil(n / 2);
+    return runFill(shuffle([...shuffle(pool('fill')).slice(0, half), ...shuffle(spellQuestions()).slice(0, n - half)]), 'mixed');
+  }
+  const r = deal('fill-' + mode, mode === 'spell' ? spellQuestions() : pool('fill'));
+  runFill(r.items, mode, r.left, r.total);
+}
+function runFill(qs, mode = null, left = 0, total = 0) { fill = { qs, mode, left, total, idx: 0, score: 0, missed: [], answered: false }; renderFill(); }
 
 function answersOf(q) { return Array.isArray(q.blank) ? q.blank : [q.blank]; }
 
@@ -284,11 +333,13 @@ function renderFill() {
   if (fill.idx >= fill.qs.length) {
     const n = fill.qs.length, pct = Math.round(fill.score / n * 100);
     el.innerHTML = `<div class="quiz-score">
-      <div style="color:var(--muted);margin-bottom:8px">Done!</div>
+      <div style="color:var(--muted);margin-bottom:8px">Round complete!</div>
       <div class="score-big">${fill.score}/${n}</div>
       <div style="margin-top:6px;color:var(--muted)">${pct}% — ${pct >= 85 ? '🎉 Excellent!' : pct >= 65 ? '📚 Good — keep drilling!' : '🔄 Review and try again!'}</div>
+      ${fill.mode && fill.mode !== 'mixed' ? `<div class="hint">${roundNote(fill.left, fill.total)}</div>` : ''}
       <div class="flash-controls" style="margin-top:18px">
-        ${fill.missed.length ? '<button class="btn btn-green" onclick="runFill(shuffle(fill.missed.slice()))">Retry missed</button>' : ''}
+        ${fill.mode === 'mixed' ? `<button class="btn btn-green" onclick="startFill('mixed')">Another ${n} →</button>` : fill.mode ? (nextRoundBtn(fill.left, `startFill('${fill.mode}')`) || `<button class="btn btn-green" onclick="startFill('${fill.mode}')">↻ Start over</button>`) : ''}
+        ${fill.missed.length ? '<button class="btn btn-outline" onclick="runFill(shuffle(fill.missed.slice()))">Retry missed</button>' : ''}
         <button class="btn btn-outline" onclick="renderFillStart()">Back</button>
       </div>
       ${fill.missed.length ? `<div class="missed"><h3>Missed (${fill.missed.length})</h3><ul>${fill.missed.map(q => `<li>${q.sentence.replace('<br>', ' ').replace('___', `<strong>${q.display || answersOf(q)[0]}</strong>`)}</li>`).join('')}</ul></div>` : ''}
@@ -386,8 +437,8 @@ function renderTestStart() {
       Write full sentences in Korean for the last two parts, then compare with the model answers.</div>
     <div class="mode-grid">
       <button class="mode-card" onclick="startTest()"><strong>📋 Full practice test (${TEST_MINUTES} min timer)</strong><span>10 vocab · 8 fill-in · 5 questions to answer · 1 short answer — new questions every time</span></button>
-      <button class="mode-card" onclick="startDrill('answer')"><strong>🗣️ Drill: answering questions (${na})</strong><span>Answer in a full sentence, or write the question for a given answer</span></button>
-      <button class="mode-card" onclick="startDrill('shortAnswer')"><strong>✍️ Drill: short answer (${ns})</strong><span>Self-introduction, describing people, your Korean class</span></button>
+      <button class="mode-card" onclick="startDrill('answer')"><strong>🗣️ Drill: answering questions (${roundLabel(na)})</strong><span>Answer in a full sentence, or write the question for a given answer</span></button>
+      <button class="mode-card" onclick="startDrill('shortAnswer')"><strong>✍️ Drill: short answer (${roundLabel(ns)})</strong><span>Self-introduction, describing people, your Korean class</span></button>
     </div>`;
 }
 
@@ -487,12 +538,13 @@ function updateTestScore() {
 
 // One-at-a-time drill for free-response items (answer / shortAnswer), self-checked.
 let drill = null;
-function startDrill(key) { drill = { key, items: shuffle(pool(key)), idx: 0 }; renderDrill(); }
+function startDrill(key) { const r = deal('drill-' + key, pool(key)); drill = { key, items: r.items, left: r.left, total: r.total, idx: 0 }; renderDrill(); }
 function renderDrill() {
   const el = $('testBody');
   if (drill.idx >= drill.items.length) {
-    el.innerHTML = `<div class="quiz-score"><div class="score-big">✓</div><div style="color:var(--muted)">Done with all ${drill.items.length}!</div>
-      <div class="flash-controls" style="margin-top:16px"><button class="btn btn-green" onclick="startDrill('${drill.key}')">Again (shuffled)</button><button class="btn btn-outline" onclick="renderTestStart()">Back</button></div></div>`;
+    el.innerHTML = `<div class="quiz-score"><div class="score-big">✓</div><div style="color:var(--muted)">Round complete!</div>
+      <div class="hint">${roundNote(drill.left, drill.total)}</div>
+      <div class="flash-controls" style="margin-top:16px">${nextRoundBtn(drill.left, `startDrill('${drill.key}')`) || `<button class="btn btn-green" onclick="startDrill('${drill.key}')">↻ Start over</button>`}<button class="btn btn-outline" onclick="renderTestStart()">Back</button></div></div>`;
     return;
   }
   const item = drill.items[drill.idx];
@@ -553,7 +605,8 @@ window.addEventListener('DOMContentLoaded', () => {
   $('nextBtn').addEventListener('click', nextCard);
   $('prevBtn').addEventListener('click', prevCard);
   $('shuffleBtn').addEventListener('click', () => { shuffle(flashOrder); flashIdx = 0; showFlash(); });
-  $('resetBtn').addEventListener('click', () => { flashOrder = flashCards.map((_, i) => i); flashIdx = 0; showFlash(); });
+  $('resetBtn').addEventListener('click', () => { flashOrder.sort((a, b) => a - b); flashIdx = 0; showFlash(); });
+  $('nextSetBtn')?.addEventListener('click', nextSet);
   $('speakBtn').addEventListener('click', () => speak(speakable(flashCards[flashOrder[flashIdx]].k)));
   document.addEventListener('keydown', e => {
     if (currentTab !== 'flash' || e.target.matches('input, textarea')) return;

@@ -6,3 +6,5 @@ Static site (no build) hosted on GitHub Pages from `main` at mpkuchera/korean-st
 - Check Korean content against the textbook pages (the owner shares the course PDFs). The syllabus says vocab quizzes cover the New Words from **both** Conversation 1 and 2 of each lesson.
 - Never commit the course PDFs/syllabus (copyrighted; the syllabus has staff contact info). `.gitignore` excludes them.
 - After editing, open `index.html` in the browser and click through each tab before pushing.
+- Bump the `?v=` number on every `<script>`/`<link>` tag in `index.html` whenever files change, so browsers do not mix a cached old page with new code.
+- Long modes are served in rounds (`deal()` in app.js; Round: 10 · 20 · All in the lesson bar). The owner prefers bite-size rounds like the 20-question mixed practice.

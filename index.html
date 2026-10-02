@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Korean Study Kit</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇰🇷</text></svg>">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -65,6 +65,9 @@
       <button class="btn btn-outline" id="resetBtn">↺ In order</button>
       <button class="btn btn-outline" id="speakBtn">🔊 Hear it</button>
     </div>
+    <div class="flash-controls" style="margin-top:8px">
+      <button class="btn btn-green" id="nextSetBtn">Next set →</button>
+    </div>
     <div class="kbd-hint">Keyboard: space = flip · ← → = prev/next</div>
   </section>
 
@@ -82,9 +85,9 @@
 
 <footer>Personal study notes for SIL-125 · based on <em>Integrated Korean: Beginning 1</em> (3rd ed.)</footer>
 
-<script src="app.js"></script>
+<script src="app.js?v=3"></script>
 <!-- One file per lesson. To add a lesson, copy lessons/_template.js and add a script tag here. -->
-<script src="lessons/lesson1.js"></script>
-<script src="lessons/lesson2.js"></script>
+<script src="lessons/lesson1.js?v=3"></script>
+<script src="lessons/lesson2.js?v=3"></script>
 </body>
 </html>
