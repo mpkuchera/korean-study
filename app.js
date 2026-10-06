@@ -67,9 +67,16 @@ function activeLessons() { return LESSONS.filter(l => selected.has(l.id)); }
 function itemId(key, lessonId, item) {
   return `${key}:${lessonId}:${item.k || (item.info ? item.info + ' ' : '') + (item.q || item.sentence)}`;
 }
+// Vocab can be narrowed to one conversation (weekly vocab quizzes cover one conversation's New Words).
+// Only applies when a single lesson is selected.
+let convFilter = store.get('conv', 0);
+const convActive = () => selected.size === 1 && convFilter ? convFilter : 0;
+const inConv = v => !convActive() || v.conv === convActive();
 function pool(key) {
-  return activeLessons().flatMap(l => (l[key] || []).map(item => ({ ...item, lesson: l.id, id: itemId(key, l.id, item) })));
+  return activeLessons().flatMap(l => (l[key] || []).filter(item => key !== 'vocab' || inConv(item))
+    .map(item => ({ ...item, lesson: l.id, id: itemId(key, l.id, item) })));
 }
+function setConv(c) { convFilter = c; store.set('conv', c); refreshAll(); }
 
 // ---------- rounds ----------
 // Long sets are served in bite-size rounds. Each mode keeps a shuffled deck and deals
@@ -97,8 +104,16 @@ function renderLessonBar() {
   $('lessonBar').innerHTML = '<span class="lb-label">Studying:</span>' +
     LESSONS.map(l => `<button class="chip ${selected.has(l.id) ? 'on' : ''}" onclick="toggleLesson(${l.id})">L${l.id} ${l.title}</button>`).join('') +
     (LESSONS.length > 1 ? '<button class="chip-link" onclick="selectAllLessons()">all</button>' : '') +
+    convChips() +
     '<span class="lb-spacer"></span><span class="lb-label">Round:</span>' +
     ROUND_SIZES.map(n => `<button class="chip ${roundSize === n ? 'on' : ''}" onclick="setRoundSize(${n})">${n || 'All'}</button>`).join('');
+}
+function convChips() {
+  const l = selected.size === 1 && activeLessons()[0];
+  if (!l || !l.conversations) return '';
+  const convs = Object.keys(l.conversations).map(Number);
+  return '<span class="lb-label" style="margin-left:8px">Vocab:</span>' +
+    [0, ...convs].map(c => `<button class="chip ${convActive() === c ? 'on' : ''}" onclick="setConv(${c})" title="${c ? l.conversations[c] : 'All conversations'}">${c ? 'Conv ' + c : 'All'}</button>`).join('');
 }
 function toggleLesson(id) {
   if (selected.has(id)) { if (selected.size === 1) return; selected.delete(id); }
@@ -111,7 +126,7 @@ function selectAllLessons() { selected = new Set(LESSONS.map(l => l.id)); store.
 function refreshAll() {
   const ids = activeLessons().map(l => l.id);
   decks = {};
-  $('subtitle').textContent = `${UPCOMING} · showing Lesson${ids.length > 1 ? 's' : ''} ${ids.join(', ')}`;
+  $('subtitle').textContent = `${UPCOMING} · showing Lesson${ids.length > 1 ? 's' : ''} ${ids.join(', ')}${convActive() ? ` (Conversation ${convActive()} vocab)` : ''}`;
   renderLessonBar();
   renderVocab();
   initFlash();
@@ -136,7 +151,7 @@ function showTab(id) {
 // ---------- vocab list ----------
 function renderVocab() {
   $('vocabBody').innerHTML = activeLessons().map(l => {
-    const convs = [...new Set(l.vocab.map(v => v.conv))];
+    const convs = [...new Set(l.vocab.filter(inConv).map(v => v.conv))];
     return convs.map(c => {
       const items = l.vocab.filter(v => v.conv === c);
       const convTitle = l.conversations && l.conversations[c] ? ` — ${l.conversations[c]}` : '';
