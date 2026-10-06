@@ -161,29 +161,6 @@ button { font-family: inherit; }
 
 footer { text-align: center; font-size: 0.72rem; color: var(--muted); padding: 24px 16px 40px; }
 
-/* Practice test */
-.test-timer { position: sticky; top: 0; z-index: 5; background: var(--green); color: white; border-radius: 0 0 10px 10px; padding: 8px 14px; margin: -16px -16px 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.9rem; }
-.test-timer.over { background: var(--no-border); }
-.test-part { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-.test-part h2 { font-size: 0.95rem; margin-bottom: 4px; }
-.test-part .part-note { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
-.test-item { padding: 10px 0; border-top: 1px solid var(--border); font-size: 1rem; line-height: 1.9; }
-.test-item:first-of-type { border-top: none; }
-.test-item .num { font-weight: 700; color: var(--green); margin-right: 6px; }
-.test-item .info { font-size: 0.82rem; color: var(--muted); display: block; line-height: 1.4; }
-.test-mc label { display: inline-flex; align-items: center; gap: 5px; margin: 2px 14px 2px 0; font-size: 0.92rem; cursor: pointer; }
-.test-answer { font-size: 0.85rem; font-weight: 600; margin-left: 6px; }
-.test-answer.ok { color: var(--ok-text); }
-.test-answer.no { color: var(--no-text); }
-textarea.blank-input { width: 100%; min-height: 44px; resize: vertical; display: block; margin-top: 4px; line-height: 1.5; }
-textarea.blank-input.tall { min-height: 120px; }
-.model { background: var(--green-light); border-left: 3px solid var(--green); border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 0.9rem; line-height: 1.6; }
-.model .label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); }
-.model ul { margin: 4px 0 0 18px; font-size: 0.82rem; color: var(--muted); }
-.self-mark { display: flex; gap: 8px; margin-top: 8px; }
-.self-mark .btn.on-ok { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-text); }
-.self-mark .btn.on-no { background: var(--no-bg); border-color: var(--no-border); color: var(--no-text); }
-.score-line { font-size: 1rem; font-weight: 700; text-align: center; margin: 6px 0 14px; }
 
 /* Progress */
 .review-card { border-color: var(--m-review); }

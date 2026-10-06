@@ -115,7 +115,6 @@ function refreshAll() {
   renderLessonBar();
   renderVocab();
   initFlash();
-  renderTestStart();
   renderQuizStart();
   renderFillStart();
   renderGrammar();
@@ -424,196 +423,6 @@ function submitFill() {
 }
 function nextFill() { fill.idx++; renderFill(); }
 
-// ---------- practice test ----------
-// Mirrors the in-class test: vocab, fill in the blanks, answering questions, short answer.
-// Parts A–B are auto-graded; C–D show model answers and you mark yourself.
-const TEST_MINUTES = 30;
-let test = null;
-
-function modelBox(item) {
-  return `<div class="model"><span class="label">Model answer${item.model.length > 1 ? 's' : ''}</span><br>
-    ${item.model.join('<br>')}
-    ${item.check ? `<ul>${item.check.map(c => `<li>${c}</li>`).join('')}</ul>` : ''}
-    ${item.note ? `<div class="hint">${item.note}</div>` : ''}</div>`;
-}
-function answerPrompt(a) {
-  const info = a.info ? `<span class="info">${a.info}</span>` : '';
-  if (a.type === 'question') return `${info}Write the question: <strong>A:</strong> ________ ? &nbsp; <strong>B:</strong> ${a.q}`;
-  return `${info}${a.q}${a.en ? ` <span class="info">(${a.en})</span>` : ''}`;
-}
-// Pick n answer items, mixing the kinds (about you / from info / write the question).
-function pickAnswers(n) {
-  const byType = {};
-  shuffle(pool('answer')).forEach(a => (byType[a.type] = byType[a.type] || []).push(a));
-  const out = [];
-  while (out.length < n && Object.values(byType).some(l => l.length)) {
-    for (const list of Object.values(byType)) if (list.length && out.length < n) out.push(list.pop());
-  }
-  return shuffle(out);
-}
-
-function renderTestStart() {
-  if (test && test.timer) clearInterval(test.timer);
-  test = null;
-  const na = pool('answer').length, ns = pool('shortAnswer').length;
-  $('testBody').innerHTML = `
-    <div class="tip"><strong>Practice Test format:</strong> some vocab · fill in the blanks · answering questions · short answer — ${TEST_MINUTES} minutes.
-      Write full sentences in Korean for the last two parts, then compare with the model answers.</div>
-    <div class="mode-grid">
-      <button class="mode-card" onclick="startTest()"><strong>📋 Full practice test (${TEST_MINUTES} min timer)</strong><span>10 vocab · 8 fill-in · 5 questions to answer · 1 short answer — new questions every time</span></button>
-      <button class="mode-card" onclick="startDrill('answer')"><strong>🗣️ Drill: answering questions (${roundLabel(na)})</strong><span>Answer in a full sentence, or write the question for a given answer</span></button>
-      <button class="mode-card" onclick="startDrill('shortAnswer')"><strong>✍️ Drill: short answer (${roundLabel(ns)})</strong><span>Self-introduction, describing people, your Korean class</span></button>
-    </div>`;
-}
-
-function startTest() {
-  const vocab = pool('vocab');
-  const spell = shuffle(vocab.filter(v => !v.noSpell)).slice(0, 5);
-  const mc = shuffle(vocab.filter(v => !spell.includes(v))).slice(0, 5).map(v => vocabQuestion(v, vocab, 'ko'));
-  test = {
-    spell, mc,
-    fills: shuffle(pool('fill')).slice(0, 8),
-    answers: pickAnswers(5),
-    short: shuffle(pool('shortAnswer'))[0],
-    end: Date.now() + TEST_MINUTES * 60000,
-    submitted: false, self: {},
-  };
-  const inp = (id, cls = '') => `<input class="blank-input ${cls}" id="${id}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="ko">`;
-  const area = (id, cls = '') => `<textarea class="blank-input ${cls}" id="${id}" lang="ko" spellcheck="false" placeholder="한국어로 쓰세요…"></textarea>`;
-  let n = 0;
-  $('testBody').innerHTML = `
-    <div class="test-timer" id="testTimer"><span>⏱ <span id="testClock">${TEST_MINUTES}:00</span></span><button class="btn btn-outline btn-small" onclick="if(confirm('Quit this practice test?'))renderTestStart()">✕ Quit</button></div>
-    <div class="test-part"><h2>A. Vocabulary</h2><div class="part-note">Write the Korean word, then choose the meaning.</div>
-      ${test.spell.map((v, i) => `<div class="test-item"><span class="num">${++n}.</span>${v.e} <span class="vocab-tag">${v.pos}</span> → ${inp('tS' + i, 'wide')}<span class="test-answer" id="tS${i}a"></span></div>`).join('')}
-      ${test.mc.map((q, i) => `<div class="test-item test-mc"><span class="num">${++n}.</span>${q.q}<br>
-        ${q.opts.map((o, j) => `<label><input type="radio" name="tM${i}" value="${j}"> ${o}</label>`).join('')}<span class="test-answer" id="tM${i}a"></span></div>`).join('')}
-    </div>
-    <div class="test-part"><h2>B. Fill in the blanks</h2><div class="part-note">Particles, copula, polite endings, vocabulary.</div>
-      ${test.fills.map((q, i) => { const [b, a = ''] = q.sentence.split('___'); return `<div class="test-item"><span class="num">${++n}.</span>${b}${inp('tF' + i)}${a}<span class="test-answer" id="tF${i}a"></span></div>`; }).join('')}
-    </div>
-    <div class="test-part"><h2>C. Answering questions</h2><div class="part-note">Answer in a complete Korean sentence (or write the question that fits the answer).</div>
-      ${test.answers.map((a, i) => `<div class="test-item"><span class="num">${++n}.</span>${answerPrompt(a)}${area('tC' + i)}<div id="tC${i}m"></div></div>`).join('')}
-    </div>
-    <div class="test-part"><h2>D. Short answer</h2>
-      <div class="test-item"><span class="num">${++n}.</span>${test.short.q}${test.short.info ? `<span class="info">${test.short.info}</span>` : ''}${area('tD', 'tall')}<div id="tDm"></div></div>
-    </div>
-    <div style="text-align:center"><button class="btn btn-green" id="testSubmit" onclick="submitTest()">Submit &amp; check</button></div>
-    <div id="testResult"></div>`;
-  tickTest();
-  test.timer = setInterval(tickTest, 1000);
-  window.scrollTo(0, 0);
-}
-function tickTest() {
-  if (!test || !$('testClock')) return;
-  const left = Math.round((test.end - Date.now()) / 1000);
-  const t = Math.abs(left);
-  $('testClock').textContent = `${left < 0 ? '−' : ''}${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}${left < 0 ? ' (time’s up!)' : ''}`;
-  $('testTimer').classList.toggle('over', left < 0);
-}
-function gradeInput(id, accepted, shown) {
-  const el = $(id), ok = accepted.some(a => normalize(a) === normalize(el.value)) && normalize(el.value) !== '';
-  el.readOnly = true;
-  el.classList.add(ok ? 'correct' : 'wrong');
-  $(id + 'a').className = 'test-answer ' + (ok ? 'ok' : 'no');
-  $(id + 'a').textContent = ok ? '✓' : `✗ ${shown}`;
-  return ok;
-}
-function submitTest() {
-  if (test.submitted) return;
-  test.submitted = true;
-  clearInterval(test.timer);
-  let auto = 0;
-  test.spell.forEach((v, i) => { const ok = gradeInput('tS' + i, acceptedAnswers(v), v.k); record('spell|' + v.id, ok); if (ok) auto++; });
-  test.mc.forEach((q, i) => {
-    const picked = document.querySelector(`input[name="tM${i}"]:checked`);
-    const ok = !!picked && +picked.value === q.ans;
-    record(q.key, ok);
-    if (ok) auto++;
-    document.querySelectorAll(`input[name="tM${i}"]`).forEach(r => { r.disabled = true; });
-    $(`tM${i}a`).className = 'test-answer ' + (ok ? 'ok' : 'no');
-    $(`tM${i}a`).textContent = ok ? '✓' : `✗ ${q.opts[q.ans]}`;
-  });
-  test.fills.forEach((q, i) => { const ok = gradeInput('tF' + i, answersOf(q), answersOf(q)[0]); record(q.id, ok); if (ok) auto++; });
-  test.auto = auto;
-  test.autoMax = test.spell.length + test.mc.length + test.fills.length;
-  test.round = logRound('Practice Test', 'test', auto, test.autoMax);
-  const selfMark = key => `<div class="self-mark"><button class="btn btn-outline btn-small" data-self="${key}" data-v="1" onclick="markSelf(this)">✓ Mine matches</button><button class="btn btn-outline btn-small" data-self="${key}" data-v="0" onclick="markSelf(this)">✗ Not quite</button></div>`;
-  test.answers.forEach((a, i) => { $(`tC${i}`).readOnly = true; $(`tC${i}m`).innerHTML = modelBox(a) + selfMark('C' + i); });
-  $('tD').readOnly = true;
-  $('tDm').innerHTML = modelBox(test.short) + selfMark('D');
-  $('testSubmit').style.display = 'none';
-  updateTestScore();
-  $('testResult').scrollIntoView({ behavior: 'smooth' });
-}
-function markSelf(btn) {
-  const key = btn.dataset.self, v = +btn.dataset.v;
-  const item = key === 'D' ? test.short : test.answers[+key.slice(1)];
-  if (!(key in test.self)) record(item.id, !!v); // first mark counts
-  test.self[key] = v;
-  if (test.round) {
-    const marks = Object.values(test.self);
-    test.round.c = test.auto + marks.reduce((a, b) => a + b, 0);
-    test.round.n = test.autoMax + marks.length;
-    saveProgress();
-  }
-  btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('on-ok', 'on-no'));
-  btn.classList.add(+btn.dataset.v ? 'on-ok' : 'on-no');
-  updateTestScore();
-}
-function updateTestScore() {
-  const selfMax = test.answers.length + 1;
-  const marked = Object.keys(test.self).length;
-  const selfScore = Object.values(test.self).reduce((s, v) => s + v, 0);
-  $('testResult').innerHTML = `<div class="quiz-score">
-    <div class="score-line">Auto-graded (A–B): ${test.auto}/${test.autoMax}</div>
-    <div class="score-line">Self-graded (C–D): ${selfScore}/${selfMax}${marked < selfMax ? ` <span style="font-weight:400;color:var(--muted)">(${selfMax - marked} left to mark)</span>` : ''}</div>
-    <div class="flash-controls"><button class="btn btn-green" onclick="startTest()">New practice test</button><button class="btn btn-outline" onclick="renderTestStart()">Back</button></div>
-  </div>`;
-}
-
-// One-at-a-time drill for free-response items (answer / shortAnswer), self-checked.
-let drill = null;
-function startDrill(key) { const r = deal('drill-' + key, pool(key)); drill = { key, items: r.items, left: r.left, total: r.total, idx: 0, score: 0, marked: 0 }; renderDrill(); }
-function markDrill(ok) {
-  record(drill.items[drill.idx].id, ok);
-  drill.marked++;
-  if (ok) drill.score++;
-  drill.idx++;
-  renderDrill();
-}
-function quitDrill() {
-  if (drill && !drill.logged) { drill.logged = true; logRound('Practice Test', drill.key, drill.score, drill.marked); }
-  renderTestStart();
-}
-function renderDrill() {
-  const el = $('testBody');
-  if (drill.idx >= drill.items.length) {
-    if (!drill.logged) { drill.logged = true; logRound('Practice Test', drill.key, drill.score, drill.marked); }
-    el.innerHTML = `<div class="quiz-score"><div class="score-big">${drill.score}/${drill.marked}</div><div style="color:var(--muted)">Round complete!</div>
-      <div class="hint">${roundNote(drill.left, drill.total)}</div>
-      <div class="flash-controls" style="margin-top:16px">${nextRoundBtn(drill.left, `startDrill('${drill.key}')`) || `<button class="btn btn-green" onclick="startDrill('${drill.key}')">↻ Start over</button>`}<button class="btn btn-outline" onclick="renderTestStart()">Back</button></div></div>`;
-    return;
-  }
-  const item = drill.items[drill.idx];
-  const prompt = drill.key === 'answer' ? answerPrompt(item) : `${item.q}${item.info ? `<span class="info">${item.info}</span>` : ''}`;
-  el.innerHTML = `
-    <div class="meta">${drill.idx + 1} of ${drill.items.length} · Lesson ${item.lesson}</div>
-    <div class="blank-q">
-      <div class="blank-sentence" style="line-height:1.6">${prompt}</div>
-      <textarea class="blank-input ${drill.key === 'shortAnswer' ? 'tall' : ''}" id="drillInp" lang="ko" spellcheck="false" placeholder="한국어로 쓰세요…"></textarea>
-      <div style="margin-top:10px"><button class="check-btn" onclick="$('drillModel').innerHTML = modelBox(drill.items[drill.idx]); $('drillMark').style.display='flex'">👀 Show model answer</button></div>
-      <div id="drillModel"></div>
-      <div class="self-mark" id="drillMark" style="display:none">
-        <button class="btn btn-outline btn-small" onclick="markDrill(true)">✓ Mine matches →</button>
-        <button class="btn btn-outline btn-small" onclick="markDrill(false)">✗ Not quite →</button>
-      </div>
-    </div>
-    <div class="quiz-nav">
-      <button class="btn btn-outline btn-small" onclick="quitDrill()">✕ Quit</button>
-    </div>`;
-  $('drillInp').focus();
-}
-
 // ---------- progress tracking ----------
 // Saved in this browser only (localStorage). items[key] = { a: attempts, c: correct, r: last 5 results (1/0), t: last seen }
 // rounds = completed (or quit) rounds: { t, s: section, m: mode, c: correct, n: answered, L: lessons }
@@ -682,7 +491,6 @@ function trackedCategories(l) {
     { name: 'Spelling', items: vocab.filter(v => !v.noSpell).map(v => ({ key: 'spell|' + id('vocab', v), label: `✍️ ${v.e} → ${v.k}` })) },
     { name: 'Grammar & usage', items: (l.quiz || []).map(q => ({ key: id('quiz', q), label: `${stripTags(q.q)} → ${q.opts[q.ans]}` })) },
     { name: 'Fill-in blanks', items: (l.fill || []).map(q => ({ key: id('fill', q), label: q.sentence.replace('___', `[${[].concat(q.blank)[0]}]`) })) },
-    { name: 'Answering questions', items: [...(l.answer || []), ...(l.shortAnswer || [])].map(q => ({ key: id(l.answer && l.answer.includes(q) ? 'answer' : 'shortAnswer', q), label: `${q.info ? q.info + ' · ' : ''}${stripTags(q.q)}` })) },
   ];
 }
 
@@ -755,7 +563,7 @@ function renderProgress() {
   const recent = rounds.slice(-10).reverse();
   $('progressBody').innerHTML = `
     <div class="tip"><strong>Saved in this browser only.</strong> Your laptop and phone keep separate records — use Backup below to move or merge them.</div>
-    ${rounds.length ? '' : '<div class="tip">No rounds yet — finish a round in Quiz Me, Fill-in, or the Practice Test and it will show up here.</div>'}
+    ${rounds.length ? '' : '<div class="tip">No rounds yet — finish a round in Quiz Me or Fill-in &amp; Spell and it will show up here.</div>'}
     ${tiles}
     <div class="grammar-block"><div class="grammar-title">Accuracy by day</div>${accuracyChart(byDay)}
       ${byDay.length ? `<details class="hint"><summary>Show as table</summary><table class="rule-table"><tr><th>Day</th><th>Questions</th><th>Correct</th></tr>${byDay.slice(-21).reverse().map(d => `<tr><td>${d.day}</td><td>${d.n}</td><td>${d.pct}%</td></tr>`).join('')}</table></details>` : ''}
