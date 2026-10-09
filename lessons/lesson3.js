@@ -1,4 +1,31 @@
 // Lesson 3 · 대학 캠퍼스 (The University Campus) — textbook pp. 89–114
+// For generated location sentences: position word → English
+const POSITIONS = { 위: 'on', 밑: 'under', 옆: 'next to', 앞: 'in front of', 뒤: 'behind', 안: 'inside' };
+const SMALL_THINGS = [['가방', 'bag'], ['책', 'book'], ['시계', 'watch'], ['우산', 'umbrella'], ['사전', 'dictionary'], ['컴퓨터', 'computer'], ['교과서', 'textbook']];
+const BUILDINGS = [['도서관', 'library'], ['서점', 'bookstore'], ['우체국', 'post office'], ['기숙사', 'dorm'], ['학생회관', 'student center']];
+function locationScene() {
+  const r = Math.random();
+  if (r < 0.45) { // a small thing on/under/next to the desk or chair
+    const [t, te] = pick(SMALL_THINGS), [p, pe] = pick([['책상', 'desk'], ['의자', 'chair']]), pos = pick(['위', '밑', '옆']);
+    return { thing: t, place: p, pos, ko: `${josa(t, '이', '가')} ${p} ${pos}에 있어요.`, en: `The ${te} is ${POSITIONS[pos]} the ${pe}.` };
+  }
+  if (r < 0.6) { // something inside the bag
+    const [t, te] = pick(SMALL_THINGS.filter(s => ['책', '사전', '교과서', '우산', '시계'].includes(s[0])));
+    return { thing: t, place: '가방', pos: '안', ko: `${josa(t, '이', '가')} 가방 안에 있어요.`, en: `The ${te} is inside the bag.` };
+  }
+  const [a, ae] = pick(BUILDINGS), [b, be] = pick(BUILDINGS.filter(x => x[0] !== a)), pos = pick(['앞', '뒤', '옆']);
+  return { thing: a, place: b, pos, ko: `${josa(a, '이', '가')} ${b} ${pos}에 있어요.`, en: `The ${ae} is ${POSITIONS[pos]} the ${be}.` };
+}
+const HAVE_THINGS = [['가방', 'a bag'], ['책', 'a book'], ['시계', 'a watch'], ['우산', 'an umbrella'], ['사전', 'a dictionary'], ['컴퓨터', 'a computer'],
+  ['교과서', 'a textbook'], ['숙제', 'homework'], ['수업', 'class'], ['시험', 'a test'], ['질문', 'a question'], ['시간', 'time'], ['친구', 'a friend']];
+// [dictionary form, ~(으)세요 form, meaning] — listed explicitly to avoid irregular stems (알다 → 아세요 etc.)
+const HONORIFICS = [
+  ['가다', '가세요', 'go'], ['앉다', '앉으세요', 'sit'], ['읽다', '읽으세요', 'read'], ['인사하다', '인사하세요', 'greet'], ['보다', '보세요', 'look'],
+  ['쓰다', '쓰세요', 'write'], ['만나다', '만나세요', 'meet'], ['하다', '하세요', 'do'], ['공부하다', '공부하세요', 'study'], ['지내다', '지내세요', 'get along'],
+  ['좋다', '좋으세요', 'be good'], ['크다', '크세요', 'be big'], ['많다', '많으세요', 'be many'], ['괜찮다', '괜찮으세요', 'be okay'],
+  ['있다', '있으세요', 'have'], ['없다', '없으세요', 'not have'],
+];
+
 addLesson({
   id: 3,
   title: '대학 캠퍼스',
@@ -145,6 +172,73 @@ addLesson({
     { q: 'Write a short dialogue (4 lines): ask your professor whether they have class today and where the classroom is.',
       model: ['A: 선생님, 오늘 수업 있으세요?', 'B: 네, 한국어 수업이 있어요.', 'A: 한국어 교실은 어디 있어요?', 'B: 로이스 홀 3층에 있어요.'],
       check: ['Use ~(으)세요 when asking the professor', 'The professor answers with plain 있어요'] },
+  ],
+
+  generators: [
+    {
+      type: 'location', label: 'Where things are (에 있어요)',
+      mc: () => {
+        const sc = locationScene(), wrongPos = pick(Object.keys(POSITIONS).filter(p => p !== sc.pos));
+        return mcq(`“${sc.en}”`, sc.ko, [
+          `${josa(sc.thing, '이', '가')} ${sc.place} ${wrongPos}에 있어요.`,
+          `${josa(sc.thing, '이', '가')} ${sc.place} ${sc.pos}에 이에요.`, // (위예요 / 옆이에요 alone are fine in speech, so not used as a wrong answer)
+          `${josa(sc.thing, '을', '를')} ${sc.place} ${sc.pos}에 있어요.`,
+          `${josa(sc.place, '이', '가')} ${sc.thing} ${sc.pos}에 있어요.`,
+        ], 'thing + 이/가 · place + position word + 에 · 있어요');
+      },
+      typed: () => {
+        const sc = locationScene();
+        return Math.random() < 0.6
+          ? { sentence: `${josa(sc.thing, '이', '가')} ${sc.place} ___에 있어요. (“${sc.en}”)`, blank: sc.pos, hint: 'position word: 위 밑 옆 앞 뒤 안' }
+          : { sentence: `${josa(sc.thing, '이', '가')} ${sc.place} ${sc.pos}___ 있어요. (“${sc.en}”)`, blank: '에', hint: 'location particle' };
+      },
+    },
+    {
+      type: 'have', label: 'Have / don\'t have (있어요 / 없어요)',
+      mc: () => {
+        const [w, en] = pick(HAVE_THINGS), have = Math.random() < 0.5;
+        return have
+          ? mcq(`“I have ${en}.”`, josa(w, '이 있어요.', '가 있어요.'), [josa(w, '이에요.', '예요.'), josa(w, '을 있어요.', '를 있어요.'), josa(w, '이 없어요.', '가 없어요.')], 'Having = N이/가 있어요')
+          : mcq(`“I don't have ${en}.”`, josa(w, '이 없어요.', '가 없어요.'), [josa(w, '이 아니에요.', '가 아니에요.'), josa(w, '을 없어요.', '를 없어요.'), josa(w, '이 있어요.', '가 있어요.')], 'Not having = N이/가 없어요 (아니에요 means “is not [N]”)');
+      },
+      typed: () => {
+        const [w, en] = pick(HAVE_THINGS), have = Math.random() < 0.5;
+        return Math.random() < 0.5
+          ? { sentence: `“I ${have ? 'have' : "don't have"} ${en}.” → ${josa(w, '이', '가')} ___어요.`, blank: have ? '있' : '없', hint: 'have = 있다 · not have = 없다' }
+          : { sentence: `“I ${have ? 'have' : "don't have"} ${en}.” → ${w}___ ${have ? '있' : '없'}어요.`, blank: hasBatchim(w) ? '이' : '가', hint: 'subject particle', why: batchimWhy(w, '이', '가') };
+      },
+    },
+    {
+      type: 'honorific', label: 'Honorific ~(으)세요',
+      typed: () => {
+        const [d, h, e] = pick(HONORIFICS);
+        return { sentence: `${d} (${e}) → honorific: ___`, blank: h, hint: 'Stem ends in a consonant → 으세요; in a vowel → 세요', why: `${d} → ${h}`, wide: true };
+      },
+      mc: () => {
+        const [d, h, e] = pick(HONORIFICS), stem = d.slice(0, -1);
+        const ask = ['앉다', '읽다', '가다', '쓰다', '보다', '인사하다'].includes(d);
+        return mcq(ask ? `Politely ask someone to <strong>${e}</strong> (${d}):` : `Honorific form of <span class="quiz-korean">${d}</span> (${e}):`, h,
+          [hasBatchim(stem) ? stem + '세요' : stem + '으세요', stem + '어세요', stem + '아요', d + '세요'], `${stem.slice(-1)} ${hasBatchim(stem) ? 'ends in a consonant → 으세요' : 'ends in a vowel → 세요'}`);
+      },
+    },
+    {
+      type: 'honorific-is', label: 'Honorific “is”: 이세요 / 세요',
+      typed: () => {
+        const [w, en] = pick([['선생님', 'a teacher'], ['교수', 'a professor'], ['한국 사람', 'Korean'], ['미국 사람', 'American'], ['이민수 선생님', 'Professor Minsoo Lee'], ['한국어 선생님', 'the Korean teacher']]);
+        return { sentence: `(About your teacher) ${w}___. (“He/She is ${en}.”)`, blank: hasBatchim(w) ? '이세요' : '세요', hint: `Last syllable: “${w.slice(-1)}”`, why: batchimWhy(w, '이세요', '세요') };
+      },
+    },
+    {
+      type: 'floor', label: 'Floors (Sino-Korean + 층)',
+      mc: () => {
+        const n = randInt(1, 15);
+        return mcq(`How do you read <strong>${n}층</strong>?`, `${sino(n)} 층`, [`${nativeCounting(n)} 층`, `${sino(n % 9 + 1)} 층`, `${sino(n)} 명`], 'Floors use Sino-Korean numbers.');
+      },
+      typed: () => {
+        const n = randInt(1, 12);
+        return { sentence: `${n}층 → ___ 층 (read the number)`, blank: sino(n), hint: 'Sino-Korean: 일 이 삼 사 오…' };
+      },
+    },
   ],
 
   grammar: [

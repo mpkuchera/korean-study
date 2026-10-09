@@ -155,6 +155,81 @@ addLesson({
       model: ['엘렌은 일본 사람이에요. 엘렌은 대학생이에요.', '빌은 3학년이에요. 빌은 미국 사람이 아니에요.'], check: ['If two people share something, use 도: 빌도 대학생이에요.'] },
   ],
 
+  // Fresh practice: build new questions from the vocab + grammar rules each time (see "generated practice" in app.js).
+  generators: [
+    {
+      type: 'topic', label: 'Topic particle 은/는',
+      typed: ctx => {
+        const w = pick([...CAST.map(c => c[0]), ...nounsUpTo(ctx.upTo, ['씨']).map(n => n.w)]);
+        return { sentence: `${w}___ (topic: “as for ${w}…”)`, blank: hasBatchim(w) ? '은' : '는', hint: `Look at the last syllable “${w.slice(-1)}” — does it have a bottom consonant?`, why: batchimWhy(w, '은', '는') };
+      },
+      mc: ctx => {
+        const w = pick([...CAST.map(c => c[0]), ...nounsUpTo(ctx.upTo, ['씨']).map(n => n.w)]);
+        return mcq(`Add the <strong>topic</strong> particle to <span class="quiz-korean">${w}</span>`, josa(w, '은', '는'), [josa(w, '는', '은'), josa(w, '이', '가'), josa(w, '가', '이')], batchimWhy(w, '은', '는'));
+      },
+    },
+    {
+      type: 'copula', label: '이에요 / 예요',
+      typed: ctx => {
+        if (Math.random() < 0.4) { const [ko, en] = pick(CAST); return { sentence: `저는 ${ko}___. (“I'm ${en}.”)`, blank: hasBatchim(ko) ? '이에요' : '예요', hint: `Last syllable: “${ko.slice(-1)}”`, why: batchimWhy(ko, '이에요', '예요') }; }
+        const n = pick(nounsUpTo(ctx.upTo, ['씨']));
+        return { sentence: `${n.w}___. (${n.w} = ${n.e} · “it is …”)`, blank: hasBatchim(n.w) ? '이에요' : '예요', hint: `Last syllable: “${n.w.slice(-1)}”`, why: batchimWhy(n.w, '이에요', '예요') };
+      },
+      mc: ctx => {
+        const n = pick(nounsUpTo(ctx.upTo, ['씨']));
+        return mcq(`<span class="quiz-korean">${n.w}</span> (${n.e}) + “it is” →`, josa(n.w, '이에요', '예요'), [josa(n.w, '예요', '이에요'), n.w + '이예요', josa(n.w, '을 이에요', '를 예요')], batchimWhy(n.w, '이에요', '예요') + ' (이예요 is a common misspelling)');
+      },
+    },
+    {
+      type: 'negative', label: 'N이/가 아니에요',
+      typed: ctx => {
+        const n = pick(nounsUpTo(ctx.upTo, ['씨']));
+        return { sentence: `${n.w}___ 아니에요. (${n.w} = ${n.e} · “it is not …”)`, blank: hasBatchim(n.w) ? '이' : '가', hint: '아니에요 takes the subject particle', why: batchimWhy(n.w, '이', '가') };
+      },
+      mc: ctx => {
+        const n = pick(nounsUpTo(ctx.upTo, ['씨']));
+        return mcq(`<span class="quiz-korean">${n.w}</span> (${n.e}) + “it is not” →`, josa(n.w, '이 아니에요', '가 아니에요'), [josa(n.w, '을 아니에요', '를 아니에요'), josa(n.w, '가 아니에요', '이 아니에요'), josa(n.w, '은 아니요', '는 아니요')], 'N이/가 아니에요 — never 을/를. ' + batchimWhy(n.w, '이', '가'));
+      },
+    },
+    {
+      type: 'yesno', label: 'Answering yes/no questions',
+      mc: () => {
+        const [name, eng] = pick(CAST);
+        const countries = [['한국', 'Korean'], ['중국', 'Chinese'], ['일본', 'Japanese'], ['미국', 'American'], ['영국', 'British']];
+        if (Math.random() < 0.5) {
+          const actual = pick(countries), ask = Math.random() < 0.4 ? actual : pick(countries.filter(c => c !== actual));
+          const q = `(${eng} is ${actual[1]}.) A: ${name} 씨, ${ask[0]} 사람이에요? &nbsp;B: ___`;
+          if (ask === actual) return mcq(q, `네, ${ask[0]} 사람이에요.`, [`아니요, ${ask[0]} 사람이에요.`, `네, ${ask[0]} 사람이 아니에요.`, `네, ${ask[0]} 사람예요.`], '네 = the content is true.');
+          return mcq(q, `아니요, ${ask[0]} 사람이 아니에요. ${actual[0]} 사람이에요.`,
+            [`네, ${ask[0]} 사람이 아니에요. ${actual[0]} 사람이에요.`, `아니요, ${ask[0]} 사람가 아니에요. ${actual[0]} 사람이에요.`, `아니요, ${ask[0]} 사람이에요. ${actual[0]} 사람이 아니에요.`], '아니요 = the content is false; then N이 아니에요.');
+        }
+        const years = ['freshman', 'sophomore', 'junior', 'senior'], actual = randInt(1, 4), ask = Math.random() < 0.4 ? actual : pick([1, 2, 3, 4].filter(y => y !== actual));
+        const q = `(${eng} is a ${years[actual - 1]}.) A: ${name} 씨, ${ask}학년이에요? &nbsp;B: ___`;
+        if (ask === actual) return mcq(q, `네, ${ask}학년이에요.`, [`아니요, ${ask}학년이에요.`, `네, ${ask}학년이 아니에요.`, `네, ${ask}학년예요.`]);
+        return mcq(q, `아니요, ${ask}학년이 아니에요. ${actual}학년이에요.`, [`네, ${ask}학년이 아니에요. ${actual}학년이에요.`, `아니요, ${ask}학년가 아니에요. ${actual}학년이에요.`, `아니요, ${actual}학년이 아니에요. ${ask}학년이에요.`]);
+      },
+    },
+    {
+      type: 'language', label: 'Country → person / language',
+      typed: () => {
+        const c = pick(['한국', '중국', '일본', '미국', '영국']);
+        if (Math.random() < 0.5) return { sentence: `${c} 사람 → language: ___`, blank: c === '미국' || c === '영국' ? '영어' : (c === '한국' ? ['한국어', '한국말'] : c + '어'), hint: 'country + 어 (but English is special)' };
+        return { sentence: `a person from ${c} → ___`, blank: c + ' 사람', hint: 'country + 사람' };
+      },
+    },
+    {
+      type: 'phone', label: 'Reading phone numbers',
+      mc: () => {
+        const digits = () => Array.from({ length: 4 }, () => randInt(0, 9));
+        const a = [randInt(2, 9), randInt(0, 9), randInt(0, 9)], b = digits();
+        const read = ds => ds.map(d => d === 0 ? '공' : SINO_DIGITS[d]).join('');
+        const say = (x, y) => `${read(x)}(의) ${read(y)}`;
+        const tweak = ds => { const c = ds.slice(), i = randInt(0, c.length - 1); c[i] = (c[i] + randInt(1, 8)) % 10; return c; };
+        return mcq(`Read the phone number <strong>${a.join('')}-${b.join('')}</strong>`, say(a, b), [say(tweak(a), b), say(a, tweak(b)), say(b.slice(0, 3), [...a, b[3]])], '0 = 공 (or 영); the dash is 의 (pronounced 에).');
+      },
+    },
+  ],
+
   grammar: [
     {
       id: 'G1.1', tag: 'Lesson 1', title: 'Equational expression: N1<em>은/는</em> N2<em>이에요/예요</em>',

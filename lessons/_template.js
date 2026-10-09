@@ -24,6 +24,13 @@ addLesson({
     { sentence: '저___ 학생이에요.', blank: '는', hint: 'Shown on request or after a miss', type: 'Particle' },
   ],
 
+  // Optional: generators build a fresh question each time (🎲 Fresh practice). Use helpers from app.js:
+  // pick, randInt, josa(word, afterConsonant, afterVowel), hasBatchim, batchimWhy, mcq(q, correct, wrongs, why),
+  // nounsUpTo(n), CAST, sino(n), nativeCounting(n). Make sure no "wrong" option is actually also correct.
+  generators: [
+    { type: 'topic', label: 'Topic particle', typed: ctx => ({ sentence: '저___ 학생이에요.', blank: '는', hint: '' }), mc: ctx => mcq('Question', 'right', ['wrong1', 'wrong2', 'wrong3'], 'why') },
+  ],
+
   // Grammar cards. html uses classes: grammar-body, ko, example-box (with <b>), rule-table.
   grammar: [
     { id: 'GN.1', tag: 'Lesson N', title: 'Title with <em>highlight</em>', html: '<div class="grammar-body">…</div>' },

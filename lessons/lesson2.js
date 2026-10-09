@@ -1,4 +1,19 @@
 // Lesson 2 · 한국어 수업 (Korean Language Class) — textbook pp. 67–88
+// Verb–object pairs for generated sentences: [object, polite verb, English]
+const L2_ACTIONS = [
+  ['아침', '먹어요', 'eats breakfast'], ['음식', '먹어요', 'eats the food'], ['텔레비전', '봐요', 'watches TV'],
+  ['시험', '봐요', 'takes a test'], ['친구', '만나요', 'meets a friend'], ['선생님', '만나요', 'meets the teacher'],
+  ['숙제', '해요', 'does homework'], ['공부', '해요', 'studies'], ['한국어', '공부해요', 'studies Korean'],
+  ['역사', '공부해요', 'studies history'], ['이름', '써요', 'writes a name'],
+];
+// [dictionary form, polite form, meaning] for every verb/adjective up to lesson n whose polite form is listed in parentheses
+function politeVerbs(n) {
+  return LESSONS.filter(l => l.id <= n).flatMap(l => l.vocab)
+    .filter(v => ['verb', 'adjective'].includes(v.pos))
+    .map(v => { const m = v.k.match(/^(\S+다)\s*\((\S+요)\)$/); return m && !/세요$|습니다$/.test(m[2]) ? [m[1], m[2], v.e.split(/[;,(]/)[0].trim()] : null; })
+    .filter(Boolean);
+}
+
 addLesson({
   id: 2,
   title: '한국어 수업',
@@ -165,6 +180,46 @@ addLesson({
     { q: 'Describe what each person is doing in one sentence each.', info: '리사: breakfast · 유미: TV · 소피아: homework · 스티브: friend',
       model: ['리사가 아침을 먹어요.', '유미가 텔레비전을 봐요.', '소피아가 숙제를 해요.', '스티브가 친구를 만나요.'],
       check: ['을 after consonant (아침을, 텔레비전을), 를 after vowel (숙제를, 친구를)'] },
+  ],
+
+  generators: [
+    {
+      type: 'subject', label: 'Subject particle 이/가',
+      typed: ctx => {
+        const n = pick(nounsUpTo(ctx.upTo, ['씨', '오늘', '내일', '아침']));
+        return { sentence: `${n.w}___ 어때요? (“How is the ${n.e}?”)`, blank: hasBatchim(n.w) ? '이' : '가', hint: `Last syllable: “${n.w.slice(-1)}”`, why: batchimWhy(n.w, '이', '가') };
+      },
+      mc: ctx => {
+        const n = pick(nounsUpTo(ctx.upTo, ['씨', '오늘', '내일', '아침']));
+        return mcq(`“How is the ${n.e}?”`, josa(n.w, '이 어때요?', '가 어때요?'), [josa(n.w, '가 어때요?', '이 어때요?'), josa(n.w, '을 어때요?', '를 어때요?'), josa(n.w, '이 어떻어요?', '가 어떻어요?')], batchimWhy(n.w, '이', '가') + ' · 어떻다 → 어때요');
+      },
+    },
+    {
+      type: 'object', label: 'Object particle 을/를',
+      typed: () => {
+        const [s, en] = pick(CAST), [o, v, act] = pick(L2_ACTIONS);
+        return { sentence: `${josa(s, '이', '가')} ${o}___ ${v}. (“${en} ${act}.”)`, blank: hasBatchim(o) ? '을' : '를', hint: `Last syllable of the object: “${o.slice(-1)}”`, why: batchimWhy(o, '을', '를') };
+      },
+      mc: () => {
+        const [s, en] = pick(CAST), [o, v, act] = pick(L2_ACTIONS);
+        return mcq(`“${en} ${act}.”`, `${josa(s, '이', '가')} ${josa(o, '을', '를')} ${v}.`,
+          [`${josa(s, '을', '를')} ${josa(o, '이', '가')} ${v}.`, `${josa(s, '이', '가')} ${josa(o, '를', '을')} ${v}.`, `${josa(s, '이', '가')} ${josa(o, '이', '가')} ${v}.`],
+          `Subject + 이/가, object + 을/를. ${batchimWhy(o, '을', '를')}`);
+      },
+    },
+    {
+      type: 'polite', label: 'Polite ending ~어요/아요',
+      typed: ctx => {
+        const [d, p, e] = pick(politeVerbs(ctx.upTo));
+        return { sentence: `${d} (${e}) → polite: ___`, blank: p, hint: 'Last vowel of the stem ㅏ/ㅗ → 아요, otherwise 어요 (watch 하다, contractions, ㅡ)', why: `${d} → ${p}`, wide: true };
+      },
+      mc: ctx => {
+        const [d, p, e] = pick(politeVerbs(ctx.upTo)), stem = d.slice(0, -1);
+        // 보아요 / 지내어요 are valid (uncontracted) forms, so never offer them as wrong answers
+        const wrongs = [stem + '아요', stem + '어요', stem + '요', d + '요'].filter(w => !['보아요', '지내어요'].includes(w));
+        return mcq(`Polite form of <span class="quiz-korean">${d}</span> (${e}):`, p, wrongs, `${d} → ${p}`);
+      },
+    },
   ],
 
   grammar: [
