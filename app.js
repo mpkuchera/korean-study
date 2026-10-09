@@ -85,13 +85,12 @@ const ROUND_SIZES = [10, 20, 0]; // 0 = all
 let roundSize = store.get('roundSize', 20);
 let decks = {};
 
-function deal(key, items) {
+function deal(key, items, size = roundSize || items.length) {
   let d = decks[key];
   if (!d || d.total !== items.length || !d.left.length) d = decks[key] = { left: shuffle(items.map((_, i) => i)), total: items.length };
-  const picked = d.left.splice(0, roundSize || items.length);
+  const picked = d.left.splice(0, size);
   return { idx: picked, items: picked.map(i => items[i]), left: d.left.length, total: items.length };
 }
-function roundLabel(total) { return roundSize && total > roundSize ? `rounds of ${roundSize} · ${total} total` : `${total}`; }
 function nextRoundBtn(left, onclick) {
   return left ? `<button class="btn btn-green" onclick="${onclick}">Next ${Math.min(left, roundSize)} →</button>` : '';
 }
@@ -256,7 +255,16 @@ function genPool(kind) {
     .map(g => ({ ...g, lesson: l.id, key: `gen|${l.id}|${g.type}`, ctx: { upTo } })));
 }
 function genMC(g) { return { ...g.mc(g.ctx), key: g.key, tag: g.label }; }
-function genTyped(g) { return { ...g.typed(g.ctx), type: '🎲 ' + g.label, key: g.key }; }
+function genTyped(g) { return { ...g.typed(g.ctx), type: g.label, key: g.key }; }
+// A grammar round (Quiz Me "Grammar & usage" / Fill-in "Sentence blanks"): half textbook questions, dealt
+// without repeats, and half freshly generated, so the fixed list can't just be memorized. n = 0 → all fixed questions.
+function grammarRound(kind, n) {
+  const fixedPool = kind === 'mc' ? pool('quiz') : pool('fill');
+  const nFixed = !n ? fixedPool.length : genPool(kind).length ? Math.ceil(n / 2) : n;
+  const r = deal(kind === 'mc' ? 'quiz-usage' : 'fill-blanks', fixedPool, nFixed);
+  const fixed = kind === 'mc' ? r.items.map(usageQuestion) : r.items;
+  return { qs: shuffle([...fixed, ...freshRound(kind, n ? n - fixed.length : 0)]), left: r.left, total: r.total };
+}
 // n fresh questions, spread across generators, no exact repeats within a round
 function freshRound(kind, n) {
   const gens = shuffle(genPool(kind)), out = [], seen = new Set();
@@ -299,33 +307,28 @@ function usageQuestion(q) {
 function buildQuiz(mode) {
   const vocab = pool('vocab');
   if (mode === 'review') return { qs: shuffle(quizReviewItems()).slice(0, roundSize || undefined).map(m => m()), left: 0, total: 0 };
-  if (mode === 'fresh') return { qs: freshRound('mc', roundSize || 20), left: 0, total: 0 };
   if (mode === 'mixed') {
-    // ~30% fixed grammar/usage, ~30% freshly generated, rest vocab in both directions
-    const n = roundSize || 20, nu = Math.round(n * 0.3), ng = genPool('mc').length ? Math.round(n * 0.3) : 0;
-    const nko = Math.ceil((n - nu - ng) / 2), nen = n - nu - ng - nko;
-    const usage = shuffle(pool('quiz')).slice(0, nu).map(usageQuestion);
+    // ~60% grammar (textbook + generated), rest vocab in both directions
+    const n = roundSize || 20, ng = Math.round(n * 0.6), nko = Math.ceil((n - ng) / 2), nen = n - ng - nko;
     const ko = shuffle(vocab.slice()).slice(0, nko).map(v => vocabQuestion(v, vocab, 'ko'));
     const en = shuffle(vocab.slice()).slice(0, nen).map(v => vocabQuestion(v, vocab, 'en'));
-    return { qs: shuffle([...usage, ...freshRound('mc', ng), ...ko, ...en]), left: 0, total: 0 };
+    return { qs: shuffle([...grammarRound('mc', ng).qs, ...ko, ...en]), left: 0, total: 0 };
   }
-  const r = mode === 'usage' ? deal('quiz-usage', pool('quiz')) : deal('quiz-' + mode, vocab);
-  const qs = mode === 'usage' ? r.items.map(usageQuestion) : r.items.map(v => vocabQuestion(v, vocab, mode));
-  return { qs, left: r.left, total: r.total };
+  if (mode === 'usage') return grammarRound('mc', roundSize);
+  const r = deal('quiz-' + mode, vocab);
+  return { qs: r.items.map(v => vocabQuestion(v, vocab, mode)), left: r.left, total: r.total };
 }
 
 function renderQuizStart() {
   quiz = null;
-  const nv = pool('vocab').length, nu = pool('quiz').length;
+  const nv = pool('vocab').length;
   $('quizBody').innerHTML = `
-    <div class="tip"><strong>Pick a mode.</strong> Questions come from the lessons selected above. Missed questions are listed at the end so you can retry just those.</div>
     <div class="mode-grid">
       ${reviewCard(quizReviewItems().length, "startQuiz('review')")}
-      <button class="mode-card" onclick="startQuiz('mixed')"><strong>🎯 Mixed practice (${roundSize || 20})</strong><span>Grammar &amp; usage, fresh sentences, and vocab in both directions</span></button>
-      ${genPool('mc').length ? `<button class="mode-card" onclick="startQuiz('fresh')"><strong>🎲 Fresh practice (${roundSize || 20})</strong><span>New sentences every time, built from the vocab + grammar rules: ${[...new Set(genPool('mc').map(g => g.label))].join(' · ')}</span></button>` : ''}
-      <button class="mode-card" onclick="startQuiz('usage')"><strong>📐 Grammar &amp; usage (${roundLabel(nu)})</strong><span>Particles, copula, polite endings, expressions</span></button>
-      <button class="mode-card" onclick="startQuiz('ko')"><strong>🇰🇷 → 🇺🇸 Vocab: Korean to English (${roundLabel(nv)})</strong><span>Every word in the New Words lists</span></button>
-      <button class="mode-card" onclick="startQuiz('en')"><strong>🇺🇸 → 🇰🇷 Vocab: English to Korean (${roundLabel(nv)})</strong><span>Harder — recognize the Korean</span></button>
+      <button class="mode-card" onclick="startQuiz('mixed')"><strong>🎯 Mixed</strong><span>Grammar + vocab</span></button>
+      <button class="mode-card" onclick="startQuiz('usage')"><strong>📐 Grammar</strong><span>Particles, endings, sentences</span></button>
+      <button class="mode-card" onclick="startQuiz('ko')"><strong>🇰🇷 → 🇺🇸 Vocab (${nv})</strong><span>See Korean, pick English</span></button>
+      <button class="mode-card" onclick="startQuiz('en')"><strong>🇺🇸 → 🇰🇷 Vocab (${nv})</strong><span>See English, pick Korean</span></button>
     </div>`;
 }
 function startQuiz(mode) { const r = buildQuiz(mode); runQuiz(r.qs, mode, r.left, r.total); }
@@ -346,7 +349,7 @@ function renderQuiz() {
       <div style="margin-top:6px;color:var(--muted)">${pct}% — ${pct >= 85 ? '🎉 Great job!' : pct >= 65 ? '📚 Good — keep reviewing!' : '🔄 Review the Grammar tab and try again!'}</div>
       ${quiz.mode && quiz.mode !== 'mixed' ? `<div class="hint">${roundNote(quiz.left, quiz.total)}</div>` : ''}
       <div class="flash-controls" style="margin-top:18px">
-        ${['mixed', 'review', 'fresh'].includes(quiz.mode) ? `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">${quiz.mode === 'review' ? 'Review more' : `Another ${n}`} →</button>` : quiz.mode ? (nextRoundBtn(quiz.left, `startQuiz('${quiz.mode}')`) || `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">↻ Start over</button>`) : ''}
+        ${['mixed', 'review'].includes(quiz.mode) ? `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">${quiz.mode === 'review' ? 'Review more' : `Another ${n}`} →</button>` : quiz.mode ? (nextRoundBtn(quiz.left, `startQuiz('${quiz.mode}')`) || `<button class="btn btn-green" onclick="startQuiz('${quiz.mode}')">↻ Start over</button>`) : ''}
         ${quiz.missed.length ? '<button class="btn btn-outline" onclick="retryMissedQuiz()">Retry missed</button>' : ''}
         <button class="btn btn-outline" onclick="renderQuizStart()">Choose another mode</button>
       </div>
@@ -357,7 +360,7 @@ function renderQuiz() {
   const q = quiz.qs[quiz.idx];
   quiz.answered = false;
   el.innerHTML = `
-    <div class="meta">Question ${quiz.idx + 1} of ${quiz.qs.length} · Score: ${quiz.score}${q.tag ? ` · <span style="color:var(--green);font-weight:600">🎲 ${q.tag}</span>` : ''}</div>
+    <div class="meta">Question ${quiz.idx + 1} of ${quiz.qs.length} · Score: ${quiz.score}${q.tag ? ` · <span style="color:var(--green);font-weight:600">${q.tag}</span>` : ''}</div>
     <div class="quiz-card">
       <div class="quiz-q">${q.q}</div>
       <div class="options">${q.opts.map((o, i) => `<button class="opt" onclick="answerQuiz(${i})">${o}</button>`).join('')}</div>
@@ -404,26 +407,23 @@ function spellQuestions() {
 }
 function renderFillStart() {
   fill = null;
-  const types = [...new Set(pool('fill').map(q => q.type))].join(' · ');
   $('fillBody').innerHTML = `
-    <div class="tip"><strong>Type the answer</strong> with a Korean keyboard (Mac: add “2-Set Korean” in Keyboard settings, switch with Ctrl-Space or 🌐). Press Enter or ✓ Check.</div>
+    <div class="tip">Type in Korean, then press Enter. <span style="color:var(--muted)">(Mac: add the “2-Set Korean” keyboard.)</span></div>
     <div class="mode-grid">
       ${reviewCard(fillReviewItems().length, "startFill('review')")}
-      <button class="mode-card" onclick="startFill('mixed')"><strong>🎯 Mixed practice (${roundSize || 20})</strong><span>Sentence blanks, fresh sentences, and spelling</span></button>
-      ${genPool('typed').length ? `<button class="mode-card" onclick="startFill('fresh')"><strong>🎲 Fresh sentences (${roundSize || 20})</strong><span>New blanks every time: ${[...new Set(genPool('typed').map(g => g.label))].join(' · ')}</span></button>` : ''}
-      <button class="mode-card" onclick="startFill('blanks')"><strong>📝 Sentence blanks (${roundLabel(pool('fill').length)})</strong><span>${types}</span></button>
-      <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${roundLabel(spellQuestions().length)})</strong><span>See the English, type the Korean — best prep for a written vocab quiz</span></button>
+      <button class="mode-card" onclick="startFill('mixed')"><strong>🎯 Mixed</strong><span>Blanks + spelling</span></button>
+      <button class="mode-card" onclick="startFill('blanks')"><strong>📝 Sentence blanks</strong><span>Particles, endings, sentences</span></button>
+      <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${spellQuestions().length})</strong><span>See English, type Korean</span></button>
     </div>`;
 }
 function startFill(mode) {
   if (mode === 'review') return runFill(shuffle(fillReviewItems()).slice(0, roundSize || undefined), 'review');
-  if (mode === 'fresh') return runFill(freshRound('typed', roundSize || 20), 'fresh');
   if (mode === 'mixed') {
-    const n = roundSize || 20, ng = genPool('typed').length ? Math.round(n / 3) : 0, nb = Math.round((n - ng) / 2);
-    return runFill(shuffle([...shuffle(pool('fill')).slice(0, nb), ...freshRound('typed', ng), ...shuffle(spellQuestions()).slice(0, n - nb - ng)]), 'mixed');
+    const n = roundSize || 20, nb = Math.ceil(n / 2);
+    return runFill(shuffle([...grammarRound('typed', nb).qs, ...shuffle(spellQuestions()).slice(0, n - nb)]), 'mixed');
   }
-  const r = deal('fill-' + mode, mode === 'spell' ? spellQuestions() : pool('fill'));
-  runFill(r.items, mode, r.left, r.total);
+  const r = mode === 'blanks' ? grammarRound('typed', roundSize) : deal('fill-spell', spellQuestions());
+  runFill(r.qs || r.items, mode, r.left, r.total);
 }
 function runFill(qs, mode = null, left = 0, total = 0) { fill = { qs, mode, left, total, idx: 0, score: 0, missed: [], answered: false }; renderFill(); }
 
@@ -444,7 +444,7 @@ function renderFill() {
       <div style="margin-top:6px;color:var(--muted)">${pct}% — ${pct >= 85 ? '🎉 Excellent!' : pct >= 65 ? '📚 Good — keep drilling!' : '🔄 Review and try again!'}</div>
       ${fill.mode && fill.mode !== 'mixed' ? `<div class="hint">${roundNote(fill.left, fill.total)}</div>` : ''}
       <div class="flash-controls" style="margin-top:18px">
-        ${['mixed', 'review', 'fresh'].includes(fill.mode) ? `<button class="btn btn-green" onclick="startFill('${fill.mode}')">${fill.mode === 'review' ? 'Review more' : `Another ${n}`} →</button>` : fill.mode ? (nextRoundBtn(fill.left, `startFill('${fill.mode}')`) || `<button class="btn btn-green" onclick="startFill('${fill.mode}')">↻ Start over</button>`) : ''}
+        ${['mixed', 'review'].includes(fill.mode) ? `<button class="btn btn-green" onclick="startFill('${fill.mode}')">${fill.mode === 'review' ? 'Review more' : `Another ${n}`} →</button>` : fill.mode ? (nextRoundBtn(fill.left, `startFill('${fill.mode}')`) || `<button class="btn btn-green" onclick="startFill('${fill.mode}')">↻ Start over</button>`) : ''}
         ${fill.missed.length ? '<button class="btn btn-outline" onclick="runFill(shuffle(fill.missed.slice()))">Retry missed</button>' : ''}
         <button class="btn btn-outline" onclick="renderFillStart()">Back</button>
       </div>
@@ -560,7 +560,7 @@ function fillReviewItems() {
 }
 function reviewCard(n, onclick) {
   return n
-    ? `<button class="mode-card review-card" onclick="${onclick}"><strong>🔁 Review my misses (${n})</strong><span>Questions you got wrong the last time you saw them</span></button>`
+    ? `<button class="mode-card review-card" onclick="${onclick}"><strong>🔁 Review my misses (${n})</strong><span>What you got wrong last time</span></button>`
     : '';
 }
 
@@ -578,7 +578,7 @@ function trackedCategories(l) {
     { name: 'Spelling', items: vocab.filter(v => !v.noSpell).map(v => ({ key: 'spell|' + id('vocab', v), label: `✍️ ${v.e} → ${v.k}` })) },
     { name: 'Grammar & usage', items: (l.quiz || []).map(q => ({ key: id('quiz', q), label: `${stripTags(q.q)} → ${q.opts[q.ans]}` })) },
     { name: 'Fill-in blanks', items: (l.fill || []).map(q => ({ key: id('fill', q), label: q.sentence.replace('___', `[${[].concat(q.blank)[0]}]`) })) },
-    { name: 'Fresh practice skills', items: (l.generators || []).map(g => ({ key: `gen|${l.id}|${g.type}`, label: `🎲 ${g.label}` })) },
+    { name: 'Grammar skills', items: (l.generators || []).map(g => ({ key: `gen|${l.id}|${g.type}`, label: g.label })) },
   ];
 }
 
