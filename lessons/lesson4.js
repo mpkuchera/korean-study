@@ -23,15 +23,15 @@ addLesson({
 
   // New Words (p. 117)
   vocab: [
-    { conv: 1, k: '개', e: 'dog', pos: 'noun' },
+    { conv: 1, k: '개', e: 'dog', pos: 'noun', syn: 'dog' },
     { conv: 1, k: '고등학생', e: 'high school student', pos: 'noun', note: '고등학교 = high school' },
     { conv: 1, k: '남동생', e: 'younger brother', pos: 'noun' },
     { conv: 1, k: '대학원생', e: 'graduate student', pos: 'noun', note: '대학원 = graduate school' },
     { conv: 1, k: '동생', e: 'younger sibling', pos: 'noun', note: 'brother or sister' },
     { conv: 1, k: '보스턴', e: 'Boston', pos: 'noun' },
     { conv: 1, k: '부모님', e: 'parents', pos: 'noun' },
-    { conv: 1, k: '아버지', e: 'father', pos: 'noun' },
-    { conv: 1, k: '어머니', e: 'mother', pos: 'noun' },
+    { conv: 1, k: '아버지', e: 'father', pos: 'noun', syn: 'father' },
+    { conv: 1, k: '어머니', e: 'mother', pos: 'noun', syn: 'mother' },
     { conv: 1, k: '여동생', e: 'younger sister', pos: 'noun' },
     { conv: 1, k: '오빠', e: 'older brother (of a female)', pos: 'noun', note: 'what a woman calls her older brother' },
     { conv: 1, k: '형', e: 'older brother (of a male)', pos: 'noun', note: 'what a man calls his older brother' },
@@ -54,6 +54,14 @@ addLesson({
     { conv: 1, k: '몇', e: 'how many, what (with a counter)', pos: 'pre-noun', note: '몇 명? 몇 층?' },
     { conv: 1, k: '계시다 (계세요)', e: 'to stay, to be (existence) — honorific', pos: 'verb', note: 'honorific 있다 for respected people' },
     { conv: 1, k: '하고', e: 'and (with nouns)', pos: 'particle', note: '아버지하고 어머니' },
+    // From the teacher's "Korean Vocabularies" doc (Oct 2026) and the family chart on p. 118
+    { conv: 'From class', k: '강아지', e: 'puppy, doggy', pos: 'noun', note: 'often used for any pet dog', syn: 'dog' },
+    { conv: 'From class', k: '아빠', e: 'dad', pos: 'noun', note: 'casual 아버지', syn: 'father' },
+    { conv: 'From class', k: '엄마', e: 'mom', pos: 'noun', note: 'casual 어머니', syn: 'mother' },
+    { conv: 'From class', k: '언니', e: 'older sister (of a female)', pos: 'noun', note: 'what a woman calls her older sister' },
+    { conv: 'From class', k: '누나', e: 'older sister (of a male)', pos: 'noun', note: 'what a man calls his older sister' },
+    { conv: 'From class', k: '초등학생', e: 'elementary school student', pos: 'noun' },
+    { conv: 'From class', k: '중학생', e: 'middle school student', pos: 'noun' },
   ],
 
   quiz: [
@@ -166,11 +174,12 @@ addLesson({
       type: 'family', label: 'Family words (형 / 오빠 / 동생)',
       mc: () => {
         const [name, eng, male] = pick([['스티브', 'Steve', true], ['마이클', 'Michael', true], ['소피아', 'Sophia', false], ['리사', 'Lisa', false], ['유미', 'Yumi', false]]);
-        const rel = pick([['older brother', male ? '형' : '오빠'], ['younger brother', '남동생'], ['younger sister', '여동생'], ['parents', '부모님'], ['father', '아버지'], ['mother', '어머니']]);
+        const rel = pick([['older brother', male ? '형' : '오빠'], ['older sister', male ? '누나' : '언니'], ['younger brother', '남동생'], ['younger sister', '여동생'], ['parents', '부모님'], ['father', '아버지'], ['mother', '어머니']]);
         return mcq(`${eng} (${male ? 'male' : 'female'}) talks about ${male ? 'his' : 'her'} <strong>${rel[0]}</strong>:`, rel[1],
           // 동생 also covers younger brother/sister, so it can't be a wrong answer for those
-          ['형', '오빠', '남동생', '여동생', '동생', '부모님', '아버지', '어머니'].filter(x => x !== rel[1] && !(x === '동생' && rel[1].endsWith('동생'))),
-          rel[0] === 'older brother' ? `A ${male ? 'man says 형' : 'woman says 오빠'} for an older brother.` : '');
+          ['형', '오빠', '누나', '언니', '남동생', '여동생', '동생', '부모님', '아버지', '어머니'].filter(x => x !== rel[1] && !(x === '동생' && rel[1].endsWith('동생'))),
+          rel[0] === 'older brother' ? `A ${male ? 'man says 형' : 'woman says 오빠'} for an older brother.`
+            : rel[0] === 'older sister' ? `A ${male ? 'man says 누나' : 'woman says 언니'} for an older sister.` : '');
       },
     },
     {

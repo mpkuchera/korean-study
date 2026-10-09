@@ -14,6 +14,15 @@ function politeVerbs(n) {
     .filter(Boolean);
 }
 
+// Formal ~(스)ㅂ니다 forms, exactly as listed in the teacher's "Korean Vocabularies" doc: [dictionary, formal, lesson]
+const FORMAL_FORMS = [
+  ['먹다', '먹습니다', 2], ['앉다', '앉습니다', 2], ['알다', '압니다', 2], ['만나다', '만납니다', 2], ['보다', '봅니다', 2], ['쓰다', '씁니다', 2],
+  ['지내다', '지냅니다', 2], ['그렇다', '그렇습니다', 1], ['반갑다', '반갑습니다', 1], ['괜찮다', '괜찮습니다', 2], ['넓다', '넓습니다', 2],
+  ['많다', '많습니다', 2], ['맛있다', '맛있습니다', 2], ['맛없다', '맛없습니다', 2], ['재미있다', '재미있습니다', 2], ['재미없다', '재미없습니다', 2],
+  ['좋다', '좋습니다', 2], ['싸다', '쌉니다', 2], ['비싸다', '비쌉니다', 2], ['크다', '큽니다', 2], ['작다', '작습니다', 2],
+  ['가다', '갑니다', 3], ['인사하다', '인사합니다', 3], ['읽다', '읽습니다', 3], ['있다', '있습니다', 3], ['없다', '없습니다', 3],
+];
+
 addLesson({
   id: 2,
   title: '한국어 수업',
@@ -24,7 +33,7 @@ addLesson({
   vocab: [
     // Conversation 1
     { conv: 1, k: '도서관', e: 'library', pos: 'noun' },
-    { conv: 1, k: '수업', e: 'course, class', pos: 'noun' },
+    { conv: 1, k: '수업', e: 'course, class', pos: 'noun', syn: 'class' },
     { conv: 1, k: '숙제', e: 'homework', pos: 'noun' },
     { conv: 1, k: '식당', e: 'restaurant', pos: 'noun', note: '학교 식당 = school cafeteria' },
     { conv: 1, k: '아침', e: 'breakfast; morning', pos: 'noun', note: 'two meanings!' },
@@ -39,12 +48,12 @@ addLesson({
     { conv: 1, k: '많다 (많아요)', e: 'to be many, much', pos: 'adjective' },
     { conv: 1, k: '맛있다 (맛있어요)', e: 'to be delicious', pos: 'adjective' },
     { conv: 1, k: '어떻다 (어때요)', e: 'to be how', pos: 'adjective', note: '어때요? = How is it?' },
-    { conv: 1, k: '재미있다 (재미있어요)', e: 'to be fun, interesting', pos: 'adjective' },
+    { conv: 1, k: '재미있다 (재미있어요)', e: 'to be fun, interesting', pos: 'adjective', note: 'often shortened to 재밌어요', accept: ['재미있다', '재미있어요', '재밌다', '재밌어요'] },
     { conv: 1, k: '좋다 (좋아요)', e: 'to be good, nice', pos: 'adjective' },
     { conv: 1, k: '먹다 (먹어요)', e: 'to eat', pos: 'verb' },
     { conv: 1, k: '앉다 (앉아요)', e: 'to sit', pos: 'verb' },
     { conv: 1, k: '알다 (알아요)', e: 'to know', pos: 'verb' },
-    { conv: 1, k: '아주', e: 'very, really', pos: 'adverb' },
+    { conv: 1, k: '아주', e: 'very, really', pos: 'adverb', syn: 'really' },
     // Conversation 2
     { conv: 2, k: '공부(하다)', e: 'study', pos: 'noun', accept: ['공부', '공부하다', '공부(하다)'] },
     { conv: 2, k: '남자', e: 'man', pos: 'noun' },
@@ -70,6 +79,12 @@ addLesson({
     { conv: 2, k: '요즘', e: 'these days', pos: 'adverb' },
     { conv: 2, k: '잘', e: 'well', pos: 'adverb' },
     { conv: 2, k: '지금', e: 'now', pos: 'adverb' },
+    // From the teacher's "Korean Vocabularies" doc (Oct 2026), not in the textbook New Words
+    { conv: 'From class', k: '어제', e: 'yesterday', pos: 'noun', note: '어제 · 오늘 · 내일' },
+    { conv: 'From class', k: '비싸다 (비싸요)', e: 'to be expensive', pos: 'adjective', note: 'opposite of 싸다' },
+    { conv: 'From class', k: '작다 (작아요)', e: 'to be small', pos: 'adjective', note: 'opposite of 크다' },
+    { conv: 'From class', k: '정말', e: 'really, truly', pos: 'adverb', note: '정말 재미있어요!', syn: 'really', accept: ['정말', '진짜'] },
+    { conv: 'From class', k: '진짜', e: 'really (casual)', pos: 'adverb', note: '진짜? = Really?', syn: 'really', accept: ['진짜', '정말'] },
   ],
 
   quiz: [
@@ -220,6 +235,18 @@ addLesson({
         return mcq(`Polite form of <span class="quiz-korean">${d}</span> (${e}):`, p, wrongs, `${d} → ${p}`);
       },
     },
+    {
+      type: 'formal', label: 'Formal ending ~ㅂ니다/습니다',
+      typed: ctx => {
+        const [d, f] = pick(FORMAL_FORMS.filter(x => x[2] <= ctx.upTo));
+        return { sentence: `${d} → formal: ___`, blank: f, hint: 'Stem ends in a consonant → 습니다; in a vowel → ㅂ니다 (ㄹ drops: 알다 → 압니다)', why: `${d} → ${f}`, wide: true };
+      },
+      mc: ctx => {
+        const [d, f] = pick(FORMAL_FORMS.filter(x => x[2] <= ctx.upTo)), stem = d.slice(0, -1);
+        return mcq(`Formal (~ㅂ니다/습니다) form of <span class="quiz-korean">${d}</span>:`, f, [stem + '습니다', stem + '니다', stem + '읍니다', d + '니다'],
+          `${d} → ${f} · consonant stem → 습니다, vowel stem → ㅂ니다`);
+      },
+    },
   ],
 
   grammar: [
@@ -285,6 +312,22 @@ addLesson({
           <p>스티브가 친구<b>를</b> 만나요. — Steve meets a friend.</p>
         </div>
         <div class="grammar-body" style="margin-top:8px">공부하다 = 공부<b>를</b> 하다 · 숙제하다 = 숙제<b>를</b> 하다 · 시험<b>을</b> 보다 = take a test</div>`,
+    },
+    {
+      id: '', tag: 'From class', title: 'Formal ending: <em>~ㅂ니다 / 습니다</em>',
+      html: `<div class="grammar-body">A more formal version of ~어요/아요 (news, speeches, first meetings — like 반갑습니다).
+        Stem ends in a <strong>consonant → 습니다</strong>; in a <strong>vowel → ㅂ니다</strong> (the ㅂ joins the last syllable); a final <strong>ㄹ drops</strong> (알다 → 압니다).</div>
+        <table class="rule-table">
+          <tr><th>Dictionary</th><th>Formal</th><th>Polite</th></tr>
+          <tr><td>먹다</td><td>먹<strong>습니다</strong></td><td>먹어요</td></tr>
+          <tr><td>좋다</td><td>좋<strong>습니다</strong></td><td>좋아요</td></tr>
+          <tr><td>보다</td><td>봅<strong>니다</strong></td><td>봐요</td></tr>
+          <tr><td>만나다</td><td>만납<strong>니다</strong></td><td>만나요</td></tr>
+          <tr><td>크다</td><td>큽<strong>니다</strong></td><td>커요</td></tr>
+          <tr><td>싸다 / 비싸다</td><td>쌉<strong>니다</strong> / 비쌉<strong>니다</strong></td><td>싸요 / 비싸요</td></tr>
+          <tr><td>알다</td><td>압<strong>니다</strong> (ㄹ drops)</td><td>알아요</td></tr>
+          <tr><td>반갑다</td><td>반갑<strong>습니다</strong></td><td>반가워요</td></tr>
+        </table>`,
     },
     {
       id: '', tag: 'Watch out', title: 'Spelled one way, said another',
