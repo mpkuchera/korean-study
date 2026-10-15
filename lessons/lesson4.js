@@ -1,4 +1,4 @@
-// Lesson 4 · 집 (At Home) — textbook pp. 115–139. Conversation 1 (pp. 116–125) added; Conversation 2 to come.
+// Lesson 4 · 집 (At Home) — textbook pp. 115–139
 
 // For generated counting questions: [noun, English singular, English plural, counter, max count]
 const COUNTABLES = [
@@ -9,6 +9,7 @@ const COUNTABLES = [
   ['친구', 'friend', 'friends', '명', 19], ['학생', 'student', 'students', '명', 19], ['동생', 'younger sibling', 'younger siblings', '명', 3],
   ['남동생', 'younger brother', 'younger brothers', '명', 3], ['여동생', 'younger sister', 'younger sisters', '명', 3],
 ];
+const NATIVE_SHORT = { 하나: '한 명', 둘: '두 명', 셋: '세 명', 넷: '네 명', 스물: '스무 명' };
 const NATIVE_FULL_ONES = ['', '하나', '둘', '셋', '넷', '다섯', '여섯', '일곱', '여덟', '아홉'];
 const nativeFull = n => n === 20 ? '스물' : NATIVE_TENS[Math.floor(n / 10)] + NATIVE_FULL_ONES[n % 10]; // counting aloud, no counter
 const RESPECTED = [['아버지', 'My father', 'is'], ['어머니', 'My mother', 'is'], ['부모님', 'My parents', 'are'], ['선생님', 'The teacher', 'is']];
@@ -19,7 +20,7 @@ addLesson({
   id: 4,
   title: '집',
   english: 'At Home',
-  conversations: { 1: '동생이 두 명 있어요.' },
+  conversations: { 1: '동생이 두 명 있어요.', 2: '누구 방이에요?' },
 
   // New Words (p. 117)
   vocab: [
@@ -58,10 +59,43 @@ addLesson({
     { conv: 'From class', k: '강아지', e: 'puppy, doggy', pos: 'noun', note: 'often used for any pet dog', syn: 'dog' },
     { conv: 'From class', k: '아빠', e: 'dad', pos: 'noun', note: 'casual 아버지', syn: 'father' },
     { conv: 'From class', k: '엄마', e: 'mom', pos: 'noun', note: 'casual 어머니', syn: 'mother' },
-    { conv: 'From class', k: '언니', e: 'older sister (of a female)', pos: 'noun', note: 'what a woman calls her older sister' },
-    { conv: 'From class', k: '누나', e: 'older sister (of a male)', pos: 'noun', note: 'what a man calls his older sister' },
     { conv: 'From class', k: '초등학생', e: 'elementary school student', pos: 'noun' },
     { conv: 'From class', k: '중학생', e: 'middle school student', pos: 'noun' },
+    // Conversation 2 — New Words (p. 127)
+    { conv: 2, k: '거 (=것)', e: 'thing', pos: 'noun', note: '스티브 거예요 = It\'s Steve\'s' },
+    { conv: 2, k: '누나', e: 'older sister (of a male)', pos: 'noun', note: 'what a man calls his older sister' },
+    { conv: 2, k: '뉴욕', e: 'New York', pos: 'noun' },
+    { conv: 2, k: '로스앤젤레스', e: 'Los Angeles (L.A.)', pos: 'noun' },
+    { conv: 2, k: '룸메이트', e: 'roommate', pos: 'noun' },
+    { conv: 2, k: '방', e: 'room', pos: 'noun' },
+    { conv: 2, k: '사이', e: 'relationship; between', pos: 'noun', note: '사이가 좋아요 = (they) get along well' },
+    { conv: 2, k: '생물학', e: 'biology', pos: 'noun' },
+    { conv: 2, k: '아파트', e: 'apartment', pos: 'noun' },
+    { conv: 2, k: '언니', e: 'older sister (of a female)', pos: 'noun', note: 'what a woman calls her older sister' },
+    { conv: 2, k: '하와이', e: 'Hawai\'i', pos: 'noun' },
+    { conv: 2, k: '만', e: 'only', pos: 'particle', note: '언니만 있어요 = I only have an older sister' },
+    { conv: 2, k: '의', e: 'of (possessive)', pos: 'particle', note: 'pronounced [에]; mostly in writing' },
+    { conv: 2, k: '고맙다 (고마워요)', e: 'to be thankful', pos: 'adjective', note: '고마워요 = Thank you' },
+    { conv: 2, k: '나쁘다 (나빠요)', e: 'to be bad', pos: 'adjective' },
+    { conv: 2, k: '비싸다 (비싸요)', e: 'to be expensive', pos: 'adjective', note: 'opposite of 싸다' },
+    { conv: 2, k: '예쁘다 (예뻐요)', e: 'to be pretty', pos: 'adjective' },
+    { conv: 2, k: '작다 (작아요)', e: 'to be small (in size)', pos: 'adjective', note: 'opposite of 크다' },
+    { conv: 2, k: '마시다 (마셔요)', e: 'to drink', pos: 'verb' },
+    { conv: 2, k: '배우다 (배워요)', e: 'to learn', pos: 'verb' },
+    { conv: 2, k: '오다 (와요)', e: 'to come', pos: 'verb' },
+    { conv: 2, k: '자다 (자요)', e: 'to sleep', pos: 'verb' },
+    { conv: 2, k: '주다 (줘요)', e: 'to give', pos: 'verb', note: '주어요 is also correct' },
+    { conv: 2, k: '참', e: 'very, truly', pos: 'adverb', note: '방이 참 예뻐요', syn: 'really' },
+    { conv: 2, k: '이거 (=이것)', e: 'this (thing)', pos: 'pronoun', note: '이건 = 이거 + 은' },
+    { conv: 2, k: '저희', e: 'we / us / our (humble)', pos: 'pronoun', note: '= 우리 (plain)' },
+    { conv: 2, k: '제', e: 'my (humble)', pos: 'pronoun', note: '= 내 (plain) · 제 방 = my room' },
+    // Numbers from G4.2 (pp. 121–122) — not in the New Words box, but needed for counting
+    ...[['하나', 'one'], ['둘', 'two'], ['셋', 'three'], ['넷', 'four'], ['다섯', 'five'], ['여섯', 'six'], ['일곱', 'seven'], ['여덟', 'eight'], ['아홉', 'nine'], ['열', 'ten'],
+      ['스물', 'twenty'], ['서른', 'thirty'], ['마흔', 'forty'], ['쉰', 'fifty'], ['예순', 'sixty'], ['일흔', 'seventy'], ['여든', 'eighty'], ['아흔', 'ninety']]
+      .map(([k, e]) => ({ conv: 'Numbers (G4.2)', k, e: `${e} (native)`, pos: 'number', note: NATIVE_SHORT[k] ? `before a counter: ${NATIVE_SHORT[k]}` : 'counting things and people' })),
+    { conv: 'Numbers (G4.2)', k: '백', e: 'hundred (Sino-Korean only)', pos: 'number', note: '이백 = 200' },
+    { conv: 'Numbers (G4.2)', k: '천', e: 'thousand (Sino-Korean only)', pos: 'number', note: '천 원 = ₩1,000' },
+    { conv: 'Numbers (G4.2)', k: '만 (10,000)', e: 'ten thousand (Sino-Korean only)', pos: 'number', note: '만 원 = ₩10,000 · 오만 = 50,000', accept: ['만'] },
   ],
 
   quiz: [
@@ -81,6 +115,23 @@ addLesson({
     { q: '“father and mother”', opts: ['아버지하고 어머니', '아버지 그리고 어머니', '아버지도 어머니', '아버지가 어머니'], ans: 0, why: '하고 joins nouns · 그리고 joins sentences' },
     { q: '동생이 몇 명 있어요? asks:', opts: ['How many younger siblings do you have?', 'Where is your younger sibling?', 'Who is your younger sibling?', 'Is your sibling a student?'], ans: 0 },
     { q: '오빠는 대학원생이에요. means:', opts: ['My older brother is a graduate student.', 'My older brother is a high school student.', 'My younger brother is a college student.', 'My older brother is in graduate school in Boston.'], ans: 0 },
+    // Conversation 2
+    { q: '이건 누구 방이에요? means:', opts: ['Whose room is this?', 'Who is in this room?', 'Is this a room?', 'Where is the room?'], ans: 0, why: '이건 = 이거 + 은 · 누구 = who / whose' },
+    { q: 'A: 이거 누구 사전이에요? (It\'s Steve\'s.)  B:', opts: ['스티브 거예요.', '스티브가 거예요.', '스티브 거이에요.', '스티브를 거예요.'], ans: 0, why: 'Possessor + possessed side by side; 거 (thing) replaces the noun. 거 ends in a vowel → 예요' },
+    { q: '“It\'s mine.” (humble)', opts: ['제 거예요.', '저 거예요.', '제가 거예요.', '저는 거예요.'], ans: 0, why: '제 = 저 + 의 (my) · 내 거예요 is the plain version' },
+    { q: '“our father and mother” (humble)', opts: ['저희 아버지, 어머니', '저 아버지, 어머니', '제희 아버지, 어머니', '우리의 아버지, 어머니'], ans: 0, why: '저희 = humble 우리. Possession is usually shown by placing nouns side by side, without 의.' },
+    { q: 'Talking to Steve: “Is this your umbrella?”', opts: ['이거 스티브 씨 우산이에요?', '이거 너 우산이에요?', '이거 당신 우산이에요?', '이거 스티브 씨가 우산이에요?'], ans: 0, why: 'For “your/his/her,” Korean uses the person\'s name instead of a pronoun.' },
+    { q: '“Yumi only has an older sister.”', opts: ['유미는 언니만 있어요.', '유미만 언니가 있어요.', '유미는 언니도 있어요.', '유미는 언니가 없어요.'], ans: 0, why: '만 (only) attaches to what is limited. 유미만 = only Yumi.' },
+    { q: '룸메이트들하고 사이가 좋아요? means:', opts: ['Do you get along well with your roommates?', 'Are your roommates good?', 'Is there space between the roommates?', 'Do you like your roommates\' room?'], ans: 0, why: '사이 = relationship · 사이가 좋다 = to get along well' },
+    { q: '방이 참 예뻐요. means:', opts: ['The room is really pretty.', 'The room is very big.', 'The room is truly small.', 'The room is expensive.'], ans: 0 },
+    { q: 'The reply to 방이 참 예뻐요 in the dialogue:', opts: ['고마워요.', '고맙다.', '고맙어요.', '반갑습니다.'], ans: 0, why: '고맙다 → 고마워요 (ㅂ becomes 우 before ~어요)' },
+    { q: 'Polite form of 마시다:', opts: ['마셔요', '마시요', '마사요', '마시다요'], ans: 0, why: '이 + 어 → 여' },
+    { q: 'Polite form of 배우다:', opts: ['배워요', '배우요', '배우아요', '배와요'], ans: 0, why: '우 + 어 → 워' },
+    { q: 'Polite form of 오다:', opts: ['와요', '오요', '오아요', '워요'], ans: 0, why: '오 + 아 → 와 (required when there\'s no consonant before it)' },
+    { q: 'Polite form of 자다:', opts: ['자요', '자아요', '자어요', '저요'], ans: 0, why: '아 + 아 → 아' },
+    { q: 'Polite form of 예쁘다:', opts: ['예뻐요', '예쁘요', '예빠요', '예쁘어요'], ans: 0, why: 'ㅡ drops before ~어요 (like 크다 → 커요)' },
+    { q: 'Polite form of 나쁘다:', opts: ['나빠요', '나뻐요', '나쁘요', '나쁘아요'], ans: 0, why: 'ㅡ drops; the vowel before it is ㅏ → 아요' },
+    { q: 'Honorific of 안녕하다 / 계시다 (시 + 어요):', opts: ['안녕하세요 / 계세요', '안녕하셔요 / 계셔요 only', '안녕해요 / 계서요', '안녕하시요 / 계시요'], ans: 0, why: 'Honorific 시 + 어 → 세 (not 셔)' },
   ],
 
   fill: [
@@ -100,6 +151,23 @@ addLesson({
     { sentence: '소피아: ___가 한 명 있어요. (older brother)', blank: '오빠', hint: 'Sophia is female', type: 'Vocab' },
     { sentence: '오빠는 ___이에요. (graduate student)', blank: '대학원생', hint: 'graduate school = 대학원', type: 'Vocab' },
     { sentence: '동생은 지금 ___이에요. (high school student)', blank: '고등학생', hint: 'high school = 고등학교', type: 'Vocab' },
+    // Conversation 2
+    { sentence: '리사 씨, 아파트에 방이 ___ 개 있어요? (how many)', blank: '몇', hint: 'how many', type: 'Vocab' },
+    { sentence: '방이 ___ 개 있어요. (3)', blank: '세', hint: 'native 셋 → ? before a counter', type: 'Counting' },
+    { sentence: '룸메이트가 ___ 명 있어요. (2)', blank: '두', hint: 'native 둘 → ? before a counter', type: 'Counting' },
+    { sentence: '이건 ___ 방이에요? (whose)', blank: '누구', hint: 'who / whose', type: 'Possessive' },
+    { sentence: '제 ___예요. (It\'s mine — “my thing”)', blank: '거', hint: 'thing (= 것)', type: 'Possessive' },
+    { sentence: '이거 스티브 ___예요. (It\'s Steve\'s.)', blank: '거', hint: 'thing (= 것)', type: 'Possessive' },
+    { sentence: '___ 방이에요. (It\'s my room — humble)', blank: '제', hint: '저 + 의', type: 'Possessive' },
+    { sentence: '___ 아버지, 어머니는 로스앤젤레스에 계세요. (our — humble)', blank: '저희', hint: 'humble 우리', type: 'Possessive' },
+    { sentence: '유미는 언니___ 있어요. (only)', blank: '만', hint: 'only', type: 'Particle' },
+    { sentence: '룸메이트들하고 ___가 좋아요. (relationship)', blank: '사이', hint: 'relationship', type: 'Vocab' },
+    { sentence: '방이 참 ___요. (예쁘다)', blank: '예뻐', hint: 'ㅡ drops before 어요', type: 'Contraction' },
+    { sentence: '___요. (고맙다 — Thank you)', blank: '고마워', hint: 'ㅂ → 우 + 어요', type: 'Contraction' },
+    { sentence: '커피를 ___요. (마시다)', blank: '마셔', hint: '이 + 어 → 여', type: 'Contraction' },
+    { sentence: '생물학을 ___요. (배우다)', blank: '배워', hint: '우 + 어 → 워', type: 'Contraction' },
+    { sentence: '내일 형이 ___요. (오다)', blank: '와', hint: '오 + 아 → 와', type: 'Contraction' },
+    { sentence: '책하고 사전을 ___요. (주다)', blank: ['줘', '주어'], hint: '우 + 어 → 워 (주어요 is also allowed)', type: 'Contraction' },
   ],
 
   generators: [
@@ -193,6 +261,47 @@ addLesson({
           '하고 joins nouns (그리고 joins sentences).');
       },
     },
+    {
+      type: 'numbers', label: 'Reading numbers (both systems)',
+      mc: () => {
+        const r = Math.random();
+        if (r < 0.4) { // native 1–99
+          const n = randInt(1, 99);
+          return mcq(`<strong>${n}</strong> in <strong>native</strong> Korean (counting):`, nativeFull(n), [sino(n), nativeFull(n % 99 + 1), nativeFull(Math.max(1, n - 10)), nativeCounting(n)], 'Native tens: 열 스물 서른 마흔 쉰 예순 일흔 여든 아흔');
+        }
+        if (r < 0.7) { // Sino 1–99
+          const n = randInt(11, 99);
+          return mcq(`<strong>${n}</strong> in <strong>Sino-Korean</strong>:`, sino(n), [nativeFull(n), sino(n % 89 + 11), sino(Math.floor(n / 10) + (n % 10) * 10 || 11)], 'Sino: (digit) + 십 + (digit) — e.g. 삼십칠 = 37');
+        }
+        const [item, lo, hi, step] = pick([['커피', 2000, 6500, 500], ['주스', 1500, 4500, 500], ['책', 10000, 30000, 1000], ['가방', 20000, 90000, 5000], ['사전', 15000, 45000, 5000]]);
+        const n = randInt(lo / step, hi / step) * step, fmt = n.toLocaleString('en-US');
+        return mcq(`${item}: <strong>₩${fmt}</strong> — how do you read it?`, `${sino(n)} 원`, [`${sino(n + step)} 원`, `${sino(n * 10)} 원`, `${sino(n)} 달러`], 'Money is always Sino-Korean: 천 = 1,000 · 만 = 10,000');
+      },
+      typed: () => {
+        if (Math.random() < 0.5) { const n = randInt(1, 99); return { sentence: `${n} in native Korean (counting): ___`, blank: nativeFull(n), hint: 'Native tens: 열 스물 서른 마흔 쉰 예순 일흔 여든 아흔', wide: true }; }
+        const n = randInt(11, 99);
+        return { sentence: `${n} in Sino-Korean: ___`, blank: sino(n), hint: 'digit + 십 + digit', wide: true };
+      },
+    },
+    {
+      type: 'possessive', label: 'Whose? 누구 / 거 / 제',
+      mc: () => {
+        const [w, en] = pick([['책', 'book'], ['사전', 'dictionary'], ['가방', 'bag'], ['우산', 'umbrella'], ['시계', 'watch'], ['방', 'room'], ['컴퓨터', 'computer'], ['교과서', 'textbook']]);
+        const r = Math.random();
+        if (r < 0.35) return mcq(`“Whose ${en} is this?”`, `이거 누구 ${josa(w, '이에요', '예요')}?`, [`이거 누가 ${josa(w, '이에요', '예요')}?`, `이거 누구 ${josa(w, '예요', '이에요')}?`, `이거 누구를 ${josa(w, '이에요', '예요')}?`], '누구 = whose (no particle) · ' + batchimWhy(w, '이에요', '예요'));
+        if (r < 0.7) { const [name, eng] = pick(CAST); return mcq(`A: 이거 누구 ${josa(w, '이에요', '예요')}? (It's ${eng}'s.) B:`, `${name} 거예요.`, [`${josa(name, '이', '가')} 거예요.`, `${name} 거이에요.`, `${josa(name, '을', '를')} 거예요.`], 'Name + 거 (thing) = “Name’s” · 거 ends in a vowel → 예요'); }
+        return mcq(`A: 이거 누구 ${josa(w, '이에요', '예요')}? (It's yours.) B: (humble)`, '제 거예요.', ['저 거예요.', '제가 거예요.', '저는 거예요.'], '제 = 저 + 의 (my) · 내 거예요 is the plain form');
+      },
+    },
+    {
+      type: 'only', label: '만 (only)',
+      mc: () => {
+        const [name, eng] = pick(CAST), [w, en] = pick([['언니', 'an older sister'], ['오빠', 'an older brother'], ['남동생', 'a younger brother'], ['여동생', 'a younger sister'], ['형', 'an older brother'], ['누나', 'an older sister']]);
+        return mcq(`“${eng} only has ${en}.”`, `${josa(name, '은', '는')} ${w}만 있어요.`,
+          [`${name}만 ${josa(w, '이', '가')} 있어요.`, `${josa(name, '은', '는')} ${w}도 있어요.`, `${josa(name, '은', '는')} ${josa(w, '이', '가')} 없어요.`],
+          '만 attaches right after what is limited: 언니만 = only an older sister · 유미만 = only Yumi');
+      },
+    },
   ],
 
   grammar: [
@@ -257,6 +366,56 @@ addLesson({
         </table>
         <div class="grammar-body" style="margin-top:10px">School levels: 초등학생 (elementary) · 중학생 (middle) · 고등학생 (high school) · 대학생 (college) · <b>대학원생</b> (graduate)</div>`,
     },
+    {
+      id: 'G4.4', tag: 'Lesson 4', title: 'Possession: N1 (owner) + N2 (thing)',
+      html: `<div class="grammar-body">Put the owner right before the thing — no particle needed: <span class="ko">마이클 책</span> (Michael's book), <span class="ko">학생 이름</span> (the student's name).<br>
+        <span class="ko">의</span> (“of,” pronounced [에]) exists but is mostly for writing/abstract things (미국의 대통령).<br>
+        <span class="ko">누구</span> = whose: <span class="ko">누구 시계예요?</span> · <span class="ko">거</span> (= 것, “thing”) replaces the noun when it's obvious.</div>
+        <table class="rule-table">
+          <tr><th></th><th>Plain</th><th>Humble</th></tr>
+          <tr><td>I</td><td>나</td><td>저</td></tr>
+          <tr><td>my</td><td>내 (나 + 의)</td><td>제 (저 + 의)</td></tr>
+          <tr><td>mine</td><td>내 거</td><td>제 거</td></tr>
+          <tr><td>our / ours</td><td>우리 / 우리 거</td><td>저희 / 저희 거</td></tr>
+        </table>
+        <div class="example-box">
+          <p>제니: 이거 <b>누구 사전</b>이에요? — 유미: <b>스티브 거</b>예요.</p>
+          <p>선생님: 이거 <b>마이클 책</b>이에요? — 마이클: 네, <b>제 거</b>예요.</p>
+          <p>리사: 네, <b>저희</b> 아버지, 어머니는 로스앤젤레스에 계세요.</p>
+          <p>For “your / his / her,” use the person's name: 이거 <b>스티브 씨 우산</b>이에요?</p>
+        </div>`,
+    },
+    {
+      id: 'G4.5', tag: 'Lesson 4', title: 'Vowel contraction in ~어요/아요',
+      html: `<div class="grammar-body">When the stem ends in a vowel, the vowels merge:</div>
+        <table class="rule-table">
+          <tr><th>Rule</th><th>Examples</th></tr>
+          <tr><td>아 + 아 → 아</td><td>가요 · 자요 · 만나요 · 싸요 · 비싸요</td></tr>
+          <tr><td>애 + 어 → 애</td><td>지내요</td></tr>
+          <tr><td>이 + 어 → 여</td><td>마시다 → 마셔요</td></tr>
+          <tr><td>honorific 시 + 어 → 세</td><td>안녕하세요 · 계세요</td></tr>
+          <tr><td>우 + 어 → 워 · 오 + 아 → 와</td><td>배워요 · 와요 (required) · 줘요/주어요 · 봐요/보아요 (optional after a consonant)</td></tr>
+          <tr><td>ㅡ drops</td><td>크다 → 커요 · 예쁘다 → 예뻐요 · 나쁘다 → 나빠요</td></tr>
+          <tr><td>ㅂ → 우 (irregular)</td><td>고맙다 → 고마워요 · 반갑다 → 반가워요</td></tr>
+        </table>
+        <div class="example-box">
+          <p>유미: 지금 뭐 하세요? — 마이클: 커피 <b>마셔요</b>.</p>
+          <p>제니: 스티브 씨는 뭐 배우세요? — 스티브: 생물학 <b>배워요</b>.</p>
+          <p>소피아: 방이 참 <b>예뻐요</b>. — 리사: <b>고마워요</b>.</p>
+        </div>`,
+    },
+    {
+      id: '', tag: 'Lesson 4 · Conversation 2 expressions', title: '이건, 만, 사이가 좋아요',
+      html: `<table class="rule-table">
+          <tr><th>Korean</th><th>Meaning</th></tr>
+          <tr><td>이건 = 이거 + 은</td><td>as for this (thing)</td></tr>
+          <tr><td>N만</td><td>only N — 제니는 언니<b>만</b> 있어요.</td></tr>
+          <tr><td>사이가 좋아요</td><td>(they) get along well</td></tr>
+          <tr><td>참 = 아주</td><td>very, truly — 방이 참 예뻐요.</td></tr>
+          <tr><td>고마워요</td><td>Thank you (고맙다)</td></tr>
+          <tr><td>거 / 것</td><td>thing — 거 in speech, 것 in writing</td></tr>
+        </table>`,
+    },
   ],
 
   reference: [
@@ -264,6 +423,15 @@ addLesson({
       title: 'Native Korean numbers (tap 🔊 to hear the counting form)',
       html: `<div class="vocab-grid">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20].map(n => `<div class="num-card"><span class="num-digit">${n}</span>
         <span class="num-ko">${nativeFull(n)}</span><span class="num-rom reveal-on-tap" onclick="this.classList.toggle('shown')">${nativeCounting(n)} 명</span>${speakBtn(nativeCounting(n) + ' 명')}</div>`).join('')}</div>`,
+    },
+    {
+      title: 'Tens: native vs. Sino-Korean',
+      html: `<div class="grammar-block"><table class="rule-table">
+        <tr><th>#</th><th>Native</th><th>Sino</th></tr>
+        ${[10, 20, 30, 40, 50, 60, 70, 80, 90].map(n => `<tr><td>${n}</td><td>${nativeFull(n)}</td><td>${sino(n)}</td></tr>`).join('')}
+        <tr><td>100 · 1,000 · 10,000</td><td>—</td><td>백 · 천 · 만</td></tr>
+      </table>
+      <div class="hint">e.g. 37 = 서른일곱 (native) / 삼십칠 (Sino) · ₩25,000 = 이만 오천 원</div></div>`,
     },
   ],
 });

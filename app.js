@@ -224,6 +224,7 @@ const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
 const SINO_DIGITS = ['영', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구'];
 function sino(n) {
   if (n === 0) return '영';
+  if (n >= 10000) { const man = Math.floor(n / 10000), rest = n % 10000; return (man > 1 ? sino(man) : '') + '만' + (rest ? sino(rest) : ''); }
   const parts = [[Math.floor(n / 1000) % 10, '천'], [Math.floor(n / 100) % 10, '백'], [Math.floor(n / 10) % 10, '십']];
   return parts.map(([d, unit]) => d ? (d > 1 ? SINO_DIGITS[d] : '') + unit : '').join('') + (n % 10 ? SINO_DIGITS[n % 10] : '');
 }

@@ -58,7 +58,6 @@ addLesson({
     { conv: 'From class', k: '대학교', e: 'university, college', pos: 'noun' },
     { conv: 'From class', k: '교수', e: 'professor', pos: 'noun', note: 'About yourself: 저는 교수예요. (교수님 only for others)' },
     { conv: 'From class', k: '우리', e: 'we; our', pos: 'pronoun', note: '우리 학교 = our school' },
-    { conv: 'From class', k: '제', e: 'my (humble)', pos: 'pronoun', note: '제 친구 = my friend · plain: 내' },
     { conv: 'From class', k: '너', e: 'you (casual — close friends only)', pos: 'pronoun', note: '너의 이름이 뭐야? = casual 이름이 뭐예요?', syn: 'you' },
     // From the teacher's "Korean Vocabularies" doc (Oct 2026), not in the textbook New Words
     { conv: 'From class', k: '나', e: 'I (plain)', pos: 'pronoun', note: 'with friends; 저 is humble · 나 + 가 → 내가', syn: 'I' },
