@@ -18,14 +18,6 @@ function locationScene() {
 }
 const HAVE_THINGS = [['가방', 'a bag'], ['책', 'a book'], ['시계', 'a watch'], ['우산', 'an umbrella'], ['사전', 'a dictionary'], ['컴퓨터', 'a computer'],
   ['교과서', 'a textbook'], ['숙제', 'homework'], ['수업', 'class'], ['시험', 'a test'], ['질문', 'a question'], ['시간', 'time'], ['친구', 'a friend']];
-// [dictionary form, ~(으)세요 form, meaning] — listed explicitly to avoid irregular stems (알다 → 아세요 etc.)
-const HONORIFICS = [
-  ['가다', '가세요', 'go'], ['앉다', '앉으세요', 'sit'], ['읽다', '읽으세요', 'read'], ['인사하다', '인사하세요', 'greet'], ['보다', '보세요', 'look'],
-  ['쓰다', '쓰세요', 'write'], ['만나다', '만나세요', 'meet'], ['하다', '하세요', 'do'], ['공부하다', '공부하세요', 'study'], ['지내다', '지내세요', 'get along'],
-  ['좋다', '좋으세요', 'be good'], ['크다', '크세요', 'be big'], ['많다', '많으세요', 'be many'], ['괜찮다', '괜찮으세요', 'be okay'],
-  ['있다', '있으세요', 'have'], ['없다', '없으세요', 'not have'],
-];
-
 addLesson({
   id: 3,
   title: '대학 캠퍼스',
@@ -93,6 +85,17 @@ addLesson({
     { conv: 'From class', k: '화학', e: 'chemistry', pos: 'noun', note: 'major' },
     { conv: 'From class', k: '철학', e: 'philosophy', pos: 'noun', note: 'major' },
     { conv: 'From class', k: '미술학', e: 'art (as a major)', pos: 'noun', note: '미술 = art' },
+  ],
+
+  // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  conjugations: [
+    ['가다', 'to go', '가요', '갑니다', '가세요'],
+    ['인사하다', 'to greet', '인사해요', '인사합니다', '인사하세요'],
+    ['읽다', 'to read', '읽어요', '읽습니다', '읽으세요'],
+    ['있다', 'to have', '있어요', '있습니다', '있으세요'],
+    ['없다', 'to not have', '없어요', '없습니다', '없으세요'],
+    ['질문하다', 'to ask a question', '질문해요', '질문합니다', '질문하세요'],
   ],
 
   quiz: [
@@ -216,19 +219,6 @@ addLesson({
         return Math.random() < 0.5
           ? { sentence: `“I ${have ? 'have' : "don't have"} ${en}.” → ${josa(w, '이', '가')} ___어요.`, blank: have ? '있' : '없', hint: 'have = 있다 · not have = 없다' }
           : { sentence: `“I ${have ? 'have' : "don't have"} ${en}.” → ${w}___ ${have ? '있' : '없'}어요.`, blank: hasBatchim(w) ? '이' : '가', hint: 'subject particle', why: batchimWhy(w, '이', '가') };
-      },
-    },
-    {
-      type: 'honorific', label: 'Honorific ~(으)세요',
-      typed: () => {
-        const [d, h, e] = pick(HONORIFICS);
-        return { sentence: `${d} (${e}) → honorific: ___`, blank: h, hint: 'Stem ends in a consonant → 으세요; in a vowel → 세요', why: `${d} → ${h}`, wide: true };
-      },
-      mc: () => {
-        const [d, h, e] = pick(HONORIFICS), stem = d.slice(0, -1);
-        const ask = ['앉다', '읽다', '가다', '쓰다', '보다', '인사하다'].includes(d);
-        return mcq(ask ? `Politely ask someone to <strong>${e}</strong> (${d}):` : `Honorific form of <span class="quiz-korean">${d}</span> (${e}):`, h,
-          [hasBatchim(stem) ? stem + '세요' : stem + '으세요', stem + '어세요', stem + '아요', d + '세요'], `${stem.slice(-1)} ${hasBatchim(stem) ? 'ends in a consonant → 으세요' : 'ends in a vowel → 세요'}`);
       },
     },
     {

@@ -68,6 +68,13 @@ addLesson({
   ],
 
   // Multiple-choice grammar & usage. ans = index of the correct option (options get shuffled).
+  // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  conjugations: [
+    ['그렇다', 'to be so', '그래요', '그렇습니다', null],
+    ['반갑다', 'to be glad', '반가워요', '반갑습니다', null],
+  ],
+
   quiz: [
     { q: 'What does 안녕하세요? mean?', opts: ['Hello / How are you?', 'Goodbye', 'Thank you', "I'm sorry"], ans: 0, why: 'Used any time of day; reply with 안녕하세요.' },
     { q: '저는 학생이에요. means:', opts: ['I am a student.', 'You are a student.', 'She is a student.', 'We are students.'], ans: 0 },

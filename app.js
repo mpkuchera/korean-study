@@ -252,11 +252,50 @@ function mcq(q, correct, wrongs, why) {
 
 function genPool(kind) {
   const upTo = Math.max(...selected);
-  return activeLessons().flatMap(l => (l.generators || []).filter(g => g[kind])
-    .map(g => ({ ...g, lesson: l.id, key: `gen|${l.id}|${g.type}`, ctx: { upTo } })));
+  return activeLessons().flatMap(l => {
+    const gens = (l.generators || []).filter(g => g[kind]).map(g => ({ ...g, lesson: l.id, key: `gen|${l.id}|${g.type}`, ctx: { upTo } }));
+    // Built-in: conjugation drill from the lesson's table, weighted ×2 (the class quizzes on it)
+    const conj = conjItems([l]);
+    if (conj.length) { const g = { type: 'conjugate', label: 'Conjugation', lesson: l.id, key: `gen|${l.id}|conjugate`, ctx: { upTo }, mc: () => conjMC(pick(conj)), typed: () => conjTyped(pick(conj)) }; gens.push(g, g); }
+    return gens;
+  });
 }
-function genMC(g) { return { ...g.mc(g.ctx), key: g.key, tag: g.label }; }
-function genTyped(g) { return { ...g.typed(g.ctx), type: g.label, key: g.key }; }
+// Items may carry their own key/tag (conjugation tracks each verb × level); otherwise the generator's is used.
+function genMC(g) { return { key: g.key, tag: g.label, ...g.mc(g.ctx) }; }
+function genTyped(g) { return { type: g.label, key: g.key, ...g.typed(g.ctx) }; }
+
+// ---------- conjugation ----------
+// Lessons list verb/adjective forms explicitly in `conjugations`: [dictionary, meaning, polite, formal, honorific].
+const LEVELS = [['polite', 'polite ~어요/아요'], ['formal', 'formal ~ㅂ니다/습니다'], ['honorific', 'honorific ~(으)세요']];
+const LEVEL_HINTS = {
+  polite: 'Stem vowel ㅏ/ㅗ → 아요, otherwise 어요 · 하다 → 해요 · watch contractions and ㅡ dropping',
+  formal: 'Consonant stem → 습니다 · vowel stem → ㅂ니다 (먹습니다, 봅니다) · ㄹ drops (알다 → 압니다)',
+  honorific: 'Consonant stem → 으세요 · vowel stem → 세요 (앉으세요, 가세요)',
+};
+// One item per (verb, level), limited to the conversation filter when one is set.
+function conjItems(lessons = activeLessons()) {
+  return lessons.flatMap(l => (l.conjugations || []).map(([d, e, polite, formal, honorific]) => {
+    const v = l.vocab.find(x => speakable(x.k) === d || x.k.startsWith(d));
+    return { lesson: l.id, d, e, conv: v && v.conv, forms: { polite, formal, honorific } };
+  }).filter(row => !convActive() || row.conv === convActive())
+    .flatMap(row => LEVELS.filter(([lv]) => row.forms[lv]).map(([lv, label]) =>
+      ({ ...row, lv, label, answers: row.forms[lv].split('|'), key: `conj|${row.lesson}:${row.d}|${lv}` }))));
+}
+const conjSummary = it => `${it.d}: ` + LEVELS.filter(([lv]) => it.forms[lv]).map(([lv]) => it.forms[lv].split('|')[0]).join(' · ');
+function conjTyped(it) {
+  return { sentence: `${it.d} (${it.e}) → <strong>${it.label}</strong><br>___`, blank: it.answers, display: it.answers[0],
+    hint: LEVEL_HINTS[it.lv], why: conjSummary(it), type: 'Conjugation', wide: true, key: it.key };
+}
+function conjMC(it) {
+  const stem = it.d.slice(0, -1);
+  const valid = Object.values(it.forms).filter(Boolean).flatMap(f => f.split('|'));
+  // Wrong answers: the same verb at the OTHER formality levels (the main thing being tested), then rule slips.
+  const otherLevels = LEVELS.filter(([lv]) => lv !== it.lv && it.forms[lv]).map(([lv]) => it.forms[lv].split('|')[0]);
+  const slips = { polite: [stem + '아요', stem + '어요', stem + '요'], formal: [stem + '습니다', stem + '니다', it.d + '니다'], honorific: [stem + '으세요', stem + '세요', stem + '어세요'] }[it.lv]
+    .filter(w => !valid.includes(w));
+  const wrongs = [...otherLevels, ...shuffle(slips)].filter(w => !it.answers.includes(w)).slice(0, 3);
+  return { ...mcq(`<span class="quiz-korean">${it.d}</span> (${it.e}) → <strong>${it.label}</strong>`, it.answers[0], wrongs, conjSummary(it)), key: it.key, tag: 'Conjugation' };
+}
 // A grammar round (Quiz Me "Grammar & usage" / Fill-in "Sentence blanks"): half textbook questions, dealt
 // without repeats, and half freshly generated, so the fixed list can't just be memorized. n = 0 → all fixed questions.
 function grammarRound(kind, n) {
@@ -399,6 +438,9 @@ function retryMissedQuiz() { runQuiz(shuffle(quiz.missed.map(usageQuestion))); }
 let fill = null; // { qs, idx, score, missed, answered }
 
 function spellQuestions() {
+  return [...vocabSpellQuestions(), ...conjItems().map(conjTyped)];
+}
+function vocabSpellQuestions() {
   return pool('vocab').filter(v => !v.noSpell).map(v => ({
     sentence: `<strong>${v.e}</strong> <span class="vocab-tag">${v.pos}</span><br>___`,
     blank: acceptedAnswers(v), display: v.k,
@@ -414,7 +456,7 @@ function renderFillStart() {
       ${reviewCard(fillReviewItems().length, "startFill('review')")}
       <button class="mode-card" onclick="startFill('mixed')"><strong>🎯 Mixed</strong><span>Blanks + spelling</span></button>
       <button class="mode-card" onclick="startFill('blanks')"><strong>📝 Sentence blanks</strong><span>Particles, endings, sentences</span></button>
-      <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${spellQuestions().length})</strong><span>See English, type Korean</span></button>
+      <button class="mode-card" onclick="startFill('spell')"><strong>⌨️ Spell the vocab (${spellQuestions().length})</strong><span>Words + verb forms</span></button>
     </div>`;
 }
 function startFill(mode) {
@@ -552,12 +594,13 @@ function quizReviewItems() {
   const vocab = pool('vocab'), out = [];
   pool('quiz').forEach(q => { if (itemStatus(q.id) === 'review') out.push(() => usageQuestion(q)); });
   vocab.forEach(v => ['ko', 'en'].forEach(dir => { if (itemStatus(`${dir}|${v.id}`) === 'review') out.push(() => vocabQuestion(v, vocab, dir)); }));
-  genPool('mc').forEach(g => { if (itemStatus(g.key) === 'review') out.push(() => genMC(g)); }); // a missed skill comes back as a new question
+  genPool('mc').forEach(g => { if (g.type !== 'conjugate' && itemStatus(g.key) === 'review') out.push(() => genMC(g)); }); // a missed skill comes back as a new question
+  conjItems().forEach(it => { if (itemStatus(it.key) === 'review') out.push(() => conjMC(it)); });
   return out;
 }
 function fillReviewItems() {
   return [...pool('fill').filter(q => itemStatus(q.id) === 'review'), ...spellQuestions().filter(q => itemStatus(q.key) === 'review'),
-    ...genPool('typed').filter(g => itemStatus(g.key) === 'review').map(genTyped)];
+    ...genPool('typed').filter(g => g.type !== 'conjugate' && itemStatus(g.key) === 'review').map(genTyped)];
 }
 function reviewCard(n, onclick) {
   return n
@@ -579,6 +622,7 @@ function trackedCategories(l) {
     { name: 'Spelling', items: vocab.filter(v => !v.noSpell).map(v => ({ key: 'spell|' + id('vocab', v), label: `✍️ ${v.e} → ${v.k}` })) },
     { name: 'Grammar & usage', items: (l.quiz || []).map(q => ({ key: id('quiz', q), label: `${stripTags(q.q)} → ${q.opts[q.ans]}` })) },
     { name: 'Fill-in blanks', items: (l.fill || []).map(q => ({ key: id('fill', q), label: q.sentence.replace('___', `[${[].concat(q.blank)[0]}]`) })) },
+    { name: 'Conjugation', items: (l.conjugations || []).flatMap(([d, , ...forms]) => LEVELS.map(([lv], i) => forms[i] && ({ key: `conj|${l.id}:${d}|${lv}`, label: `${d} → ${lv}: ${forms[i].split('|')[0]}` })).filter(Boolean)) },
     { name: 'Grammar skills', items: (l.generators || []).map(g => ({ key: `gen|${l.id}|${g.type}`, label: g.label })) },
   ];
 }
@@ -720,8 +764,16 @@ function renderGrammar() {
         ${b.html}
       </div>`).join('');
 }
+function conjTable(l) {
+  if (!(l.conjugations || []).length) return [];
+  const cell = f => f ? f.split('|').join(' / ') : '—';
+  return [{ title: `Lesson ${l.id} verb forms (polite · formal · honorific)`, html: `<div class="grammar-block"><table class="rule-table">
+    <tr><th>Dictionary</th><th>~어요</th><th>~습니다</th><th>~(으)세요</th></tr>
+    ${l.conjugations.map(([d, e, p, f, h]) => `<tr><td>${d}<br><span class="vocab-note">${e}</span></td><td>${cell(p)}</td><td>${cell(f)}</td><td>${cell(h)}</td></tr>`).join('')}
+  </table></div>` }];
+}
 function renderReference() {
-  const blocks = activeLessons().flatMap(l => (l.reference || []).map(r => ({ ...r, lesson: l.id })));
+  const blocks = activeLessons().flatMap(l => [...conjTable(l), ...(l.reference || [])]);
   $('referenceBody').innerHTML = blocks.length
     ? blocks.map(r => `<div class="lesson-label">${r.title}</div>${r.html}`).join('')
     : '<div class="tip">No reference material for the selected lessons.</div>';

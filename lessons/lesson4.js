@@ -98,6 +98,22 @@ addLesson({
     { conv: 'Numbers (G4.2)', k: '만 (10,000)', e: 'ten thousand (Sino-Korean only)', pos: 'number', note: '만 원 = ₩10,000 · 오만 = 50,000', accept: ['만'] },
   ],
 
+  // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  conjugations: [
+    ['계시다', 'to be (somewhere) — honorific', '계세요|계셔요|계시어요', '계십니다', null],
+    ['고맙다', 'to be thankful', '고마워요', '고맙습니다', null],
+    ['나쁘다', 'to be bad', '나빠요', '나쁩니다', null],
+    ['비싸다', 'to be expensive', '비싸요', '비쌉니다', null],
+    ['예쁘다', 'to be pretty', '예뻐요', '예쁩니다', '예쁘세요'],
+    ['작다', 'to be small', '작아요', '작습니다', null],
+    ['마시다', 'to drink', '마셔요|마시어요', '마십니다', null],
+    ['배우다', 'to learn', '배워요', '배웁니다', '배우세요'],
+    ['오다', 'to come', '와요', '옵니다', '오세요'],
+    ['자다', 'to sleep', '자요', '잡니다', null],
+    ['주다', 'to give', '줘요|주어요', '줍니다', '주세요'],
+  ],
+
   quiz: [
     { q: '계세요 is the honorific form of:', opts: ['있어요 (to be somewhere)', '이에요 (to be [N])', '있어요 (to have)', '해요 (to do)'], ans: 0, why: 'Existence: 있어요 → 계세요 · possession: 있어요 → 있으세요 · copula: 이에요 → 이세요' },
     { q: '부모님은 어디 계세요? means:', opts: ['Where are your parents?', 'Do you have parents?', 'Who are your parents?', 'How are your parents?'], ans: 0 },

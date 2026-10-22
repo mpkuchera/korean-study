@@ -6,22 +6,6 @@ const L2_ACTIONS = [
   ['숙제', '해요', 'does homework'], ['공부', '해요', 'studies'], ['한국어', '공부해요', 'studies Korean'],
   ['역사', '공부해요', 'studies history'], ['이름', '써요', 'writes a name'],
 ];
-// [dictionary form, polite form, meaning] for every verb/adjective up to lesson n whose polite form is listed in parentheses
-function politeVerbs(n) {
-  return LESSONS.filter(l => l.id <= n).flatMap(l => l.vocab)
-    .filter(v => ['verb', 'adjective'].includes(v.pos))
-    .map(v => { const m = v.k.match(/^(\S+다)\s*\((\S+요)\)$/); return m && !/세요$|습니다$/.test(m[2]) ? [m[1], m[2], v.e.split(/[;,(]/)[0].trim()] : null; })
-    .filter(Boolean);
-}
-
-// Formal ~(스)ㅂ니다 forms, exactly as listed in the teacher's "Korean Vocabularies" doc: [dictionary, formal, lesson]
-const FORMAL_FORMS = [
-  ['먹다', '먹습니다', 2], ['앉다', '앉습니다', 2], ['알다', '압니다', 2], ['만나다', '만납니다', 2], ['보다', '봅니다', 2], ['쓰다', '씁니다', 2],
-  ['지내다', '지냅니다', 2], ['그렇다', '그렇습니다', 1], ['반갑다', '반갑습니다', 1], ['괜찮다', '괜찮습니다', 2], ['넓다', '넓습니다', 2],
-  ['많다', '많습니다', 2], ['맛있다', '맛있습니다', 2], ['맛없다', '맛없습니다', 2], ['재미있다', '재미있습니다', 2], ['재미없다', '재미없습니다', 2],
-  ['좋다', '좋습니다', 2], ['싸다', '쌉니다', 2], ['비싸다', '비쌉니다', 4], ['크다', '큽니다', 2], ['작다', '작습니다', 4],
-  ['가다', '갑니다', 3], ['인사하다', '인사합니다', 3], ['읽다', '읽습니다', 3], ['있다', '있습니다', 3], ['없다', '없습니다', 3],
-];
 
 addLesson({
   id: 2,
@@ -83,6 +67,31 @@ addLesson({
     { conv: 'From class', k: '어제', e: 'yesterday', pos: 'noun', note: '어제 · 오늘 · 내일' },
     { conv: 'From class', k: '정말', e: 'really, truly', pos: 'adverb', note: '정말 재미있어요!', syn: 'really', accept: ['정말', '진짜'] },
     { conv: 'From class', k: '진짜', e: 'really (casual)', pos: 'adverb', note: '진짜? = Really?', syn: 'really', accept: ['진짜', '정말'] },
+  ],
+
+  // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  conjugations: [
+    ['괜찮다', 'to be okay', '괜찮아요', '괜찮습니다', '괜찮으세요'],
+    ['넓다', 'to be spacious', '넓어요', '넓습니다', null],
+    ['많다', 'to be many', '많아요', '많습니다', '많으세요'],
+    ['맛있다', 'to be delicious', '맛있어요', '맛있습니다', null],
+    ['맛없다', 'to taste bad', '맛없어요', '맛없습니다', null],
+    ['어떻다', 'to be how', '어때요', null, null],
+    ['재미있다', 'to be fun', '재미있어요|재밌어요', '재미있습니다|재밌습니다', null],
+    ['재미없다', 'to be boring', '재미없어요', '재미없습니다', null],
+    ['좋다', 'to be good', '좋아요', '좋습니다', '좋으세요'],
+    ['싸다', 'to be cheap', '싸요', '쌉니다', null],
+    ['크다', 'to be big', '커요', '큽니다', '크세요'],
+    ['먹다', 'to eat', '먹어요', '먹습니다', null],
+    ['앉다', 'to sit', '앉아요', '앉습니다', '앉으세요'],
+    ['알다', 'to know', '알아요', '압니다', null],
+    ['만나다', 'to meet', '만나요', '만납니다', '만나세요'],
+    ['보다', 'to see', '봐요|보아요', '봅니다', '보세요'],
+    ['쓰다', 'to write', '써요', '씁니다', '쓰세요'],
+    ['지내다', 'to get along', '지내요|지내어요', '지냅니다', '지내세요'],
+    ['하다', 'to do', '해요', '합니다', '하세요'],
+    ['공부하다', 'to study', '공부해요', '공부합니다', '공부하세요'],
   ],
 
   quiz: [
@@ -218,31 +227,6 @@ addLesson({
         return mcq(`“${en} ${act}.”`, `${josa(s, '이', '가')} ${josa(o, '을', '를')} ${v}.`,
           [`${josa(s, '을', '를')} ${josa(o, '이', '가')} ${v}.`, `${josa(s, '이', '가')} ${josa(o, '를', '을')} ${v}.`, `${josa(s, '이', '가')} ${josa(o, '이', '가')} ${v}.`],
           `Subject + 이/가, object + 을/를. ${batchimWhy(o, '을', '를')}`);
-      },
-    },
-    {
-      type: 'polite', label: 'Polite ending ~어요/아요',
-      typed: ctx => {
-        const [d, p, e] = pick(politeVerbs(ctx.upTo));
-        return { sentence: `${d} (${e}) → polite: ___`, blank: p, hint: 'Last vowel of the stem ㅏ/ㅗ → 아요, otherwise 어요 (watch 하다, contractions, ㅡ)', why: `${d} → ${p}`, wide: true };
-      },
-      mc: ctx => {
-        const [d, p, e] = pick(politeVerbs(ctx.upTo)), stem = d.slice(0, -1);
-        // 보아요 / 지내어요 / 주어요 / 마시어요 are valid (uncontracted) forms, so never offer them as wrong answers
-        const wrongs = [stem + '아요', stem + '어요', stem + '요', d + '요'].filter(w => !['보아요', '지내어요', '주어요', '마시어요'].includes(w));
-        return mcq(`Polite form of <span class="quiz-korean">${d}</span> (${e}):`, p, wrongs, `${d} → ${p}`);
-      },
-    },
-    {
-      type: 'formal', label: 'Formal ending ~ㅂ니다/습니다',
-      typed: ctx => {
-        const [d, f] = pick(FORMAL_FORMS.filter(x => x[2] <= ctx.upTo));
-        return { sentence: `${d} → formal: ___`, blank: f, hint: 'Stem ends in a consonant → 습니다; in a vowel → ㅂ니다 (ㄹ drops: 알다 → 압니다)', why: `${d} → ${f}`, wide: true };
-      },
-      mc: ctx => {
-        const [d, f] = pick(FORMAL_FORMS.filter(x => x[2] <= ctx.upTo)), stem = d.slice(0, -1);
-        return mcq(`Formal (~ㅂ니다/습니다) form of <span class="quiz-korean">${d}</span>:`, f, [stem + '습니다', stem + '니다', stem + '읍니다', d + '니다'],
-          `${d} → ${f} · consonant stem → 습니다, vowel stem → ㅂ니다`);
       },
     },
   ],

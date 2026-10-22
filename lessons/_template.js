@@ -14,6 +14,12 @@ addLesson({
     { conv: 1, k: '한국어', e: 'English meaning', pos: 'noun' },
   ],
 
+  // Verb/adjective forms (drilled in Spell the vocab, Grammar, and shown on Reference):
+  // [dictionary, meaning, polite, formal, honorific] — '|' for accepted alternatives, null to skip a level.
+  conjugations: [
+    ['보다', 'to see', '봐요|보아요', '봅니다', '보세요'],
+  ],
+
   // Multiple choice. ans = index of the correct option; options are shuffled on screen. why = optional explanation.
   quiz: [
     { q: 'Question?', opts: ['right', 'wrong', 'wrong', 'wrong'], ans: 0, why: '' },
