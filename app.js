@@ -284,6 +284,11 @@ function conjItems(lessons = activeLessons()) {
 }
 const conjSummary = it => `${it.d}: ` + LEVELS.filter(([lv]) => it.forms[lv]).map(([lv]) => it.forms[lv].split('|')[0]).join(' · ');
 function conjTyped(it) {
+  // Like the textbook's exercises (pp. 74, 79), sometimes go backwards: polite form → dictionary form.
+  if (it.lv === 'polite' && Math.random() < 0.3) {
+    return { sentence: `<strong>${it.answers[0]}</strong> (${it.e}) → dictionary form<br>___`, blank: [it.d], display: it.d,
+      hint: 'Dictionary forms end in 다', why: conjSummary(it), type: 'Conjugation', wide: true, key: it.key };
+  }
   return { sentence: `${it.d} (${it.e}) → <strong>${it.label}</strong><br>___`, blank: it.answers, display: it.answers[0],
     hint: LEVEL_HINTS[it.lv], why: conjSummary(it), type: 'Conjugation', wide: true, key: it.key };
 }

@@ -45,7 +45,7 @@ addLesson({
     { conv: 2, k: '일본', e: 'Japan', pos: 'noun' },
     { conv: 2, k: '중국', e: 'China', pos: 'noun' },
     { conv: 2, k: '클래스', e: 'class (loanword)', pos: 'noun', note: '한국어 클래스', syn: 'class' },
-    { conv: 2, k: '한국어 (=한국말)', e: 'Korean language', pos: 'noun' },
+    { conv: 2, k: '한국어 (=한국말)', e: 'Korean language', pos: 'noun', note: '한국말 in casual speech · 한국어 in compounds (한국어 선생님, 한국어 클래스)' },
     { conv: 2, k: '아', e: 'oh', pos: 'interjection', note: '아, 그래요? · L2 also has 어 = oh', accept: ['아', '어'] },
     { conv: 2, k: '네 (=예)', e: 'yes; I see; okay', pos: 'adverb' },
     { conv: 2, k: '아니요', e: 'no', pos: 'adverb' },
@@ -75,12 +75,13 @@ addLesson({
 
   // Multiple-choice grammar & usage. ans = index of the correct option (options get shuffled).
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
-  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Formal and honorific forms are only listed
+  // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
     ['그렇다', 'to be so', '그래요', '그렇습니다', null],
     ['반갑다', 'to be glad', '반가워요', '반갑습니다', null],
     ['맞다', 'to be right', '맞아요', '맞습니다', null],
-    ['전공하다', 'to major in', '전공해요', '전공합니다', '전공하세요'],
+    ['전공하다', 'to major in', '전공해요', null, '전공하세요'],
   ],
 
   quiz: [
@@ -97,14 +98,14 @@ addLesson({
     { q: '이름이 뭐예요? means:', opts: ['What is your name?', 'Where are you from?', 'What year are you?', 'Who is the teacher?'], ans: 0, why: 'Not used to a senior/teacher.' },
     { q: '반갑습니다 means:', opts: ['Glad to meet you.', 'Is that right?', 'Goodbye.', "I'm a student."], ans: 0 },
     { q: '아, 그래요? means:', opts: ['Oh, is that right?', "Oh, it's good.", 'Oh, no.', 'Oh, what?'], ans: 0 },
-    { q: '뭐 is a contracted form of:', opts: ['무엇', '무어', '뭐예요', '누구'], ans: 0 },
+    { q: '뭐 is a contracted form of:', opts: ['무엇', '어디', '뭐예요', '누구'], ans: 0, why: '무엇 > 무어 > 뭐' },
     { q: 'How do you turn 한국 사람이에요. into a yes/no question?', opts: ['Same words, rising intonation: 한국 사람이에요?', 'Put 이에요 first', 'Add 네 at the end', 'Change 이에요 to 예요'], ans: 0, why: 'In the polite style, statements and questions have the same ending.' },
     { q: 'A: 3학년이에요?  (You are a 2nd-year.)  B: ___', opts: ['아니요, 2학년이에요.', '네, 2학년이에요.', '아니요, 3학년이에요.', '네, 3학년이 아니에요.'], ans: 0 },
     { q: 'A: 미국 사람이에요?  (You are American.)  B: ___', opts: ['네, 미국 사람이에요.', '아니요, 미국 사람이에요.', '네, 미국 사람이 아니에요.', '아, 미국이에요.'], ans: 0 },
     { q: 'Negative of 학생이에요:', opts: ['학생이 아니에요', '학생가 아니에요', '학생은 아니요', '학생 아니예요'], ans: 0, why: 'N이/가 아니에요 — 학생 ends in a consonant → 이' },
     { q: 'Negative of 한국어 클래스예요:', opts: ['한국어 클래스가 아니에요', '한국어 클래스이 아니에요', '한국어 클래스는 아니요', '한국어 클래스 예요 아니'], ans: 0, why: '클래스 ends in a vowel → 가' },
     { q: '소피아: 아니요, 한국 사람이 아니에요. 중국 사람이에요. Where is Sophia from?', opts: ['China', 'Korea', 'Japan', 'the UK'], ans: 0 },
-    { q: 'The language of 일본 is:', opts: ['일본어', '일본말어', '일어', '영어'], ans: 0, why: 'country + 어 = language: 한국어, 중국어, 일본어' },
+    { q: 'The language of 일본 is:', opts: ['일본어', '일본말어', '중국어', '영어'], ans: 0, why: 'country + 어 = language: 한국어, 중국어, 일(본)어' },
     { q: 'An American (미국 사람) speaks:', opts: ['영어', '미국어', '영국어', '한국어'], ans: 0, why: '영어 = English (for both 미국 and 영국)' },
     { q: 'Introducing yourself as a professor, you say:', opts: ['저는 교수예요.', '저는 교수님이에요.', '저는 교수님예요.', '저는 교수이에요.'], ans: 0, why: 'Never attach the honorific 님 to yourself. 교수 ends in a vowel → 예요.' },
     { q: 'Negative of 선생님이에요:', opts: ['선생님이 아니에요', '선생님을 아니에요', '선생님는 아니에요', '선생님 아니예요'], ans: 0, why: '아니에요 always takes 이/가 — never 을/를.' },
@@ -119,6 +120,8 @@ addLesson({
   // Sentence blanks. blank may be a string or a list of accepted answers.
   fill: [
     { sentence: '저___ 학생이에요.', blank: '는', hint: 'Topic particle — 저 ends in a vowel', type: 'Particle' },
+    { sentence: '유미, 마이클, 스티브___ 대학생이에요.', blank: '는', hint: 'With a list, 은/는 goes only on the last name — 스티브 ends in a vowel', type: 'Particle' },
+    { sentence: '저는 일본 사람이 아니에요. 스티브 윌슨___ 일본 사람이 아니에요.', blank: '도', hint: 'also — works in negative sentences too', type: 'Particle' },
     { sentence: '마이클___ 1학년이에요.', blank: '은', hint: 'Topic particle — 마이클 ends in consonant ㄹ', type: 'Particle' },
     { sentence: '유미___ 한국 사람이에요.', blank: '는', hint: 'Topic particle — 유미 ends in a vowel', type: 'Particle' },
     { sentence: '수잔___ 4학년이에요.', blank: '은', hint: 'Topic particle — 수잔 ends in consonant ㄴ', type: 'Particle' },
@@ -232,7 +235,7 @@ addLesson({
       type: 'language', label: 'Country → person / language',
       typed: () => {
         const c = pick(['한국', '중국', '일본', '미국', '영국']);
-        if (Math.random() < 0.5) return { sentence: `${c} 사람 → language: ___`, blank: c === '미국' || c === '영국' ? '영어' : (c === '한국' ? ['한국어', '한국말'] : c + '어'), hint: 'country + 어 (but English is special)' };
+        if (Math.random() < 0.5) return { sentence: `${c} 사람 → language: ___`, blank: c === '미국' || c === '영국' ? '영어' : c === '한국' ? ['한국어', '한국말'] : c === '일본' ? ['일본어', '일어'] : c + '어', hint: 'country + 어 (but English is special)' };
         return { sentence: `a person from ${c} → ___`, blank: c + ' 사람', hint: 'country + 사람' };
       },
     },
@@ -255,9 +258,11 @@ addLesson({
       html: `<div class="grammar-body">“N1 is N2.” The copula <span class="ko">이다</span> (“to be”) attaches to N2.<br><br>
         • <span class="ko">이에요</span> after a <strong>consonant</strong> (학생<span class="ko">이에요</span>)<br>
         • <span class="ko">예요</span> after a <strong>vowel</strong> (김유미<span class="ko">예요</span>)<br><br>
-        Topic particle: <span class="ko">은</span> after consonant, <span class="ko">는</span> after vowel.</div>
+        Topic particle: <span class="ko">은</span> after consonant, <span class="ko">는</span> after vowel. The topic (N1은/는) + comment (N2이에요) is the basic Korean sentence.<br>
+        With a <strong>list</strong> of topics, 은/는 goes only on the <strong>last</strong> one (p. 50).</div>
         <div class="example-box">
           <p>저는 스티브<b>예요</b>. — I am Steve.</p>
+          <p>유미, 마이클, 스티브<b>는</b> 대학생이에요. — Yumi, Michael and Steve are college students.</p>
           <p>마이클은 대학생<b>이에요</b>. — Michael is a college student.</p>
           <p>유미는 1학년<b>이에요</b>. — Yumi is a freshman.</p>
         </div>`,
@@ -307,9 +312,11 @@ addLesson({
         </table>
         <div class="example-box">
           <p>소피아 왕은 선생님<b>이 아니에요</b>. 학생이에요.</p>
-          <p>유미: 스티브 씨, 1학년이에요? — 스티브: 아니요, 1학년<b>이 아니에요</b>. 3학년이에요.</p>
+          <p>유미: 스티브 씨, 1학년이에요? — 스티브: 아니요, 1학년 아니에요. 3학년이에요.</p>
           <p>스티브 윌슨<b>도</b> 일본 사람<b>이 아니에요</b>. 미국 사람이에요.</p>
-        </div>`,
+        </div>
+        <div class="grammar-body" style="margin-top:8px">• In conversation 이/가 is often dropped: 1학년 아니에요 (p. 60).<br>
+          • 도 (also) works in negative sentences too, when they parallel the one before: 스티브 윌슨<b>도</b> 일본 사람이 아니에요.</div>`,
     },
     {
       id: '', tag: 'Lesson 1 · Expressions', title: 'Countries, people &amp; languages',
@@ -321,6 +328,9 @@ addLesson({
           <tr><td>일본 Japan</td><td>일본 사람</td><td>일본어</td></tr>
           <tr><td>미국 USA</td><td>미국 사람</td><td>영어</td></tr>
           <tr><td>영국 UK</td><td>영국 사람</td><td>영어</td></tr>
+          <tr><td>프랑스 France</td><td>프랑스 사람</td><td>프랑스어</td></tr>
+          <tr><td>스페인 Spain</td><td>스페인 사람</td><td>스페인어</td></tr>
+          <tr><td>러시아 Russia</td><td>러시아 사람</td><td>러시아어</td></tr>
         </table>
         <div class="grammar-body" style="margin-top:10px">
           • <span class="ko">이름이 뭐예요?</span> “What's your name?” — not to a senior (use 성함이 어떻게 되세요?)<br>

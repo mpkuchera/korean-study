@@ -25,7 +25,7 @@ addLesson({
     { conv: 1, k: '커피', e: 'coffee', pos: 'noun' },
     { conv: 1, k: '학교', e: 'school', pos: 'noun' },
     { conv: 1, k: '-어요/-아요', e: 'polite ending', pos: 'suffix', noSpell: true },
-    { conv: 1, k: '들', e: 'plural particle', pos: 'particle', note: '학생들, 친구들' },
+    { conv: 1, k: '들', e: 'plural particle', pos: 'particle', note: 'optional · other particles follow it: 학생들이, 친구들은' },
     { conv: 1, k: '어', e: 'oh', pos: 'interjection', note: 'L1 also has 아 = oh', accept: ['어', '아'] },
     { conv: 1, k: '괜찮다 (괜찮아요)', e: 'to be all right, okay', pos: 'adjective' },
     { conv: 1, k: '넓다 (넓어요)', e: 'to be spacious, wide', pos: 'adjective' },
@@ -79,14 +79,15 @@ addLesson({
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
-  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Formal and honorific forms are only listed
+  // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
-    ['괜찮다', 'to be okay', '괜찮아요', '괜찮습니다', '괜찮으세요'],
+    ['괜찮다', 'to be okay', '괜찮아요', '괜찮습니다', null],
     ['넓다', 'to be spacious', '넓어요', '넓습니다', null],
     ['많다', 'to be many', '많아요', '많습니다', '많으세요'],
     ['맛있다', 'to be delicious', '맛있어요', '맛있습니다', null],
     ['맛없다', 'to taste bad', '맛없어요', '맛없습니다', null],
-    ['어떻다', 'to be how', '어때요', null, null],
+    ['어떻다', 'to be how', '어때요', null, '어떠세요'],
     ['재미있다', 'to be fun', '재미있어요|재밌어요', '재미있습니다|재밌습니다', null],
     ['재미없다', 'to be boring', '재미없어요', '재미없습니다', null],
     ['좋다', 'to be good', '좋아요', '좋습니다', '좋으세요'],
@@ -95,14 +96,14 @@ addLesson({
     ['먹다', 'to eat', '먹어요', '먹습니다', null],
     ['앉다', 'to sit', '앉아요', '앉습니다', '앉으세요'],
     ['알다', 'to know', '알아요', '압니다', null],
-    ['만나다', 'to meet', '만나요', '만납니다', '만나세요'],
+    ['만나다', 'to meet', '만나요', '만납니다', null],
     ['보다', 'to see', '봐요|보아요', '봅니다', '보세요'],
     ['쓰다', 'to write', '써요', '씁니다', '쓰세요'],
     ['지내다', 'to get along', '지내요|지내어요', '지냅니다', '지내세요'],
-    ['하다', 'to do', '해요', '합니다', '하세요'],
-    ['공부하다', 'to study', '공부해요', '공부합니다', '공부하세요'],
-    ['좋아하다', 'to like', '좋아해요', '좋아합니다', '좋아하세요'],
-    ['바쁘다', 'to be busy', '바빠요', '바쁩니다', '바쁘세요'],
+    ['하다', 'to do', '해요', null, '하세요'],
+    ['공부하다', 'to study', '공부해요', null, '공부하세요'],
+    ['좋아하다', 'to like', '좋아해요', null, null],
+    ['바쁘다', 'to be busy', '바빠요', null, null],
   ],
 
   quiz: [
@@ -157,6 +158,8 @@ addLesson({
     { sentence: '스티브가 친구___ 만나요.', blank: '를', hint: 'Object particle — 구 ends in a vowel', type: 'Particle' },
     { sentence: '소피아가 숙제___ 해요.', blank: '를', hint: 'Object particle — 제 ends in a vowel', type: 'Particle' },
     { sentence: '소피아는 한국어___ 공부해요.', blank: '를', hint: 'Object particle — 어 ends in a vowel', type: 'Particle' },
+    { sentence: '한국어 공부___ 해요. (= 공부해요)', blank: '를', hint: 'N하다 verbs can split: N을/를 하다', type: 'Particle' },
+    { sentence: '친구들___ 좋아요. (subject)', blank: '이', hint: 'Particles go after 들 — 들 ends in a consonant', type: 'Particle' },
     { sentence: '숙제가 많___요.', blank: '아', hint: '많다 → stem vowel ㅏ → 아요', type: 'Ending' },
     { sentence: '학교 식당 음식이 맛있___요.', blank: '어', hint: '맛있다 → not ㅏ/ㅗ → 어요', type: 'Ending' },
     { sentence: '커피가 좋___요.', blank: '아', hint: '좋다 → stem vowel ㅗ → 아요', type: 'Ending' },
@@ -257,7 +260,9 @@ addLesson({
     {
       id: 'G2.2', tag: 'Lesson 2', title: 'Polite ending: <em>~어요/아요</em>',
       html: `<div class="grammar-body">Stem = dictionary form minus 다. If the stem's last vowel is <strong>ㅏ or ㅗ → 아요</strong>; otherwise <strong>→ 어요</strong>.
-        Same ending for statements and questions.</div>
+        Same ending for statements and questions.<br>
+        <strong>Adjectives are predicates by themselves</strong> — no 이에요 needed: 커요 = “(it) is big.”
+        Verbs describe actions (먹어요, 알아요, 앉아요); adjectives describe states (많아요, 좋아요, 괜찮아요).</div>
         <table class="rule-table">
           <tr><th>Dictionary</th><th>Stem</th><th>Polite</th><th>Meaning</th></tr>
           <tr><td>괜찮다</td><td>괜찮</td><td>괜찮<strong>아요</strong></td><td>it's okay</td></tr>
@@ -304,38 +309,8 @@ addLesson({
           <p>소피아가 숙제<b>를</b> 해요. — Sophia does homework.</p>
           <p>스티브가 친구<b>를</b> 만나요. — Steve meets a friend.</p>
         </div>
-        <div class="grammar-body" style="margin-top:8px">공부하다 = 공부<b>를</b> 하다 · 숙제하다 = 숙제<b>를</b> 하다 · 시험<b>을</b> 보다 = take a test</div>`,
-    },
-    {
-      id: '', tag: 'From class', title: 'Formal ending: <em>~ㅂ니다 / 습니다</em>',
-      html: `<div class="grammar-body">A more formal version of ~어요/아요 (news, speeches, first meetings — like 반갑습니다).
-        Stem ends in a <strong>consonant → 습니다</strong>; in a <strong>vowel → ㅂ니다</strong> (the ㅂ joins the last syllable); a final <strong>ㄹ drops</strong> (알다 → 압니다).</div>
-        <table class="rule-table">
-          <tr><th>Dictionary</th><th>Formal</th><th>Polite</th></tr>
-          <tr><td>먹다</td><td>먹<strong>습니다</strong></td><td>먹어요</td></tr>
-          <tr><td>좋다</td><td>좋<strong>습니다</strong></td><td>좋아요</td></tr>
-          <tr><td>보다</td><td>봅<strong>니다</strong></td><td>봐요</td></tr>
-          <tr><td>만나다</td><td>만납<strong>니다</strong></td><td>만나요</td></tr>
-          <tr><td>크다</td><td>큽<strong>니다</strong></td><td>커요</td></tr>
-          <tr><td>싸다 / 비싸다</td><td>쌉<strong>니다</strong> / 비쌉<strong>니다</strong></td><td>싸요 / 비싸요</td></tr>
-          <tr><td>알다</td><td>압<strong>니다</strong> (ㄹ drops)</td><td>알아요</td></tr>
-          <tr><td>반갑다</td><td>반갑<strong>습니다</strong></td><td>반가워요</td></tr>
-        </table>`,
-    },
-    {
-      id: '', tag: 'Watch out', title: 'Spelled one way, said another',
-      html: `<div class="grammar-body">A final consonant (받침) slides into the next syllable when that syllable starts with ㅇ, and ㅎ + ㄱ sounds like ㅋ.
-        So you <strong>hear</strong> the right column, but you must <strong>write</strong> the left. Say the word, then picture its dictionary form.</div>
-        <table class="rule-table">
-          <tr><th>Write</th><th>Sounds like</th><th>Why</th></tr>
-          <tr><td>맛있어요 / 맛있다</td><td>[마시써요] / [마싣따]</td><td>맛 + 있 + 어요</td></tr>
-          <tr><td>재미있어요</td><td>[재미이써요]</td><td>있 + 어요</td></tr>
-          <tr><td>어떻게</td><td>[어떠케]</td><td>떻 has ㅎ under it</td></tr>
-          <tr><td>시험</td><td>[시험]</td><td>final ㅁ (mouth closed, hum) — not ㅂ</td></tr>
-          <tr><td>만나요</td><td>[만나요]</td><td>만 + 나 — both ㄴ are written</td></tr>
-          <tr><td>반갑습니다</td><td>[반갑씀니다]</td><td>반갑 + 습니다</td></tr>
-          <tr><td>주스</td><td>[주스]</td><td>ㅈ often sounds like English “ch” — ㅊ is the breathier one</td></tr>
-        </table>`,
+        <div class="grammar-body" style="margin-top:8px">공부하다 = 공부<b>를</b> 하다 · 숙제하다 = 숙제<b>를</b> 하다 · 시험<b>을</b> 보다 = take a test<br>
+          In conversation, particles are often dropped: 유미 친구 만나요. · 아침 먹어요. (p. 81)</div>`,
     },
     {
       id: '', tag: 'Lesson 2 · Expressions', title: 'Key expressions',
@@ -343,10 +318,14 @@ addLesson({
           <tr><th>Korean</th><th>Meaning</th></tr>
           <tr><td>N이/가 어때요?</td><td>How is N? (음식이 어때요? 학교가 어때요?)</td></tr>
           <tr><td>괜찮아요.</td><td>It's OK / not bad.</td></tr>
-          <tr><td>요즘 어떻게 지내요?</td><td>How are you doing these days?</td></tr>
+          <tr><td>요즘 어떻게 지내요? / 지내세요?</td><td>How are you doing these days? (지내세요 = more respectful)</td></tr>
+          <tr><td>잘 지내요. 리사 씨는 어때요?</td><td>I'm doing well. And you, Lisa? (name + 씨는 어때요?)</td></tr>
           <tr><td>잘 지내요.</td><td>I'm doing fine.</td></tr>
           <tr><td>지금 뭐 해요?</td><td>What are you doing now?</td></tr>
           <tr><td>이름이 뭐예요?</td><td>What is your name?</td></tr>
+          <tr><td>전화 번호가 뭐예요?</td><td>What is your phone number? (전화 = telephone, 번호 = number)</td></tr>
+          <tr><td>이게 뭐예요?</td><td>What is this? (이게 = 이것 + 이)</td></tr>
+          <tr><td>소피아는 2학년이에요. 중국 사람이에요. 한국어를 공부해요.</td><td>Describing someone: name them once, then drop the subject (p. 86)</td></tr>
           <tr><td>어제 · 오늘 · 내일</td><td>yesterday · today · tomorrow</td></tr>
           <tr><td>A. 그리고 B.</td><td>A. And B. (connects sentences)</td></tr>
         </table>`,

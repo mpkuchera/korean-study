@@ -6,7 +6,7 @@ const COUNTABLES = [
   ['가방', 'bag', 'bags', '개', 6], ['의자', 'chair', 'chairs', '개', 12], ['시계', 'watch', 'watches', '개', 5],
   ['우산', 'umbrella', 'umbrellas', '개', 5], ['컴퓨터', 'computer', 'computers', '개', 4], ['책상', 'desk', 'desks', '개', 12],
   ['개', 'dog', 'dogs', '마리', 4],
-  ['친구', 'friend', 'friends', '명', 19], ['학생', 'student', 'students', '명', 19], ['동생', 'younger sibling', 'younger siblings', '명', 3],
+  ['친구', 'friend', 'friends', '명', 10], ['학생', 'student', 'students', '명', 10], // larger counts of people can also take Sino numbers (20명 = 이십 명, p. 123) ['동생', 'younger sibling', 'younger siblings', '명', 3],
   ['남동생', 'younger brother', 'younger brothers', '명', 3], ['여동생', 'younger sister', 'younger sisters', '명', 3],
 ];
 const NATIVE_SHORT = { 하나: '한 명', 둘: '두 명', 셋: '세 명', 넷: '네 명', 스물: '스무 명' };
@@ -124,19 +124,20 @@ addLesson({
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
-  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Formal and honorific forms are only listed
+  // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
-    ['계시다', 'to be (somewhere) — honorific', '계세요|계셔요|계시어요', '계십니다', null],
-    ['고맙다', 'to be thankful', '고마워요', '고맙습니다', null],
-    ['나쁘다', 'to be bad', '나빠요', '나쁩니다', null],
+    ['계시다', 'to be (somewhere) — honorific', '계세요|계셔요|계시어요', null, null],
+    ['고맙다', 'to be thankful', '고마워요', null, null],
+    ['나쁘다', 'to be bad', '나빠요', null, null],
     ['비싸다', 'to be expensive', '비싸요', '비쌉니다', null],
-    ['예쁘다', 'to be pretty', '예뻐요', '예쁩니다', '예쁘세요'],
+    ['예쁘다', 'to be pretty', '예뻐요', null, null],
     ['작다', 'to be small', '작아요', '작습니다', null],
-    ['마시다', 'to drink', '마셔요|마시어요', '마십니다', null],
-    ['배우다', 'to learn', '배워요', '배웁니다', '배우세요'],
-    ['오다', 'to come', '와요', '옵니다', '오세요'],
-    ['자다', 'to sleep', '자요', '잡니다', null],
-    ['주다', 'to give', '줘요|주어요', '줍니다', '주세요'],
+    ['마시다', 'to drink', '마셔요|마시어요', null, null],
+    ['배우다', 'to learn', '배워요', null, '배우세요'],
+    ['오다', 'to come', '와요', null, null],
+    ['자다', 'to sleep', '자요', null, null],
+    ['주다', 'to give', '줘요|주어요', null, null],
   ],
 
   quiz: [
@@ -148,7 +149,7 @@ addLesson({
     { q: 'Steve (male) talks about his older brother. He calls him:', opts: ['형', '오빠', '남동생', '언니'], ans: 0 },
     { q: '동생 means:', opts: ['a younger brother or sister', 'only a younger brother', 'only a younger sister', 'an older sibling'], ans: 0, why: '남동생 = younger brother · 여동생 = younger sister' },
     { q: '하나 + 명 becomes:', opts: ['한 명', '하나 명', '일 명', '한나 명'], ans: 0, why: '하나→한, 둘→두, 셋→세, 넷→네, 스물→스무 before a counter' },
-    { q: '20 people:', opts: ['스무 명', '스물 명', '이십 명만', '두십 명'], ans: 0 },
+    { q: '20 people (counting form):', opts: ['스무 명', '스물 명', '두십 명', '스물두 명'], ans: 0, why: '스물 → 스무 before a counter. (For larger counts 이십 명 is also heard.)' },
     { q: '5층 and 5명 are read:', opts: ['오 층 · 다섯 명', '다섯 층 · 오 명', '오 층 · 오 명', '다섯 층 · 다섯 명'], ans: 0, why: 'Identifying (floor) → Sino-Korean · counting (people) → native Korean' },
     { q: '삼 과 vs. 세 과:', opts: ['Lesson 3 vs. three lessons', 'three lessons vs. Lesson 3', 'both mean Lesson 3', 'both mean three lessons'], ans: 0 },
     { q: '“Yumi has two older brothers.”', opts: ['유미는 오빠가 두 명 있어요.', '유미는 두 명 오빠가 있어요.', '유미는 오빠가 둘 명 있어요.', '유미는 오빠가 이 명 있어요.'], ans: 0, why: 'Order: noun + particle + number + counter + 있어요' },
@@ -182,7 +183,7 @@ addLesson({
     { sentence: '남동생이 ___ 명 있어요. (2)', blank: '두', hint: '둘 → ? before a counter', type: 'Counting' },
     { sentence: '책이 ___ 권 있어요. (3)', blank: '세', hint: '셋 → ? before a counter', type: 'Counting' },
     { sentence: '형이 ___ 명 있어요. (1)', blank: '한', hint: '하나 → ? before a counter', type: 'Counting' },
-    { sentence: '교실에 학생이 ___ 명 있어요. (20)', blank: '스무', hint: '스물 → ? before a counter', type: 'Counting' },
+    { sentence: '교실에 학생이 ___ 명 있어요. (20)', blank: ['스무', '이십'], hint: '스물 → ? before a counter', type: 'Counting' },
     { sentence: '가방이 두 ___ 있어요. (items)', blank: '개', hint: 'counter for things', type: 'Counter' },
     { sentence: '책이 다섯 ___ 있어요. (books)', blank: '권', hint: 'counter for volumes', type: 'Counter' },
     { sentence: '개가 한 ___ 있어요. (animals)', blank: '마리', hint: 'counter for animals', type: 'Counter' },
@@ -357,7 +358,8 @@ addLesson({
       id: 'G4.2', tag: 'Lesson 4', title: 'Two number systems: Sino-Korean and native Korean',
       html: `<div class="grammar-body"><strong>Counting</strong> things/people → native Korean · <strong>identifying</strong> (floor, lesson #, money, year, phone) → Sino-Korean.<br>
         Five native numbers shorten before a counter: 하나→<b>한</b>, 둘→<b>두</b>, 셋→<b>세</b>, 넷→<b>네</b>, 스물→<b>스무</b> (but 스물한, 스물두…).<br>
-        100 and up are Sino-Korean only: 백, 천, 만 (10,000).</div>
+        100 and up are Sino-Korean only: 백, 천, 만 (10,000). Big numbers are grouped by <strong>만</strong> (10,000), not by thousands: 십만 = 100,000 · 백만 = 1,000,000 · 천만 = 10,000,000 · 억 = 100,000,000.<br>
+        Pronunciation: 여덟 [여덜] · 십육 [심뉵].</div>
         <table class="rule-table">
           <tr><th>#</th><th>Sino</th><th>Native</th><th>Before a counter</th></tr>
           ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 20, 30].map(n => `<tr><td>${n}</td><td>${sino(n)}</td><td>${nativeFull(n)}</td><td>${nativeCounting(n)}</td></tr>`).join('')}
@@ -395,6 +397,8 @@ addLesson({
           <tr><td>is [N]</td><td>학생이에요</td><td>선생님이세요</td></tr>
           <tr><td>is (somewhere)</td><td>리사는 집에 있어요</td><td>선생님은 집에 <b>계세요</b></td></tr>
           <tr><td>has</td><td>리사는 동생이 있어요</td><td>선생님은 동생이 <b>있으세요</b></td></tr>
+          <tr><td>isn't (somewhere)</td><td>리사는 집에 없어요</td><td>선생님은 집에 <b>안 계세요</b></td></tr>
+          <tr><td>doesn't have</td><td>리사는 동생이 없어요</td><td>선생님은 동생이 <b>없으세요</b></td></tr>
         </table>
         <div class="grammar-body" style="margin-top:10px"><span class="ko">하고</span> = “and” between <strong>nouns</strong> (아버지하고 어머니) · <span class="ko">그리고</span> joins <strong>sentences</strong>.</div>
         <table class="rule-table">
@@ -421,6 +425,8 @@ addLesson({
           <p>제니: 이거 <b>누구 사전</b>이에요? — 유미: <b>스티브 거</b>예요.</p>
           <p>선생님: 이거 <b>마이클 책</b>이에요? — 마이클: 네, <b>제 거</b>예요.</p>
           <p>리사: 네, <b>저희</b> 아버지, 어머니는 로스앤젤레스에 계세요.</p>
+          <p>소피아: <b>제 동생 거</b>예요. — It's my younger sibling's. (possessor + noun + 거)</p>
+          <p>Koreans often say <b>우리</b> (our) for “my” family and home: 우리 아버지, 우리 집 (p. 129).</p>
           <p>For “your / his / her,” use the person's name: 이거 <b>스티브 씨 우산</b>이에요?</p>
         </div>`,
     },
@@ -453,6 +459,8 @@ addLesson({
           <tr><td>참 = 아주</td><td>very, truly — 방이 참 예뻐요.</td></tr>
           <tr><td>고마워요</td><td>Thank you (고맙다)</td></tr>
           <tr><td>거 / 것</td><td>thing — 거 in speech, 것 in writing</td></tr>
+          <tr><td>___ 씨는 집이 어디예요? — 우리 집은 ___이에요/예요.</td><td>Where's your home (family)? — My home is in ___. (p. 136) · 소피아 씨는 집이 어디예요? — 홍콩이에요.</td></tr>
+          <tr><td>___은/는 얼마예요? — ___불 ___센트예요.</td><td>How much is ___? — It's ___ dollars ___ cents. (p. 138; use 얼마, not 몇 원)</td></tr>
         </table>`,
     },
   ],
@@ -476,6 +484,7 @@ addLesson({
         <tr><th>#</th><th>Native</th><th>Sino</th></tr>
         ${[10, 20, 30, 40, 50, 60, 70, 80, 90].map(n => `<tr><td>${n}</td><td>${nativeFull(n)}</td><td>${sino(n)}</td></tr>`).join('')}
         <tr><td>100 · 1,000 · 10,000</td><td>—</td><td>백 · 천 · 만</td></tr>
+        <tr><td>100,000 · 1,000,000 · 10,000,000 · 100,000,000</td><td>—</td><td>십만 · 백만 · 천만 · 억</td></tr>
       </table>
       <div class="hint">e.g. 37 = 서른일곱 (native) / 삼십칠 (Sino) · ₩25,000 = 이만 오천 원</div></div>`,
     },

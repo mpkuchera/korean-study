@@ -91,16 +91,17 @@ addLesson({
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
-  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Checked against the textbook and the teacher's vocab doc.
+  // ('|' separates accepted alternatives — the first is shown; null = not drilled). Formal and honorific forms are only listed
+  // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
     ['가다', 'to go', '가요', '갑니다', '가세요'],
     ['인사하다', 'to greet', '인사해요', '인사합니다', '인사하세요'],
     ['읽다', 'to read', '읽어요', '읽습니다', '읽으세요'],
     ['있다', 'to have', '있어요', '있습니다', '있으세요'],
     ['없다', 'to not have', '없어요', '없습니다', '없으세요'],
-    ['질문하다', 'to ask a question', '질문해요', '질문합니다', '질문하세요'],
-    ['가깝다', 'to be close', '가까워요', '가깝습니다', null],
-    ['멀다', 'to be far', '멀어요', '멉니다', null],
+    ['질문하다', 'to ask a question', '질문해요', null, null],
+    ['가깝다', 'to be close', '가까워요', null, null],
+    ['멀다', 'to be far', '멀어요', null, null],
   ],
 
   quiz: [
@@ -250,7 +251,10 @@ addLesson({
     {
       id: 'G3.1', tag: 'Lesson 3', title: 'Location: N이/가 [place]<em>에 있어요</em>',
       html: `<div class="grammar-body">To say where something is: <strong>thing + place (+ position word) + 에 + 있어요</strong>.<br>
-        Ask with <span class="ko">어디</span> right before 있어요 (에 is usually dropped): <span class="ko">서점이 어디 있어요?</span></div>
+        Ask with <span class="ko">어디</span> right before 있어요 (에 is usually dropped): <span class="ko">서점이 어디 있어요?</span><br>
+        Works for people too: 마이클이 어디 있어요? — 학교에 있어요.<br>
+        The place can also come first, same meaning: <span class="ko">기숙사 앞에는 도서관이 있어요.</span> = 도서관이 기숙사 앞에 있어요. (p. 94)<br>
+        있다 is an adjective of existence, but it conjugates like a verb (p. 92).</div>
         <table class="rule-table">
           <tr><th>Thing</th><th>Place</th><th>Position</th><th></th></tr>
           <tr><td>유니온 빌딩은</td><td>우체국</td><td>앞 front</td><td>에 있어요</td></tr>
@@ -298,7 +302,7 @@ addLesson({
     },
     {
       id: 'G3.4', tag: 'Lesson 3', title: 'Honorific ending: <em>~(으)세요</em>',
-      html: `<div class="grammar-body">The respectful version of ~어요/아요. Use it:<br>
+      html: `<div class="grammar-body">The respectful version of ~어요/아요: the honorific marker ~(으)시 + ~어요 = ~(으)세요 (p. 105). Use it:<br>
         • talking <strong>to</strong> someone you respect: <span class="ko">선생님, 우산 있으세요?</span><br>
         • talking <strong>about</strong> someone you respect: <span class="ko">선생님이 아주 좋으세요.</span><br>
         • for polite requests: <span class="ko">앉으세요.</span> = Please sit.<br>
@@ -308,9 +312,9 @@ addLesson({
           <tr><td>좋다 → 좋<strong>으세요</strong></td><td>크다 → 크<strong>세요</strong></td></tr>
           <tr><td>앉다 → 앉<strong>으세요</strong> (please sit)</td><td>가다 → 가<strong>세요</strong> (please go)</td></tr>
           <tr><td>읽다 → 읽<strong>으세요</strong> (please read)</td><td>인사하다 → 인사하<strong>세요</strong></td></tr>
-          <tr><td>있다 → 있<strong>으세요</strong></td><td>누구 → 누구<strong>세요</strong>? (who is it?)</td></tr>
+          <tr><td>있다 → 있<strong>으세요</strong></td><td>보다 → 보<strong>세요</strong> · 쓰다 → 쓰<strong>세요</strong></td></tr>
         </table>
-        <div class="grammar-body" style="margin-top:10px">Honorific “is”: <span class="ko">N이세요</span> after a consonant (선생님<b>이세요</b>, 한국 사람<b>이세요</b>) · <span class="ko">N세요</span> after a vowel (교수<b>세요</b>)</div>
+        <div class="grammar-body" style="margin-top:10px">Honorific “is”: <span class="ko">N이세요</span> after a consonant (선생님<b>이세요</b>, 한국 사람<b>이세요</b>, 대학생<b>이세요</b>?) · <span class="ko">N세요</span> after a vowel (교수<b>세요</b>, 누구<b>세요</b>?)</div>
         <div class="example-box">
           <p>소피아: 한국어 반 선생님이 <b>누구세요</b>? — 리사: 이민수 <b>선생님이세요</b>.</p>
           <p>스티브 씨, <b>앉으세요</b>. — Steve, please have a seat.</p>
@@ -328,6 +332,14 @@ addLesson({
           <tr><td>A. 그래서 B.</td><td>A. So B. — 내일 시험이 있어요. 그래서 공부해요.</td></tr>
           <tr><td>A. 그런데 B.</td><td>A. But B. — 기숙사가 넓어요. 그런데 아주 싸요.</td></tr>
           <tr><td>매일 열심히</td><td>diligently every day</td></tr>
+          <tr><td>뭐 공부하세요? · 뭐 전공하세요? · 전공이 뭐예요?</td><td>Three ways to ask someone's major (p. 111) — answer: ___ 공부해요 / 전공해요 / ___이에요</td></tr>
+          <tr><td colspan="2" class="hint">More majors on p. 111: 동양학 (Asian studies) · 언어학 (linguistics) · 교육학 (education) · 생물학 (biology) · 기계 공학 / 전기 공학 (mechanical / electrical engineering) · 음악 (music) · 건축학 (architecture) · 법학 (law)</td></tr>
+          <tr><th colspan="2">In the classroom (p. 112)</th></tr>
+          <tr><td>책을 펴세요. / 책을 덮으세요.</td><td>Open / close your book.</td></tr>
+          <tr><td>칠판을 보세요. · 따라하세요.</td><td>Look at the board. · Repeat after me.</td></tr>
+          <tr><td>잘 들으세요. · 쓰세요. · 읽으세요.</td><td>Listen carefully. · Write. · Read. (들으세요 is from 듣다 — irregular)</td></tr>
+          <tr><td>다시 한 번 말씀해 주세요.</td><td>Please say it once more.</td></tr>
+          <tr><td>크게 / 천천히 말씀해 주세요.</td><td>Please speak louder / more slowly.</td></tr>
         </table>`,
     },
   ],
