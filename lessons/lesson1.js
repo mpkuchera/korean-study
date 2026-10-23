@@ -16,13 +16,13 @@ addLesson({
     { conv: 1, k: '미국', e: 'the United States', pos: 'noun' },
     { conv: 1, k: '사람', e: 'person, people', pos: 'noun' },
     { conv: 1, k: '인사', e: 'greeting', pos: 'noun' },
-    { conv: 1, k: '학년', e: 'school year', pos: 'noun' },
+    { conv: 1, k: '학년', e: 'school year', pos: 'noun', note: '1학년 = 일 학년 (Sino)' },
     { conv: 1, k: '학생', e: 'student', pos: 'noun' },
     { conv: 1, k: '한국', e: 'Korea', pos: 'noun' },
     { conv: 1, k: '저', e: 'I (humble)', pos: 'pronoun', note: '나 = plain form', syn: 'I' },
     { conv: 1, k: '안녕하다 (안녕하세요)', e: "to be well; 'Hi / Hello / How are you?'", pos: 'adjective' },
     { conv: 1, k: '이다 (이에요/예요)', e: 'to be (equation)', pos: 'copula' },
-    { conv: 1, k: '과', e: 'lesson, chapter', pos: 'counter', note: '1과 = Lesson 1' },
+    { conv: 1, k: '과', e: 'lesson, chapter (counter)', pos: 'counter', note: 'Lesson 3 = 삼 과 (Sino) · three lessons = 세 과 (native)' },
     { conv: 1, k: '도', e: 'also, too', pos: 'particle' },
     { conv: 1, k: '은/는', e: "topic particle ('as for')", pos: 'particle' },
     { conv: 1, k: '영 / 공', e: '0 (zero)', pos: 'number', note: 'either one in phone numbers' },
@@ -65,6 +65,12 @@ addLesson({
     { conv: 'From class', k: '그', e: 'he', pos: 'pronoun' },
     { conv: 'From class', k: '그녀', e: 'she (mostly in writing)', pos: 'pronoun' },
     { conv: 'From class', k: '만나서 반가워요', e: 'Nice to meet you', pos: 'expression', note: 'casual: 만나서 반가워 · formal: 반갑습니다', accept: ['만나서 반가워요', '만나서반가워요'] },
+    // From the Oct 22 midterm review doc
+    { conv: 'From class', k: '전공', e: 'major (field of study)', pos: 'noun', note: '전공이 뭐예요? = What\'s your major?' },
+    { conv: 'From class', k: '전공하다 (전공해요)', e: 'to major in', pos: 'verb', note: '뭐 전공하세요?' },
+    { conv: 'From class', k: '무슨', e: 'what (kind of)', pos: 'pre-noun', note: '무슨 공부하세요? = What do you study?' },
+    { conv: 'From class', k: '국적', e: 'nationality', pos: 'noun', note: '= 어디 사람이에요?' },
+    { conv: 'From class', k: '맞다 (맞아요)', e: 'to be right, correct', pos: 'verb', note: '네, 맞아요 / 맞습니다 = Yes, that\'s right' },
   ],
 
   // Multiple-choice grammar & usage. ans = index of the correct option (options get shuffled).
@@ -73,6 +79,8 @@ addLesson({
   conjugations: [
     ['그렇다', 'to be so', '그래요', '그렇습니다', null],
     ['반갑다', 'to be glad', '반가워요', '반갑습니다', null],
+    ['맞다', 'to be right', '맞아요', '맞습니다', null],
+    ['전공하다', 'to major in', '전공해요', '전공합니다', '전공하세요'],
   ],
 
   quiz: [

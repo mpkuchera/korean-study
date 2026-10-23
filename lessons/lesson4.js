@@ -16,6 +16,28 @@ const RESPECTED = [['아버지', 'My father', 'is'], ['어머니', 'My mother', 
 const NOT_RESPECTED = [['동생', 'My younger sibling', 'is'], ['남동생', 'My younger brother', 'is'], ['여동생', 'My younger sister', 'is'], ['친구', 'My friend', 'is']];
 const PLACES_L4 = [['보스턴', 'Boston'], ['홍콩', 'Hong Kong'], ['한국', 'Korea'], ['미국', 'the US'], ['중국', 'China'], ['일본', 'Japan'], ['집', 'home'], ['학교', 'school']];
 
+// Counters from p. 123: which number system each takes, for the drill and the reference card.
+// [counter, native?, what it counts, example, description(n) for the drill, number range]
+const COUNTER_DRILL = [
+  ['명', true, 'people', '한 명, 두 명', n => `${n} ${n > 1 ? 'people' : 'person'}`, 1, 10],
+  ['마리', true, 'animals', '개 한 마리', n => `${n} animal${n > 1 ? 's' : ''}`, 1, 10],
+  ['개', true, 'items', '가방 두 개', n => `${n} item${n > 1 ? 's' : ''}`, 1, 10],
+  ['권', true, 'books (volumes)', '책 세 권', n => `${n} book${n > 1 ? 's' : ''}`, 1, 10],
+  ['과', true, 'lessons — how many', '세 과 = three lessons', n => `${n} lesson${n > 1 ? 's' : ''} (how many)`, 1, 10],
+  ['시간', true, 'hours — how long', '두 시간', n => `${n} hour${n > 1 ? 's' : ''}`, 1, 10],
+  ['달', true, 'months — how long', '한 달', n => `${n} month${n > 1 ? 's' : ''} (how long)`, 1, 10],
+  ['층', false, 'floor', '삼 층 = 3rd floor', n => `floor ${n}`, 1, 10],
+  ['과', false, 'lesson number', '삼 과 = Lesson 3', n => `Lesson ${n}`, 1, 10],
+  ['원', false, 'won', '천 원', n => `${n} won`, 1, 10],
+  ['달러', false, 'dollars', '오 달러', n => `${n} dollar${n > 1 ? 's' : ''}`, 1, 10],
+  ['학년', false, 'school year', '일 학년', n => `year ${n} in school`, 1, 4],
+  ['년', false, 'years', '이 년', n => `${n} year${n > 1 ? 's' : ''}`, 1, 10],
+  ['월', false, 'month in a date', '일월 = January', n => ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][n], 1, 12],
+  ['일', false, 'day in a date', '일일 = the 1st', n => `the ${n}${n % 10 === 1 && n !== 11 ? 'st' : n % 10 === 2 && n !== 12 ? 'nd' : n % 10 === 3 && n !== 13 ? 'rd' : 'th'} (day of the month)`, 1, 31],
+].map(([c, native, what, ex, desc, lo, hi]) => ({ c, native, what, ex, desc, lo, hi }));
+const monthOrSino = (c, n) => c.c === '월' && n === 6 ? '유' : c.c === '월' && n === 10 ? '시' : sino(n); // 유월, 시월
+const counterReading = (c, n) => c.native ? `${nativeCounting(n)} ${c.c}` : c.c === '월' ? `${monthOrSino(c, n)}월` : `${sino(n)} ${c.c}`;
+
 addLesson({
   id: 4,
   title: '집',
@@ -41,17 +63,17 @@ addLesson({
     { conv: 1, k: '두', e: 'two (before a counter)', pos: 'number', note: '둘 → 두 명' },
     { conv: 1, k: '세', e: 'three (before a counter)', pos: 'number', note: '셋 → 세 권' },
     { conv: 1, k: '스무', e: 'twenty (before a counter)', pos: 'number', note: '스물 → 스무 명' },
-    { conv: 1, k: '개 (counter)', e: 'item (counter)', pos: 'counter', note: '가방 두 개', accept: ['개'] },
-    { conv: 1, k: '권', e: 'volume (counter for books)', pos: 'counter', note: '책 세 권' },
-    { conv: 1, k: '년', e: 'year', pos: 'counter', note: 'Sino-Korean: 일 년, 이 년' },
-    { conv: 1, k: '달', e: 'month (duration)', pos: 'counter', note: 'native: 한 달, 두 달' },
-    { conv: 1, k: '달러 (=불)', e: 'dollar', pos: 'counter' },
-    { conv: 1, k: '마리', e: 'animal (counter)', pos: 'counter', note: '개 한 마리 = one dog' },
-    { conv: 1, k: '명 (=사람)', e: 'people (counter)', pos: 'counter', note: '두 명 = two people' },
-    { conv: 1, k: '시간', e: 'hour (duration)', pos: 'counter', note: 'native: 두 시간' },
-    { conv: 1, k: '원', e: 'won (Korean currency)', pos: 'counter', note: '천 원 (₩)' },
-    { conv: 1, k: '월', e: 'month (in dates)', pos: 'counter', note: '일월 = January' },
-    { conv: 1, k: '일', e: 'day (in dates)', pos: 'counter', note: '삼월 일일 = March 1st' },
+    { conv: 1, k: '개 (counter)', e: 'item (counter) · native', pos: 'counter', note: '한 개, 두 개 · 가방 두 개', accept: ['개'] },
+    { conv: 1, k: '권', e: 'volume — books (counter) · native', pos: 'counter', note: '한 권, 두 권 · 책 세 권' },
+    { conv: 1, k: '년', e: 'year (counter) · Sino', pos: 'counter', note: '일 년, 이 년' },
+    { conv: 1, k: '달', e: 'month — how long (counter) · native', pos: 'counter', note: '한 달, 두 달' },
+    { conv: 1, k: '달러 (=불)', e: 'dollar (counter) · Sino', pos: 'counter', note: '오 달러 = $5' },
+    { conv: 1, k: '마리', e: 'animal (counter) · native', pos: 'counter', note: '한 마리, 두 마리 · 개 한 마리 = one dog' },
+    { conv: 1, k: '명 (=사람)', e: 'people (counter) · native', pos: 'counter', note: '한 명, 두 명, 세 명' },
+    { conv: 1, k: '시간', e: 'hour — how long (counter) · native', pos: 'counter', note: '한 시간, 두 시간' },
+    { conv: 1, k: '원', e: 'won (counter) · Sino', pos: 'counter', note: '천 원 = ₩1,000' },
+    { conv: 1, k: '월', e: 'month — in dates (counter) · Sino', pos: 'counter', note: '일월 = January · 6월 = 유월, 10월 = 시월' },
+    { conv: 1, k: '일', e: 'day — in dates (counter) · Sino', pos: 'counter', note: '삼월 일일 = March 1st' },
     { conv: 1, k: '몇', e: 'how many, what (with a counter)', pos: 'pre-noun', note: '몇 명? 몇 층?' },
     { conv: 1, k: '계시다 (계세요)', e: 'to stay, to be (existence) — honorific', pos: 'verb', note: 'honorific 있다 for respected people' },
     { conv: 1, k: '하고', e: 'and (with nouns)', pos: 'particle', note: '아버지하고 어머니' },
@@ -61,6 +83,9 @@ addLesson({
     { conv: 'From class', k: '엄마', e: 'mom', pos: 'noun', note: 'casual 어머니', syn: 'mother' },
     { conv: 'From class', k: '초등학생', e: 'elementary school student', pos: 'noun' },
     { conv: 'From class', k: '중학생', e: 'middle school student', pos: 'noun' },
+    // From the Oct 22 review doc (extended family terms intentionally left out)
+    { conv: 'From class', k: '저거 (=저것)', e: 'that (thing over there)', pos: 'pronoun', note: '이거 = this · 저거 = that over there' },
+    { conv: 'From class', k: '관계', e: 'relationship (how you\'re related)', pos: 'noun', syn: 'relationship' },
     // Conversation 2 — New Words (p. 127)
     { conv: 2, k: '거 (=것)', e: 'thing', pos: 'noun', note: '스티브 거예요 = It\'s Steve\'s' },
     { conv: 2, k: '누나', e: 'older sister (of a male)', pos: 'noun', note: 'what a man calls his older sister' },
@@ -68,7 +93,7 @@ addLesson({
     { conv: 2, k: '로스앤젤레스', e: 'Los Angeles (L.A.)', pos: 'noun' },
     { conv: 2, k: '룸메이트', e: 'roommate', pos: 'noun' },
     { conv: 2, k: '방', e: 'room', pos: 'noun' },
-    { conv: 2, k: '사이', e: 'relationship; between', pos: 'noun', note: '사이가 좋아요 = (they) get along well' },
+    { conv: 2, k: '사이', e: 'relationship; between', pos: 'noun', note: '사이가 좋아요 = (they) get along well', syn: 'relationship' },
     { conv: 2, k: '생물학', e: 'biology', pos: 'noun' },
     { conv: 2, k: '아파트', e: 'apartment', pos: 'noun' },
     { conv: 2, k: '언니', e: 'older sister (of a female)', pos: 'noun', note: 'what a woman calls her older sister' },
@@ -204,21 +229,19 @@ addLesson({
       },
     },
     {
-      type: 'which-numbers', label: 'Native or Sino-Korean?',
+      type: 'which-numbers', label: 'Counters: native or Sino-Korean?', weight: 2,
       mc: () => {
-        const native = [['명', n => `${n} ${n > 1 ? 'people' : 'person'}`], ['개', n => `${n} item${n > 1 ? 's' : ''}`], ['권', n => `${n} book${n > 1 ? 's' : ''}`],
-          ['마리', n => `${n} animal${n > 1 ? 's' : ''}`], ['시간', n => `${n} hour${n > 1 ? 's' : ''}`], ['달', n => `${n} month${n > 1 ? 's' : ''}`], ['과', n => `${n} lesson${n > 1 ? 's' : ''} (how many)`]];
-        const sinoC = [['층', n => `floor ${n}`], ['과', n => `Lesson ${n}`], ['원', n => `${n} won`], ['년', n => `${n} year${n > 1 ? 's' : ''}`], ['학년', n => `year ${n} in school`]];
-        const useNative = Math.random() < 0.5, [c, desc] = pick(useNative ? native : sinoC), n = randInt(1, c === '학년' ? 4 : 10);
-        const nat = `${nativeCounting(n)} ${c}`, sin = `${sino(n)} ${c}`;
-        return mcq(`<strong>${desc(n)}</strong> — how do you say it?`, useNative ? nat : sin,
-          [useNative ? sin : nat, `${nativeFull(n)} ${c}`, `${useNative ? nativeCounting(n % 9 + 1) : sino(n % 9 + 1)} ${c}`, `${useNative ? sino(n % 9 + 1) : nativeCounting(n % 9 + 1)} ${c}`],
-          useNative ? `Counting ${c === '과' ? 'lessons' : 'things'} → native Korean` : 'Identifying (floor, lesson number, money, years, school year) → Sino-Korean');
+        const c = pick(COUNTER_DRILL), n = randInt(c.lo, c.hi), right = counterReading(c, n), m = n % 9 + 1;
+        const say = num => c.c === '월' ? `${num}월` : `${num} ${c.c}`; // months are written as one word: 일월, 유월
+        const wrongs = c.native
+          ? [say(sino(n)), say(nativeCounting(m)), say(sino(m)), say(nativeFull(n))]
+          : [say(nativeCounting(n)), say(c.c === '월' ? sino(n % 12 + 1) : sino(m)), say(nativeFull(n)), c.c === '월' && (n === 6 || n === 10) ? say(sino(n)) : say(nativeCounting(m))];
+        return mcq(`<strong>${c.desc(n)}</strong> — how do you say it?`, right, wrongs,
+          `${c.c} (${c.what}) takes ${c.native ? 'native Korean numbers — counting how many' : 'Sino-Korean numbers — naming / identifying'}` + (c.c === '월' ? ' · 6월 = 유월, 10월 = 시월' : ''));
       },
       typed: () => {
-        const opts = [['명', true, 'people'], ['개', true, 'items'], ['권', true, 'books'], ['마리', true, 'animals'], ['시간', true, 'hours'], ['층', false, 'floor'], ['원', false, 'won'], ['과', false, 'Lesson #']];
-        const [c, isNative, desc] = pick(opts), n = randInt(1, 10);
-        return { sentence: `${n}${c} (${desc}) → ___ ${c}`, blank: isNative ? nativeCounting(n) : sino(n), hint: isNative ? 'counting → native Korean (한, 두, 세…)' : 'identifying → Sino-Korean (일, 이, 삼…)' };
+        const c = pick(COUNTER_DRILL.filter(x => x.c !== '월')), n = randInt(c.lo, Math.min(c.hi, 12));
+        return { sentence: `${c.desc(n)} → ___ ${c.c}`, blank: c.native ? nativeCounting(n) : sino(n), hint: `${c.c} takes ${c.native ? 'native Korean (한, 두, 세…)' : 'Sino-Korean (일, 이, 삼…)'}`, why: `${c.c} (${c.what}) → ${c.native ? 'native' : 'Sino-Korean'}` };
       },
     },
     {
@@ -435,6 +458,13 @@ addLesson({
   ],
 
   reference: [
+    {
+      title: 'Counters — which numbers? (p. 123)',
+      html: `<div class="grammar-block"><table class="rule-table">
+        <tr><th>Counter</th><th>Counts</th><th>Numbers</th><th>Example</th></tr>
+        ${COUNTER_DRILL.map(c => `<tr><td><strong>${c.c}</strong></td><td>${c.what}</td><td>${c.native ? 'native' : 'Sino'}</td><td>${c.ex}</td></tr>`).join('')}
+      </table><div class="hint">Rule of thumb: <strong>counting how many</strong> → native (한, 두, 세…) · <strong>naming which one / money / dates</strong> → Sino (일, 이, 삼…)</div></div>`,
+    },
     {
       title: 'Native Korean numbers (tap 🔊 to hear the counting form)',
       html: `<div class="vocab-grid">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20].map(n => `<div class="num-card"><span class="num-digit">${n}</span>

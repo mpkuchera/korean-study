@@ -67,6 +67,15 @@ addLesson({
     { conv: 'From class', k: '어제', e: 'yesterday', pos: 'noun', note: '어제 · 오늘 · 내일' },
     { conv: 'From class', k: '정말', e: 'really, truly', pos: 'adverb', note: '정말 재미있어요!', syn: 'really', accept: ['정말', '진짜'] },
     { conv: 'From class', k: '진짜', e: 'really (casual)', pos: 'adverb', note: '진짜? = Really?', syn: 'really', accept: ['진짜', '정말'] },
+    // From the Oct 22 midterm review doc
+    { conv: 'From class', k: '좋아하다 (좋아해요)', e: 'to like', pos: 'verb', note: '한식 좋아해요? · (좋다 = to be good)' },
+    { conv: 'From class', k: '한식', e: 'Korean food', pos: 'noun' },
+    { conv: 'From class', k: '양식', e: 'Western food', pos: 'noun' },
+    { conv: 'From class', k: '일식', e: 'Japanese food', pos: 'noun' },
+    { conv: 'From class', k: '중식', e: 'Chinese food', pos: 'noun' },
+    { conv: 'From class', k: '바쁘다 (바빠요)', e: 'to be busy', pos: 'adjective', note: '요즘 바빠요 = I\'m busy these days' },
+    { conv: 'From class', k: '그저 그래요', e: 'so-so', pos: 'expression', note: 'reply to 어떻게 지내요? / 어때요?', accept: ['그저 그래요', '그저그래요'] },
+    { conv: 'From class', k: '고향', e: 'hometown', pos: 'noun', note: '고향이 어디예요?' },
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
@@ -92,6 +101,8 @@ addLesson({
     ['지내다', 'to get along', '지내요|지내어요', '지냅니다', '지내세요'],
     ['하다', 'to do', '해요', '합니다', '하세요'],
     ['공부하다', 'to study', '공부해요', '공부합니다', '공부하세요'],
+    ['좋아하다', 'to like', '좋아해요', '좋아합니다', '좋아하세요'],
+    ['바쁘다', 'to be busy', '바빠요', '바쁩니다', '바쁘세요'],
   ],
 
   quiz: [

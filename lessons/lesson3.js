@@ -47,7 +47,7 @@ addLesson({
     { conv: 1, k: '책', e: 'book', pos: 'noun' },
     { conv: 1, k: '학생회관', e: 'student center', pos: 'noun' },
     { conv: 1, k: '캠퍼스', e: 'campus', pos: 'noun' },
-    { conv: 1, k: '층', e: 'floor, layer', pos: 'counter', note: '1층 (일 층), 2층, 3층…' },
+    { conv: 1, k: '층', e: 'floor (counter) · Sino', pos: 'counter', note: '1층 = 일 층, 2층 = 이 층' },
     { conv: 1, k: '있다 (있어요)', e: 'to be, exist (in a place)', pos: 'adjective', note: 'location: [place]에 있어요' },
     { conv: 1, k: '저', e: 'uh… (hesitation)', pos: 'interjection', note: 'Different from 저 = I (Lesson 1)' },
     { conv: 1, k: '에', e: 'in, at, on (static location)', pos: 'particle' },
@@ -85,6 +85,9 @@ addLesson({
     { conv: 'From class', k: '화학', e: 'chemistry', pos: 'noun', note: 'major' },
     { conv: 'From class', k: '철학', e: 'philosophy', pos: 'noun', note: 'major' },
     { conv: 'From class', k: '미술학', e: 'art (as a major)', pos: 'noun', note: '미술 = art' },
+    // From the Oct 22 midterm review doc
+    { conv: 'From class', k: '가깝다 (가까워요)', e: 'to be close, near', pos: 'adjective', note: 'ㅂ → 우: 가까워요 (like 고마워요)' },
+    { conv: 'From class', k: '멀다 (멀어요)', e: 'to be far', pos: 'adjective' },
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
@@ -96,6 +99,8 @@ addLesson({
     ['있다', 'to have', '있어요', '있습니다', '있으세요'],
     ['없다', 'to not have', '없어요', '없습니다', '없으세요'],
     ['질문하다', 'to ask a question', '질문해요', '질문합니다', '질문하세요'],
+    ['가깝다', 'to be close', '가까워요', '가깝습니다', null],
+    ['멀다', 'to be far', '멀어요', '멉니다', null],
   ],
 
   quiz: [

@@ -253,7 +253,8 @@ function mcq(q, correct, wrongs, why) {
 function genPool(kind) {
   const upTo = Math.max(...selected);
   return activeLessons().flatMap(l => {
-    const gens = (l.generators || []).filter(g => g[kind]).map(g => ({ ...g, lesson: l.id, key: `gen|${l.id}|${g.type}`, ctx: { upTo } }));
+    const gens = (l.generators || []).filter(g => g[kind]).map(g => ({ ...g, lesson: l.id, key: `gen|${l.id}|${g.type}`, ctx: { upTo } }))
+      .flatMap(g => Array(g.weight || 1).fill(g)); // weight 2 = comes up twice as often
     // Built-in: conjugation drill from the lesson's table, weighted ×2 (the class quizzes on it)
     const conj = conjItems([l]);
     if (conj.length) { const g = { type: 'conjugate', label: 'Conjugation', lesson: l.id, key: `gen|${l.id}|conjugate`, ctx: { upTo }, mc: () => conjMC(pick(conj)), typed: () => conjTyped(pick(conj)) }; gens.push(g, g); }
