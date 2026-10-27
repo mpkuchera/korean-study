@@ -70,7 +70,7 @@ addLesson({
     { conv: 'From class', k: '전공하다 (전공해요)', e: 'to major in', pos: 'verb', note: '뭐 전공하세요?' },
     { conv: 'From class', k: '무슨', e: 'what (kind of)', pos: 'pre-noun', note: '무슨 공부하세요? = What do you study?' },
     { conv: 'From class', k: '국적', e: 'nationality', pos: 'noun', note: '= 어디 사람이에요?' },
-    { conv: 'From class', k: '맞다 (맞아요)', e: 'to be right, correct', pos: 'verb', note: '네, 맞아요 / 맞습니다 = Yes, that\'s right' },
+    { conv: 'From class', k: '맞다 (맞아요)', e: 'to be right, correct', pos: 'verb', note: '네, 맞아요 = Yes, that\'s right' },
   ],
 
   // Multiple-choice grammar & usage. ans = index of the correct option (options get shuffled).

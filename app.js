@@ -267,7 +267,8 @@ function genTyped(g) { return { type: g.label, key: g.key, ...g.typed(g.ctx) }; 
 
 // ---------- conjugation ----------
 // Lessons list verb/adjective forms explicitly in `conjugations`: [dictionary, meaning, polite, formal, honorific].
-const LEVELS = [['polite', 'polite ~어요/아요'], ['formal', 'formal ~ㅂ니다/습니다'], ['honorific', 'honorific ~(으)세요']];
+// Formal ~ㅂ니다/습니다 is shown on the Reference tab only — the owner asked for it out of the drills (2026-10-27).
+const LEVELS = [['polite', 'polite ~어요/아요'], ['honorific', 'honorific ~(으)세요']];
 const LEVEL_HINTS = {
   polite: 'Stem vowel ㅏ/ㅗ → 아요, otherwise 어요 · 하다 → 해요 · watch contractions and ㅡ dropping',
   formal: 'Consonant stem → 습니다 · vowel stem → ㅂ니다 (먹습니다, 봅니다) · ㄹ drops (알다 → 압니다)',
@@ -628,7 +629,7 @@ function trackedCategories(l) {
     { name: 'Spelling', items: vocab.filter(v => !v.noSpell).map(v => ({ key: 'spell|' + id('vocab', v), label: `✍️ ${v.e} → ${v.k}` })) },
     { name: 'Grammar & usage', items: (l.quiz || []).map(q => ({ key: id('quiz', q), label: `${stripTags(q.q)} → ${q.opts[q.ans]}` })) },
     { name: 'Fill-in blanks', items: (l.fill || []).map(q => ({ key: id('fill', q), label: q.sentence.replace('___', `[${[].concat(q.blank)[0]}]`) })) },
-    { name: 'Conjugation', items: (l.conjugations || []).flatMap(([d, , ...forms]) => LEVELS.map(([lv], i) => forms[i] && ({ key: `conj|${l.id}:${d}|${lv}`, label: `${d} → ${lv}: ${forms[i].split('|')[0]}` })).filter(Boolean)) },
+    { name: 'Conjugation', items: (l.conjugations || []).flatMap(([d, , polite, , honorific]) => [['polite', polite], ['honorific', honorific]].map(([lv, f]) => f && ({ key: `conj|${l.id}:${d}|${lv}`, label: `${d} → ${lv}: ${f.split('|')[0]}` })).filter(Boolean)) },
     { name: 'Grammar skills', items: (l.generators || []).map(g => ({ key: `gen|${l.id}|${g.type}`, label: g.label })) },
   ];
 }
@@ -773,9 +774,9 @@ function renderGrammar() {
 function conjTable(l) {
   if (!(l.conjugations || []).length) return [];
   const cell = f => f ? f.split('|').join(' / ') : '—';
-  return [{ title: `Lesson ${l.id} verb forms (polite · formal · honorific)`, html: `<div class="grammar-block"><table class="rule-table">
-    <tr><th>Dictionary</th><th>~어요</th><th>~습니다</th><th>~(으)세요</th></tr>
-    ${l.conjugations.map(([d, e, p, f, h]) => `<tr><td>${d}<br><span class="vocab-note">${e}</span></td><td>${cell(p)}</td><td>${cell(f)}</td><td>${cell(h)}</td></tr>`).join('')}
+  return [{ title: `Lesson ${l.id} verb forms`, html: `<div class="grammar-block"><table class="rule-table">
+    <tr><th>Dictionary</th><th>~어요</th><th>~(으)세요</th><th>~습니다 <span style="font-weight:400">(teacher's list, not drilled)</span></th></tr>
+    ${l.conjugations.map(([d, e, p, f, h]) => `<tr><td>${d}<br><span class="vocab-note">${e}</span></td><td>${cell(p)}</td><td>${cell(h)}</td><td>${cell(f)}</td></tr>`).join('')}
   </table></div>` }];
 }
 function renderReference() {
