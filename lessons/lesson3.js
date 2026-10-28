@@ -27,7 +27,7 @@ addLesson({
   // New Words (p. 91 & p. 101)
   vocab: [
     // Conversation 1
-    { conv: 1, k: '가방', e: 'bag', pos: 'noun' },
+    { conv: 1, k: '가방', e: 'bag', pos: 'noun', syn: 'bag' },
     { conv: 1, k: '기숙사', e: 'dormitory', pos: 'noun' },
     { conv: 1, k: '대학교', e: 'college, university', pos: 'noun' },
     { conv: 1, k: '뒤', e: 'back, behind', pos: 'noun', note: '도서관 뒤에 = behind the library' },

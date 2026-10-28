@@ -47,7 +47,7 @@ addLesson({
     { conv: 2, k: '오늘', e: 'today', pos: 'noun' },
     { conv: 2, k: '음식', e: 'food', pos: 'noun' },
     { conv: 2, k: '주스', e: 'juice', pos: 'noun' },
-    { conv: 2, k: '텔레비전', e: 'television', pos: 'noun' },
+    { conv: 2, k: '텔레비전', e: 'television', pos: 'noun', note: 'in speech often 티비 (TV)', accept: ['텔레비전', '티비'] },
     { conv: 2, k: '을/를', e: 'object particle', pos: 'particle', note: '을 after consonant, 를 after vowel' },
     { conv: 2, k: '그리고', e: 'and', pos: 'conjunction', note: 'connects two sentences' },
     { conv: 2, k: '만나다 (만나요)', e: 'to meet', pos: 'verb' },
@@ -75,7 +75,7 @@ addLesson({
     { conv: 'From class', k: '중식', e: 'Chinese food', pos: 'noun' },
     { conv: 'From class', k: '바쁘다 (바빠요)', e: 'to be busy', pos: 'adjective', note: '요즘 바빠요 = I\'m busy these days' },
     { conv: 'From class', k: '그저 그래요', e: 'so-so', pos: 'expression', note: 'reply to 어떻게 지내요? / 어때요?', accept: ['그저 그래요', '그저그래요'] },
-    { conv: 'From class', k: '고향', e: 'hometown', pos: 'noun', note: '고향이 어디예요?' },
+    { conv: 'From class', k: '고향', e: 'hometown', pos: 'noun', note: '고향이 어디예요? · = 태어난 곳 (the place you were born)' },
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]

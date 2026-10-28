@@ -76,7 +76,7 @@ addLesson({
     { conv: 1, k: '일', e: 'day — in dates (counter) · Sino', pos: 'counter', note: '삼월 일일 = March 1st' },
     { conv: 1, k: '몇', e: 'how many, what (with a counter)', pos: 'pre-noun', note: '몇 명? 몇 층?' },
     { conv: 1, k: '계시다 (계세요)', e: 'to stay, to be (existence) — honorific', pos: 'verb', note: 'honorific 있다 for respected people' },
-    { conv: 1, k: '하고', e: 'and (with nouns)', pos: 'particle', note: '아버지하고 어머니' },
+    { conv: 1, k: '하고', e: 'and (with nouns)', pos: 'particle', note: '아버지하고 어머니', syn: 'and' },
     // From the teacher's "Korean Vocabularies" doc (Oct 2026) and the family chart on p. 118
     { conv: 'From class', k: '강아지', e: 'puppy, doggy', pos: 'noun', note: 'often used for any pet dog', syn: 'dog' },
     { conv: 'From class', k: '아빠', e: 'dad', pos: 'noun', note: 'casual 아버지', syn: 'father' },
@@ -86,9 +86,6 @@ addLesson({
     // From the Oct 22 review doc (extended family terms intentionally left out)
     { conv: 'From class', k: '저거 (=저것)', e: 'that (thing over there)', pos: 'pronoun', note: '이거 = this · 저거 = that over there' },
     { conv: 'From class', k: '관계', e: 'relationship (how you\'re related)', pos: 'noun', syn: 'relationship' },
-    // From the midterm conversation (10/27)
-    { conv: 'From class', k: '가르치다 (가르쳐요)', e: 'to teach', pos: 'verb', note: '뭘 가르치세요? — 물리학을 가르쳐요.', accept: ['가르치다', '가르쳐요'] },
-    { conv: 'From class', k: '형제', e: 'siblings', pos: 'noun', note: '형제 있어요? — 네, 남동생이 한 명 있어요.' },
     // Conversation 2 — New Words (p. 127)
     { conv: 2, k: '거 (=것)', e: 'thing', pos: 'noun', note: '스티브 거예요 = It\'s Steve\'s' },
     { conv: 2, k: '누나', e: 'older sister (of a male)', pos: 'noun', note: 'what a man calls his older sister' },
@@ -124,6 +121,21 @@ addLesson({
     { conv: 'Numbers (G4.2)', k: '백', e: 'hundred (Sino-Korean only)', pos: 'number', note: '이백 = 200' },
     { conv: 'Numbers (G4.2)', k: '천', e: 'thousand (Sino-Korean only)', pos: 'number', note: '천 원 = ₩1,000' },
     { conv: 'Numbers (G4.2)', k: '만 (10,000)', e: 'ten thousand (Sino-Korean only)', pos: 'number', note: '만 원 = ₩10,000 · 오만 = 50,000', accept: ['만'] },
+    // Words the teacher used in the midterm conversation (10/27)
+    { conv: 'From the midterm (10/27)', k: '가르치다 (가르쳐요)', e: 'to teach', pos: 'verb', note: '뭘 가르치세요? — 물리학을 가르쳐요.', accept: ['가르치다', '가르쳐요'] },
+    { conv: 'From the midterm (10/27)', k: '살다 (살아요)', e: 'to live', pos: 'verb', note: '어디에서 살아요? — 기숙사에서 살아요.', accept: ['살다', '살아요'] },
+    { conv: 'From the midterm (10/27)', k: '형제', e: 'siblings', pos: 'noun', note: '형제 있어요? — 네, 남동생이 한 명 있어요.' },
+    { conv: 'From the midterm (10/27)', k: '에서', e: 'at, in (where an action happens)', pos: 'particle', note: '대학교에서 가르쳐요 · compare 에 = where something is: 집에 있어요' },
+    { conv: 'From the midterm (10/27)', k: '랑 (이랑)', e: 'and, with (casual)', pos: 'particle', note: '= 하고 · 기숙사랑 교실 · after a consonant: 이랑 (책이랑)', accept: ['랑', '이랑'], syn: 'and' },
+    { conv: 'From the midterm (10/27)', k: '뭘 (= 뭐를)', e: 'what (as the object)', pos: 'pronoun', note: '뭘 가르치세요? = What do you teach?', accept: ['뭘'], syn: 'what' },
+    { conv: 'From the midterm (10/27)', k: '여기', e: 'here', pos: 'pronoun', note: '여기에 의자가 몇 개 있어요?' },
+    { conv: 'From the midterm (10/27)', k: '멀리', e: 'far away', pos: 'adverb', note: '멀리 있어요? = Is it far away? (멀다 → 멀어요 = it\'s far)' },
+    { conv: 'From the midterm (10/27)', k: '많이', e: 'a lot, very', pos: 'adverb', note: '많이 멀어요? = Is it very far?' },
+    { conv: 'From the midterm (10/27)', k: '연필', e: 'pencil', pos: 'noun' },
+    { conv: 'From the midterm (10/27)', k: '물병', e: 'water bottle', pos: 'noun', note: '물 = water + 병 = bottle' },
+    { conv: 'From the midterm (10/27)', k: '책가방', e: 'school bag, backpack', pos: 'noun', note: '책 + 가방', syn: 'bag' },
+    { conv: 'From the midterm (10/27)', k: '소파', e: 'sofa, couch', pos: 'noun' },
+    { conv: 'From the midterm (10/27)', k: '어디에서 왔어요?', e: 'Where are you from?', pos: 'expression', note: 'Literally “Where did you come from?” (past tense of 오다 — learn it as a phrase for now) · also 어디서 왔어요?', accept: ['어디에서 왔어요', '어디서 왔어요'] },
   ],
 
   // Verb/adjective forms for conjugation practice: [dictionary, meaning, polite ~어요, formal ~습니다, honorific ~(으)세요]
@@ -131,6 +143,7 @@ addLesson({
   // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
     ['가르치다', 'to teach', '가르쳐요|가르치어요', null, '가르치세요'],
+    ['살다', 'to live', '살아요', null, null],
     ['계시다', 'to be (somewhere) — honorific', '계세요|계셔요|계시어요', null, null],
     ['고맙다', 'to be thankful', '고마워요', null, null],
     ['나쁘다', 'to be bad', '나빠요', null, null],
@@ -383,7 +396,7 @@ addLesson({
         if (r === 6) {
           const [w, en, pl, c, max] = pick(COUNTABLES.filter(x => x[3] !== '명')), n = randInt(2, Math.min(max, 10));
           const subj = josa(w, '이', '가');
-          return mcq(`A: ${subj} 몇 ${c} 있어요? (You have ${n}.)  B:`, `${subj} ${nativeCounting(n)} ${c} 있어요.`,
+          return mcq(`A: ${pick(['', '여기에 '])}${subj} 몇 ${c} 있어요? (You have ${n}.)  B:`, `${subj} ${nativeCounting(n)} ${c} 있어요.`,
             [`${sino(n)} ${c} ${subj} 있어요.`, `${subj} ${sino(n)} ${c} 있어요.`, `${nativeCounting(n)} ${c} ${subj} 있어요.`],
             `Order: noun + 이/가 + native number + counter + 있어요 (${subj} ${nativeCounting(n)} ${c})`);
         }
@@ -396,9 +409,15 @@ addLesson({
         }
         if (r === 8) {
           const far = Math.random() < 0.5, [pl, plEn] = pick([['집', 'home'], ['기숙사', 'dorm'], ['고향', 'hometown']]);
-          return mcq(`A: ${josa(pl, '이', '가')} 멀어요? (${far ? 'Yes, it\'s far.' : 'No, it\'s close.'})  B:`, far ? '네, 멀어요.' : '아니요, 가까워요.',
+          return mcq(`A: ${josa(pl, '이', '가')} ${pick(['멀어요', '멀리 있어요', '많이 멀어요'])}? (${far ? 'Yes, it\'s far.' : 'No, it\'s close.'})  B:`, far ? '네, 멀어요.' : '아니요, 가까워요.',
             far ? ['아니요, 멀어요.', '네, 멀아요.', '네, 가까워요.'] : ['네, 가까워요.', '아니요, 가깝어요.', '아니요, 멀어요.'],
             '멀다 → 멀어요 (far) · 가깝다 → 가까워요 (close: ㅂ → 우) · 네/아니요 answer the question as asked');
+        }
+        if (Math.random() < 0.3) {
+          const [p, en] = pick([['기숙사', 'a dorm'], ['아파트', 'an apartment'], ['보스턴', 'Boston'], ['뉴욕', 'New York']]);
+          return mcq(`A: 어디에서 살아요? (You live in ${en}.)  B:`, `${p}에서 살아요.`,
+            [`${p}에서 사세요.`, `${p}에서 살어요.`, `${josa(p, '을', '를')} 살아요.`],
+            `살다 → 살아요 (stem vowel ㅏ → 아요) · 에서 = at/in · 사세요 is for asking others, not about yourself · (${p}에 살아요 is also fine)`);
         }
         const lots = Math.random() < 0.5;
         return mcq(`A: 오늘 숙제가 많아요? (${lots ? 'Yes, a lot.' : 'No, you don\'t have any.'})  B:`, lots ? '네, 숙제가 많아요.' : '아니요, 숙제가 없어요.',
@@ -557,9 +576,12 @@ addLesson({
           <tr><td>___이/가 멀어요?</td><td>네, 멀어요. · 아니요, <b>가까워요</b>.</td></tr>
           <tr><td>___은/는 어디에 있어요?</td><td>도서관 옆<b>에 있어요</b>. · 2층에 있어요. (location → 있어요, not 이에요)</td></tr>
           <tr><td>___이/가 몇 개 있어요?</td><td>가방이 <b>여덟 개</b> 있어요. (noun + 이/가 + native number + counter — not 팔 개 가방이)</td></tr>
+          <tr><td>어디에서 살아요?</td><td>기숙사<b>에서</b> 살아요. (에서 = where you do something)</td></tr>
           <tr><td>이거 누구 거예요?</td><td>선생님 거예요. · 제 거예요.</td></tr>
           <tr><td>my / your before a noun</td><td>저 → <b>제</b> 뒤에 · 나 → <b>내</b> · 너 → <b>네</b> 연필</td></tr>
         </table>
+        <div class="grammar-body" style="margin-top:10px"><strong>How she actually says it:</strong> 뭘 = 뭐를 · 재밌어요 = 재미있어요 · 티비 = 텔레비전 · ___랑 = ___하고 · 멀리 있어요? = 멀어요? · particles often dropped (전공 공부 재밌어요?)<br>
+          <strong>Past tense you'll hear before you learn it</strong> (~았/었어요 = did): 오늘 어떻게 지냈어요? (How was your day?) · 오늘 뭐 했어요? (What did you do today?) · 어디에서 왔어요? (Where are you from?)</div>
         <div class="grammar-body" style="margin-top:10px">Didn't catch a word? Ask: <span class="ko">___이/가 뭐예요?</span> (What's ___?) — better than 몰라요.</div>`,
     },
   ],

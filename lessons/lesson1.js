@@ -53,7 +53,7 @@ addLesson({
     { conv: 2, k: '그렇다 (그래요)', e: "to be so ('Is that right?')", pos: 'adjective' },
     { conv: 2, k: '반갑다 (반갑습니다)', e: "to be glad ('Glad to meet you.')", pos: 'adjective' },
     { conv: 2, k: '아니다 (아니에요)', e: 'to not be (negative equation)', pos: 'copula' },
-    { conv: 2, k: '뭐 (=무엇)', e: 'what', pos: 'pronoun' },
+    { conv: 2, k: '뭐 (=무엇)', e: 'what', pos: 'pronoun', syn: 'what' },
     // Used by the teacher in class/tests but not in the New Words lists
     { conv: 'From class', k: '대학교', e: 'university, college', pos: 'noun' },
     { conv: 'From class', k: '교수', e: 'professor', pos: 'noun', note: 'About yourself: 저는 교수예요. (교수님 only for others)' },
