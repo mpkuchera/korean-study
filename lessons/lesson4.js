@@ -86,6 +86,9 @@ addLesson({
     // From the Oct 22 review doc (extended family terms intentionally left out)
     { conv: 'From class', k: '저거 (=저것)', e: 'that (thing over there)', pos: 'pronoun', note: '이거 = this · 저거 = that over there' },
     { conv: 'From class', k: '관계', e: 'relationship (how you\'re related)', pos: 'noun', syn: 'relationship' },
+    // From the midterm conversation (10/27)
+    { conv: 'From class', k: '가르치다 (가르쳐요)', e: 'to teach', pos: 'verb', note: '뭘 가르치세요? — 물리학을 가르쳐요.', accept: ['가르치다', '가르쳐요'] },
+    { conv: 'From class', k: '형제', e: 'siblings', pos: 'noun', note: '형제 있어요? — 네, 남동생이 한 명 있어요.' },
     // Conversation 2 — New Words (p. 127)
     { conv: 2, k: '거 (=것)', e: 'thing', pos: 'noun', note: '스티브 거예요 = It\'s Steve\'s' },
     { conv: 2, k: '누나', e: 'older sister (of a male)', pos: 'noun', note: 'what a man calls his older sister' },
@@ -127,6 +130,7 @@ addLesson({
   // ('|' separates accepted alternatives — the first is shown; null = not drilled). Formal and honorific forms are only listed
   // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
+    ['가르치다', 'to teach', '가르쳐요|가르치어요', null, '가르치세요'],
     ['계시다', 'to be (somewhere) — honorific', '계세요|계셔요|계시어요', null, null],
     ['고맙다', 'to be thankful', '고마워요', null, null],
     ['나쁘다', 'to be bad', '나빠요', null, null],
@@ -334,6 +338,83 @@ addLesson({
       },
     },
     {
+      // Question → answer, modeled on the midterm conversation (10/27): understand the question, answer about yourself.
+      type: 'answer', label: 'Answering questions (midterm-style)', weight: 2,
+      mc: () => {
+        const r = randInt(0, 9);
+        if (r === 0) {
+          const n = randInt(1, 4);
+          return mcq(`A: 몇 학년이에요? (You're in year ${n}.)  B:`, `${sino(n)} 학년이에요.`,
+            [`${nativeCounting(n)} 학년이에요.`, `${sino(n)} 년이에요.`, `${sino(n)} 학년 있어요.`],
+            `학년 takes Sino-Korean numbers: 일 학년, 이 학년, 삼 학년, 사 학년 (년 alone = year)`);
+        }
+        if (r === 1) {
+          const [p, en] = pick([['보스턴', 'Boston'], ['뉴욕', 'New York'], ['로스앤젤레스', 'Los Angeles'], ['하와이', 'Hawaiʻi'], ['홍콩', 'Hong Kong'], ['한국', 'Korea']]);
+          return mcq(`A: 고향이 어디예요? (Your hometown is ${en}.)  B:`, `저는 고향이 ${josa(p, '이에요', '예요')}.`,
+            [`저는 고향이 ${p}에 이에요.`, `저는 고향을 ${josa(p, '이에요', '예요')}.`, `저는 고향이 ${josa(p, '예요', '이에요')}.`],
+            `고향 = hometown · “저는 고향이 X예요” = As for me, my hometown is X · ${batchimWhy(p, '이에요', '예요')}`);
+        }
+        if (r === 2) {
+          const [ask, askEn] = pick([['대학생이세요?', 'Are you a college student?'], ['학생이세요?', 'Are you a student?']]);
+          return mcq(`A: ${ask} (${askEn} — you're a professor.)  B:`, '아니요, 저는 교수예요.',
+            ['아니요, 저는 교수세요.', '네, 저는 교수예요.', '아니요, 저는 교수이에요.'],
+            'Never use the honorific ~(으)세요 about yourself · 교수 ends in a vowel → 예요');
+        }
+        if (r === 3) {
+          const [s, en] = pick([['물리학', 'physics'], ['화학', 'chemistry'], ['수학', 'math'], ['생물학', 'biology'], ['철학', 'philosophy'], ['한국어', 'Korean']]);
+          return mcq(`A: 대학교에서 뭘 가르치세요? (You teach ${en}.)  B:`, `${josa(s, '을', '를')} 가르쳐요.`,
+            [`${josa(s, '을', '를')} 가르치세요.`, `${josa(s, '이', '가')} 가르쳐요.`, `${josa(s, '을', '를')} 가르쳐세요.`],
+            '뭘 = 뭐 + 를 (what, object) · 가르치세요 is the honorific question; answer about yourself with plain 가르쳐요 (이 + 어 → 여)');
+        }
+        if (r === 4) {
+          const [w, en] = pick([['가방', 'bag'], ['책', 'book'], ['우산', 'umbrella'], ['사전', 'dictionary'], ['시계', 'watch']]);
+          const [pos, posEn] = pick([['위', 'on'], ['밑', 'under'], ['옆', 'next to'], ['앞', 'in front of'], ['뒤', 'behind']]);
+          const [ref, refEn] = pick([['책상', 'desk'], ['의자', 'chair'], ['컴퓨터', 'computer']]);
+          return mcq(`A: ${josa(w, '은', '는')} 어디에 있어요? (It's ${posEn} the ${refEn}.)  B:`, `${ref} ${pos}에 있어요.`,
+            [`${ref} ${pos}에 이에요.`, `${pos} ${ref}에 있어요.`, `${ref}에 ${pos} 있어요.`],
+            `Place + position word + 에 있어요: ${ref} ${pos}에 = ${posEn} the ${refEn} · location uses 있어요, not 이에요`);
+        }
+        if (r === 5) {
+          const [pos, posEn] = pick([['뒤', 'behind'], ['앞', 'in front of'], ['옆', 'next to']]);
+          return mcq(`A: 텔레비전은 어디에 있어요? (It's ${posEn} you.)  B:`, `제 ${pos}에 있어요.`,
+            [`나 ${pos}에 있어요.`, `제가 ${pos}에 있어요.`, `저는 ${pos}에 있어요.`],
+            '“my / me” before a noun: 저 → 제 (humble), 나 → 내 (plain) · your: 너 → 네');
+        }
+        if (r === 6) {
+          const [w, en, pl, c, max] = pick(COUNTABLES.filter(x => x[3] !== '명')), n = randInt(2, Math.min(max, 10));
+          const subj = josa(w, '이', '가');
+          return mcq(`A: ${subj} 몇 ${c} 있어요? (You have ${n}.)  B:`, `${subj} ${nativeCounting(n)} ${c} 있어요.`,
+            [`${sino(n)} ${c} ${subj} 있어요.`, `${subj} ${sino(n)} ${c} 있어요.`, `${nativeCounting(n)} ${c} ${subj} 있어요.`],
+            `Order: noun + 이/가 + native number + counter + 있어요 (${subj} ${nativeCounting(n)} ${c})`);
+        }
+        if (r === 7) {
+          const [sib, en] = pick([['남동생', 'younger brother'], ['여동생', 'younger sister']]), n = randInt(1, 3);
+          const subj = josa(sib, '이', '가');
+          return mcq(`A: 형제 있어요? (You have ${n === 1 ? `one ${en}` : `${n} ${en}s`}.)  B:`, `네, ${subj} ${nativeCounting(n)} 명 있어요.`,
+            [`네, ${subj} ${sino(n)} 명 있어요.`, `네, ${nativeCounting(n)} 명 ${subj} 있어요.`, `네, ${josa(sib, '을', '를')} ${nativeCounting(n)} 명 있어요.`],
+            `형제 = siblings · people counter 명 takes native numbers (한 명, 두 명, 세 명)`);
+        }
+        if (r === 8) {
+          const far = Math.random() < 0.5, [pl, plEn] = pick([['집', 'home'], ['기숙사', 'dorm'], ['고향', 'hometown']]);
+          return mcq(`A: ${josa(pl, '이', '가')} 멀어요? (${far ? 'Yes, it\'s far.' : 'No, it\'s close.'})  B:`, far ? '네, 멀어요.' : '아니요, 가까워요.',
+            far ? ['아니요, 멀어요.', '네, 멀아요.', '네, 가까워요.'] : ['네, 가까워요.', '아니요, 가깝어요.', '아니요, 멀어요.'],
+            '멀다 → 멀어요 (far) · 가깝다 → 가까워요 (close: ㅂ → 우) · 네/아니요 answer the question as asked');
+        }
+        const lots = Math.random() < 0.5;
+        return mcq(`A: 오늘 숙제가 많아요? (${lots ? 'Yes, a lot.' : 'No, you don\'t have any.'})  B:`, lots ? '네, 숙제가 많아요.' : '아니요, 숙제가 없어요.',
+          lots ? ['네, 숙제를 많아요.', '네, 숙제가 만아요.', '네, 숙제가 많이요.'] : ['아니요, 숙제가 아니에요.', '아니요, 숙제를 없어요.', '네, 숙제가 없어요.'],
+          lots ? '많다 → 많아요 (ㅎ is silent: sounds like 마나요) · subject takes 이/가' : 'Not having something → 없어요 · 아니에요 is “is not [N]”');
+      },
+      typed: () => {
+        const r = randInt(0, 3);
+        if (r === 0) { const n = randInt(1, 4); return { sentence: `A: 몇 학년이에요? (year ${n})  B: ___ 학년이에요.`, blank: sino(n), hint: '학년 takes Sino-Korean numbers' }; }
+        if (r === 1) { const [s, en] = pick([['물리학', 'physics'], ['화학', 'chemistry'], ['수학', 'math']]); return { sentence: `A: 뭘 가르치세요? (${en})  B: ${josa(s, '을', '를')} ___. (가르치다)`, blank: ['가르쳐요', '가르치어요'], hint: 'About yourself → plain polite, not ~세요 · 이 + 어 → 여', wide: true }; }
+        if (r === 2) { const [pos, posEn] = pick([['뒤', 'behind'], ['앞', 'in front of'], ['옆', 'next to']]); return { sentence: `텔레비전은 ___ ${pos}에 있어요. (${posEn} me — humble)`, blank: '제', hint: '저 → ? before a noun (“my”)' }; }
+        const [w, , , c, max] = pick(COUNTABLES.filter(x => x[3] === '개')), n = randInt(2, Math.min(max, 10));
+        return { sentence: `A: ${josa(w, '이', '가')} 몇 ${c} 있어요? (${n})  B: ${josa(w, '이', '가')} ___ ${c} 있어요.`, blank: nativeCounting(n), hint: '개 takes native numbers (한, 두, 세, 네, 다섯…)' };
+      },
+    },
+    {
       type: 'only', label: '만 (only)',
       mc: () => {
         const [name, eng] = pick(CAST), [w, en] = pick([['언니', 'an older sister'], ['오빠', 'an older brother'], ['남동생', 'a younger brother'], ['여동생', 'a younger sister'], ['형', 'an older brother'], ['누나', 'an older sister']]);
@@ -462,6 +543,24 @@ addLesson({
           <tr><td>___ 씨는 집이 어디예요? — 우리 집은 ___이에요/예요.</td><td>Where's your home (family)? — My home is in ___. (p. 136) · 소피아 씨는 집이 어디예요? — 홍콩이에요.</td></tr>
           <tr><td>___은/는 얼마예요? — ___불 ___센트예요.</td><td>How much is ___? — It's ___ dollars ___ cents. (p. 138; use 얼마, not 몇 원)</td></tr>
         </table>`,
+    },
+    {
+      id: 'Q&A', tag: 'Speaking', title: 'Answering questions about yourself (midterm feedback)',
+      html: `<div class="grammar-body">The teacher asks in honorific ~(으)세요; you answer about yourself in plain ~어요/예요. Answer in a full sentence that reuses the question's words.</div>
+        <table class="rule-table">
+          <tr><th>Question</th><th>Answer pattern</th></tr>
+          <tr><td>대학생이세요?</td><td>아니요, 저는 교수<b>예요</b>. (never 교수세요 about yourself)</td></tr>
+          <tr><td>대학교에서 뭘 가르치세요?</td><td>물리학을 <b>가르쳐요</b>. (뭘 = 뭐 + 를)</td></tr>
+          <tr><td>몇 학년이에요?</td><td><b>삼 학년</b>이에요. (Sino number + 학년, not 3년)</td></tr>
+          <tr><td>고향이 어디예요?</td><td>저는 고향이 보스턴이에요. · Two? 저는 고향이 <b>두 개</b>예요.</td></tr>
+          <tr><td>형제 있어요?</td><td>네, 남동생이 한 명 있어요. · 저는 남동생<b>만</b> 있어요.</td></tr>
+          <tr><td>___이/가 멀어요?</td><td>네, 멀어요. · 아니요, <b>가까워요</b>.</td></tr>
+          <tr><td>___은/는 어디에 있어요?</td><td>도서관 옆<b>에 있어요</b>. · 2층에 있어요. (location → 있어요, not 이에요)</td></tr>
+          <tr><td>___이/가 몇 개 있어요?</td><td>가방이 <b>여덟 개</b> 있어요. (noun + 이/가 + native number + counter — not 팔 개 가방이)</td></tr>
+          <tr><td>이거 누구 거예요?</td><td>선생님 거예요. · 제 거예요.</td></tr>
+          <tr><td>my / your before a noun</td><td>저 → <b>제</b> 뒤에 · 나 → <b>내</b> · 너 → <b>네</b> 연필</td></tr>
+        </table>
+        <div class="grammar-body" style="margin-top:10px">Didn't catch a word? Ask: <span class="ko">___이/가 뭐예요?</span> (What's ___?) — better than 몰라요.</div>`,
     },
   ],
 
