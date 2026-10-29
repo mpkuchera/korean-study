@@ -122,10 +122,8 @@ addLesson({
     { conv: 'Numbers (G4.2)', k: '천', e: 'thousand (Sino-Korean only)', pos: 'number', note: '천 원 = ₩1,000' },
     { conv: 'Numbers (G4.2)', k: '만 (10,000)', e: 'ten thousand (Sino-Korean only)', pos: 'number', note: '만 원 = ₩10,000 · 오만 = 50,000', accept: ['만'] },
     // Words the teacher used in the midterm conversation (10/27)
-    { conv: 'From the midterm (10/27)', k: '가르치다 (가르쳐요)', e: 'to teach', pos: 'verb', note: '뭘 가르치세요? — 물리학을 가르쳐요.', accept: ['가르치다', '가르쳐요'] },
     { conv: 'From the midterm (10/27)', k: '살다 (살아요)', e: 'to live', pos: 'verb', note: '어디에서 살아요? — 기숙사에서 살아요.', accept: ['살다', '살아요'] },
     { conv: 'From the midterm (10/27)', k: '형제', e: 'siblings', pos: 'noun', note: '형제 있어요? — 네, 남동생이 한 명 있어요.' },
-    { conv: 'From the midterm (10/27)', k: '에서', e: 'at, in (where an action happens)', pos: 'particle', note: '대학교에서 가르쳐요 · compare 에 = where something is: 집에 있어요' },
     { conv: 'From the midterm (10/27)', k: '랑 (이랑)', e: 'and, with (casual)', pos: 'particle', note: '= 하고 · 기숙사랑 교실 · after a consonant: 이랑 (책이랑)', accept: ['랑', '이랑'], syn: 'and' },
     { conv: 'From the midterm (10/27)', k: '뭘 (= 뭐를)', e: 'what (as the object)', pos: 'pronoun', note: '뭘 가르치세요? = What do you teach?', accept: ['뭘'], syn: 'what' },
     { conv: 'From the midterm (10/27)', k: '여기', e: 'here', pos: 'pronoun', note: '여기에 의자가 몇 개 있어요?' },
@@ -142,7 +140,6 @@ addLesson({
   // ('|' separates accepted alternatives — the first is shown; null = not drilled). Formal and honorific forms are only listed
   // when they appear in the textbook (Lessons 1–4) or the teacher's materials.
   conjugations: [
-    ['가르치다', 'to teach', '가르쳐요|가르치어요', null, '가르치세요'],
     ['살다', 'to live', '살아요', null, null],
     ['계시다', 'to be (somewhere) — honorific', '계세요|계셔요|계시어요', null, null],
     ['고맙다', 'to be thankful', '고마워요', null, null],

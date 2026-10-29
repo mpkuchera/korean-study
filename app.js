@@ -277,7 +277,7 @@ const LEVEL_HINTS = {
 // One item per (verb, level), limited to the conversation filter when one is set.
 function conjItems(lessons = activeLessons()) {
   return lessons.flatMap(l => (l.conjugations || []).map(([d, e, polite, formal, honorific]) => {
-    const v = l.vocab.find(x => speakable(x.k) === d || x.k.startsWith(d));
+    const v = l.vocab.find(x => speakable(x.k) === d || x.k.startsWith(d) || x.k.includes(`(${d})`)); // 선물 (선물하다)
     return { lesson: l.id, d, e, conv: v && v.conv, forms: { polite, formal, honorific } };
   }).filter(row => !convActive() || row.conv === convActive())
     .flatMap(row => LEVELS.filter(([lv]) => row.forms[lv]).map(([lv, label]) =>

@@ -74,7 +74,7 @@ addLesson({
     { conv: 2, k: '매일', e: 'every day', pos: 'adverb' },
     { conv: 2, k: '열심히', e: 'diligently, hard', pos: 'adverb' },
     { conv: 2, k: '그래서', e: 'so, therefore', pos: 'conjunction' },
-    { conv: 2, k: '그런데', e: 'but, however', pos: 'conjunction' },
+    { conv: 2, k: '그런데', e: 'but, however', pos: 'conjunction', syn: 'but' },
     // From the teacher's "Korean Vocabularies" doc (Oct 2026) — majors from the Usage section, plus extras
     { conv: 'From class', k: '건물', e: 'building', pos: 'noun', note: '= 빌딩', syn: 'building', accept: ['건물', '빌딩'] },
     { conv: 'From class', k: '노트북', e: 'laptop', pos: 'noun' },
