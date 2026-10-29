@@ -1,7 +1,7 @@
 'use strict';
 
 // ---- Edit this line as the semester goes ----
-const UPCOMING = 'Next up: Midterm on Lessons 1–3 · Tue Oct 27';
+const UPCOMING = 'Next up: Lesson 5-2 vocab quiz · Tue Nov 3 · Practice Test #2 (Lessons 4–5) · Tue Nov 10';
 
 // Lesson files call addLesson({...}); see lessons/_template.js for the shape.
 const LESSONS = [];
