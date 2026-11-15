@@ -15,7 +15,7 @@ addLesson({
   ],
 
   // Verb/adjective forms (drilled in Spell the vocab, Grammar, and shown on Reference):
-  // [dictionary, meaning, polite, formal, honorific] — '|' for accepted alternatives, null to skip a level.
+  // [dictionary, meaning, polite, formal, honorific, past (Lesson 6 on)] — '|' for accepted alternatives, null to skip a level.
   conjugations: [
     ['보다', 'to see', '봐요|보아요', '봅니다', '보세요'],
   ],

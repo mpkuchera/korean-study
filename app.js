@@ -1,7 +1,7 @@
 'use strict';
 
 // ---- Edit this line as the semester goes ----
-const UPCOMING = 'Next up: Lesson 5-2 vocab quiz · Tue Nov 3 · Practice Test #2 (Lessons 4–5) · Tue Nov 10';
+const UPCOMING = 'Next up: Lesson 6-2 vocab · Tue Nov 17 · Final oral exam · Dec 7 / Dec 9';
 
 // Lesson files call addLesson({...}); see lessons/_template.js for the shape.
 const LESSONS = [];
@@ -237,7 +237,7 @@ const CAST = [['스티브', 'Steve'], ['유미', 'Yumi'], ['마이클', 'Michael
 
 // Single-word nouns from every lesson up to n (for drills that work with any noun).
 // Position words, 어디, 씨 etc. don't stand alone as "It's ___" / "How is the ___?", so they're skipped.
-const NOT_STANDALONE = ['씨', '어디', '뒤', '밑', '밖', '안', '앞', '옆', '위', '시간', '학년'];
+const NOT_STANDALONE = ['씨', '어디', '뒤', '밑', '밖', '안', '앞', '옆', '위', '시간', '학년', '때'];
 function nounsUpTo(n, exclude = []) {
   exclude = [...NOT_STANDALONE, ...exclude];
   return LESSONS.filter(l => l.id <= n).flatMap(l => l.vocab.filter(v => v.pos === 'noun').map(v => ({ w: speakable(v.k), e: v.e.split(/[;,(]/)[0].trim() })))
@@ -266,19 +266,21 @@ function genMC(g) { return { key: g.key, tag: g.label, ...g.mc(g.ctx) }; }
 function genTyped(g) { return { type: g.label, key: g.key, ...g.typed(g.ctx) }; }
 
 // ---------- conjugation ----------
-// Lessons list verb/adjective forms explicitly in `conjugations`: [dictionary, meaning, polite, formal, honorific].
+// Lessons list verb/adjective forms explicitly in `conjugations`: [dictionary, meaning, polite, formal, honorific, past?].
+// Past ~었/았어요 (taught in Lesson 6) is listed from Lesson 6 on.
 // Formal ~ㅂ니다/습니다 is shown on the Reference tab only — the owner asked for it out of the drills (2026-10-27).
-const LEVELS = [['polite', 'polite ~어요/아요'], ['honorific', 'honorific ~(으)세요']];
+const LEVELS = [['polite', 'polite ~어요/아요'], ['honorific', 'honorific ~(으)세요'], ['past', 'past ~었/았어요']];
 const LEVEL_HINTS = {
   polite: 'Stem vowel ㅏ/ㅗ → 아요, otherwise 어요 · 하다 → 해요 · watch contractions and ㅡ dropping',
   formal: 'Consonant stem → 습니다 · vowel stem → ㅂ니다 (먹습니다, 봅니다) · ㄹ drops (알다 → 압니다)',
   honorific: 'Consonant stem → 으세요 · vowel stem → 세요 (앉으세요, 가세요)',
+  past: 'Stem vowel ㅏ/ㅗ → 았어요, otherwise 었어요 · 하다 → 했어요 · contract like ~어요 (가 → 갔어요, 마시 → 마셨어요)',
 };
 // One item per (verb, level), limited to the conversation filter when one is set.
 function conjItems(lessons = activeLessons()) {
-  return lessons.flatMap(l => (l.conjugations || []).map(([d, e, polite, formal, honorific]) => {
+  return lessons.flatMap(l => (l.conjugations || []).map(([d, e, polite, formal, honorific, past]) => {
     const v = l.vocab.find(x => speakable(x.k) === d || x.k.startsWith(d) || x.k.includes(`(${d})`)); // 선물 (선물하다)
-    return { lesson: l.id, d, e, conv: v && v.conv, forms: { polite, formal, honorific } };
+    return { lesson: l.id, d, e, conv: v && v.conv, forms: { polite, formal, honorific, past } };
   }).filter(row => !convActive() || row.conv === convActive())
     .flatMap(row => LEVELS.filter(([lv]) => row.forms[lv]).map(([lv, label]) =>
       ({ ...row, lv, label, answers: row.forms[lv].split('|'), key: `conj|${row.lesson}:${row.d}|${lv}` }))));
@@ -293,12 +295,19 @@ function conjTyped(it) {
   return { sentence: `${it.d} (${it.e}) → <strong>${it.label}</strong><br>___`, blank: it.answers, display: it.answers[0],
     hint: LEVEL_HINTS[it.lv], why: conjSummary(it), type: 'Conjugation', wide: true, key: it.key };
 }
+// Past-tense slips that are never valid: 았/었 swapped after a consonant stem (먹았어요), the uncontracted vowel
+// where contraction is required (가았어요, 크었어요), and ~았아요 / ~었요 endings (the ending is always 어요).
+function pastSlips(stem, past) {
+  const c = lastSyllable(stem), vowel = isSyllable(c) ? Math.floor((c - 0xAC00) % 588 / 28) : -1; // 0 ㅏ, 8 ㅗ, 18 ㅡ
+  const swap = hasBatchim(stem) ? [stem + '았어요', stem + '었어요'] : vowel === 0 || vowel === 8 ? [stem + '았어요'] : vowel === 18 ? [stem + '었어요'] : [];
+  return [...swap, past.replace(/어요$/, '아요'), past.replace(/어요$/, '요')];
+}
 function conjMC(it) {
   const stem = it.d.slice(0, -1);
   const valid = Object.values(it.forms).filter(Boolean).flatMap(f => f.split('|'));
   // Wrong answers: the same verb at the OTHER formality levels (the main thing being tested), then rule slips.
   const otherLevels = LEVELS.filter(([lv]) => lv !== it.lv && it.forms[lv]).map(([lv]) => it.forms[lv].split('|')[0]);
-  const slips = { polite: [stem + '아요', stem + '어요', stem + '요'], formal: [stem + '습니다', stem + '니다', it.d + '니다'], honorific: [stem + '으세요', stem + '세요', stem + '어세요'] }[it.lv]
+  const slips = { polite: [stem + '아요', stem + '어요', stem + '요'], formal: [stem + '습니다', stem + '니다', it.d + '니다'], honorific: [stem + '으세요', stem + '세요', stem + '어세요'], past: pastSlips(stem, it.answers[0]) }[it.lv]
     .filter(w => !valid.includes(w));
   const wrongs = [...otherLevels, ...shuffle(slips)].filter(w => !it.answers.includes(w)).slice(0, 3);
   return { ...mcq(`<span class="quiz-korean">${it.d}</span> (${it.e}) → <strong>${it.label}</strong>`, it.answers[0], wrongs, conjSummary(it)), key: it.key, tag: 'Conjugation' };
@@ -629,7 +638,7 @@ function trackedCategories(l) {
     { name: 'Spelling', items: vocab.filter(v => !v.noSpell).map(v => ({ key: 'spell|' + id('vocab', v), label: `✍️ ${v.e} → ${v.k}` })) },
     { name: 'Grammar & usage', items: (l.quiz || []).map(q => ({ key: id('quiz', q), label: `${stripTags(q.q)} → ${q.opts[q.ans]}` })) },
     { name: 'Fill-in blanks', items: (l.fill || []).map(q => ({ key: id('fill', q), label: q.sentence.replace('___', `[${[].concat(q.blank)[0]}]`) })) },
-    { name: 'Conjugation', items: (l.conjugations || []).flatMap(([d, , polite, , honorific]) => [['polite', polite], ['honorific', honorific]].map(([lv, f]) => f && ({ key: `conj|${l.id}:${d}|${lv}`, label: `${d} → ${lv}: ${f.split('|')[0]}` })).filter(Boolean)) },
+    { name: 'Conjugation', items: (l.conjugations || []).flatMap(([d, , polite, , honorific, past]) => [['polite', polite], ['honorific', honorific], ['past', past]].map(([lv, f]) => f && ({ key: `conj|${l.id}:${d}|${lv}`, label: `${d} → ${lv}: ${f.split('|')[0]}` })).filter(Boolean)) },
     { name: 'Grammar skills', items: (l.generators || []).map(g => ({ key: `gen|${l.id}|${g.type}`, label: g.label })) },
   ];
 }
@@ -774,9 +783,10 @@ function renderGrammar() {
 function conjTable(l) {
   if (!(l.conjugations || []).length) return [];
   const cell = f => f ? f.split('|').join(' / ') : '—';
+  const hasPast = l.conjugations.some(r => r[5]);
   return [{ title: `Lesson ${l.id} verb forms`, html: `<div class="grammar-block"><table class="rule-table">
-    <tr><th>Dictionary</th><th>~어요</th><th>~(으)세요</th><th>~습니다 <span style="font-weight:400">(teacher's list, not drilled)</span></th></tr>
-    ${l.conjugations.map(([d, e, p, f, h]) => `<tr><td>${d}<br><span class="vocab-note">${e}</span></td><td>${cell(p)}</td><td>${cell(h)}</td><td>${cell(f)}</td></tr>`).join('')}
+    <tr><th>Dictionary</th><th>~어요</th><th>~(으)세요</th>${hasPast ? '<th>~었/았어요 (past)</th>' : ''}<th>~습니다 <span style="font-weight:400">(teacher's list, not drilled)</span></th></tr>
+    ${l.conjugations.map(([d, e, p, f, h, past]) => `<tr><td>${d}<br><span class="vocab-note">${e}</span></td><td>${cell(p)}</td><td>${cell(h)}</td>${hasPast ? `<td>${cell(past)}</td>` : ''}<td>${cell(f)}</td></tr>`).join('')}
   </table></div>` }];
 }
 function renderReference() {
